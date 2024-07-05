@@ -31,6 +31,15 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
+      - name: touch application.yml
+        run: |
+          mkdir ./src/main/resources
+          touch ./src/main/resources/application-dev.yml
+          touch ./src/main/resources/application-test.yml
+          echo "${{ secrets.APPLICATION_DEV_YML }}" > ./src/main/resources/application-dev.yml
+          echo "${{ secrets.APPLICATION_TEST_YML }}" > ./src/main/resources/application-test.yml
+        shell: bash
+
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}  # Needed to get PR information, if any
