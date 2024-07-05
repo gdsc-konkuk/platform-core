@@ -8,5 +8,6 @@ public class PlatformCoreApplication {
 
   public static void main(String[] args) {
     SpringApplication.run(PlatformCoreApplication.class, args);
+    System.out.println("TESTCITEST");
   }
 }
