@@ -31,6 +31,13 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
+
+
+    runtimeOnly 'com.h2database:h2:2.2.224'
+    implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.1")
+
+
+    //test dependencies
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
