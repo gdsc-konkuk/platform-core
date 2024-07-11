@@ -1,10 +1,22 @@
+import org.hidetake.gradle.swagger.generator.GenerateSwaggerUI
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
+buildscript {
+    ext {
+        restdocsApiSpecVersion = '0.19.2'
+    }
+}
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.1'
     id 'io.spring.dependency-management' version '1.1.5'
     id "org.sonarqube" version "4.4.1.3373"
-
+    id 'com.epages.restdocs-api-spec' version '0.19.2'
+    id 'org.hidetake.swagger.generator' version '2.19.2'
 }
+
+
 
 group = 'gdsc.konkuk'
 version = '0.0.1-SNAPSHOT'
@@ -40,10 +52,56 @@ dependencies {
     //test dependencies
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+    testImplementation 'com.epages:restdocs-api-spec:0.19.2'
+    testImplementation 'com.epages:restdocs-api-spec-mockmvc:0.19.2'
+    swaggerUI 'org.webjars:swagger-ui:5.0.0'
 }
+
+openapi3 {
+    servers = [
+            { url = 'http://localhost:8080' },
+    ]
+    title = 'Post Service API'
+    description = 'Post Service API description'
+    version = '1.0.0'
+    format = 'yaml'
+}
+
+swaggerSources {
+    sample {
+        setInputFile(file("${project.buildDir}/api-spec/openapi3.yaml"))
+    }
+}
+
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+tasks.withType(GenerateSwaggerUI).configureEach {
+    dependsOn 'openapi3'
+}
+
+tasks.register('copySwaggerUI', Copy) {
+    dependsOn 'generateSwaggerUISample'
+
+    def generateSwaggerUISampleTask = tasks.named('generateSwaggerUISample', GenerateSwaggerUI).get()
+
+    from("${generateSwaggerUISampleTask.outputDir}")
+    into("${project.buildDir}/resources/main/static/docs")
+}
+
+tasks.resolveMainClassName {
+    dependsOn 'copySwaggerUI'
+}
+
+tasks.withType(BootJar).configureEach {
+    dependsOn 'copySwaggerUI'
+}
+
+tasks.named('jar').configure {
+    dependsOn 'copySwaggerUI'
 }
 
 // sonarqube plugins
