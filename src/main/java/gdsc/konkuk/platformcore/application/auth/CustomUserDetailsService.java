@@ -16,17 +16,13 @@ import lombok.RequiredArgsConstructor;
 public class CustomUserDetailsService implements UserDetailsService {
 
 	private final MemberRepository memberRepository;
-	private final MemberValidator memberValidator;
 
 	@Override
 	public UserDetails loadUserByUsername(String memberId) throws UsernameNotFoundException {
 
 		Member member = memberRepository.findByMemberId(memberId)
 			.orElseThrow(()-> InvalidUserInfoException.of(ErrorCode.USER_NOT_FOUND));
-
-		memberValidator.validate(member);
-
+		
 		return new CustomUserDetails(member);
-
 	}
 }
