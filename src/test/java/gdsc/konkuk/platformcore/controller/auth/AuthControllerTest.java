@@ -34,6 +34,7 @@ import org.springframework.web.context.WebApplicationContext;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
+import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
 
 @SpringBootTest
@@ -66,10 +67,13 @@ class AuthControllerTest {
 	@WithMockUser
 	void loginSuccess() throws Exception {
 		when(memberRepository.findByMemberId(any())).thenReturn(Optional.of(Member.builder()
-			.memberId("202011288")
-			.password(passwordEncoder.encode("gdscgdsc"))
-			.isActivated(true)
-			.build()));
+				.memberId("202011288")
+				.password(passwordEncoder.encode("gdscgdsc"))
+				.isActivated(true)
+				.role(MemberRole.MEMBER)
+				.profileImageUrl("")
+				.batch(2024)
+				.build()));
 
 		// when
 		mockMvc.perform(RestDocumentationRequestBuilders.multipart("/login")
