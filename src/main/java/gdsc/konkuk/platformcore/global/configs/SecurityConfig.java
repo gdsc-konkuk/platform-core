@@ -26,11 +26,6 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 		httpSecurity
-			.csrf(AbstractHttpConfigurer::disable)
-
-			.sessionManagement(sessionManagement -> sessionManagement
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
 			.addFilterBefore(new SecurityContextPersistenceFilter(), BasicAuthenticationFilter.class)
 
 			.authorizeHttpRequests(authorize -> authorize

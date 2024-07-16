@@ -5,6 +5,7 @@ import static org.mockito.BDDMockito.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -81,6 +82,7 @@ class AuthControllerTest {
 				.formField("password", "gdscgdsc")
 				.contentType("application/x-www-form-urlencoded")
 				.characterEncoding("UTF-8")
+				.with(csrf())
 			)
 			.andDo(print())
 
@@ -99,6 +101,8 @@ class AuthControllerTest {
 	@DisplayName("사용자 로그인 실패")
 	@WithMockUser
 	void loginFail() throws Exception {
+
+		when(memberRepository.findByMemberId(any())).thenReturn(Optional.empty());
 
 		mockMvc.perform(
 				formLogin("/login").user("202011288").password("gdscgdsc1"))
