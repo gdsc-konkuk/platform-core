@@ -41,8 +41,6 @@ public class SecurityConfig {
 
 			.formLogin(login -> login
 				.defaultSuccessUrl("/")
-				.usernameParameter("username")
-				.passwordParameter("password")
 				.successHandler(customAuthenticationSuccessHandler)
 				.failureHandler(customAuthenticationFailureHandler)
 				.permitAll()
