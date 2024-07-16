@@ -1,8 +1,10 @@
 package gdsc.konkuk.platformcore.application.auth;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
@@ -17,7 +19,9 @@ public class CustomUserDetails implements UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return null;
+		Collection<GrantedAuthority> authorities = new ArrayList<>();
+		authorities.add(new SimpleGrantedAuthority(member.getRole().toString()));
+		return authorities;
 	}
 
 	@Override
