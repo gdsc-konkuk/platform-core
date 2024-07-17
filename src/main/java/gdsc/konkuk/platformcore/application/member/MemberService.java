@@ -2,10 +2,10 @@ package gdsc.konkuk.platformcore.application.member;
 
 import java.util.Optional;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import gdsc.konkuk.platformcore.application.member.exceptions.MemberRegisterRequest;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistException;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class MemberService {
 
+	private final PasswordEncoder passwordEncoder;
 	private final MemberRepository memberRepository;
 
 	private boolean checkMemberAlreadyExist(String memberId) {
@@ -32,7 +33,16 @@ public class MemberService {
 			throw UserAlreadyExistException.of(ErrorCode.USER_ALREADY_EXISTS);
 		}
 
-		memberRepository.save(MemberRegisterRequest.toEntity(registerRequest));
+		Member member = Member.builder()
+			.memberId(registerRequest.getMemberId())
+			.password(passwordEncoder.encode(registerRequest.getPassword()))
+			.name(registerRequest.getName())
+			.email(registerRequest.getEmail())
+			.role(registerRequest.getMemberRole())
+			.batch(registerRequest.getBatch())
+			.build();
+
+		memberRepository.save(member);
 
 		return SuccessResponse.messageOnly();
 	}
