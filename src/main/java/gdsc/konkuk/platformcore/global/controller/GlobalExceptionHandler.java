@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistException;
 import gdsc.konkuk.platformcore.global.exceptions.BusinessException;
 import gdsc.konkuk.platformcore.global.exceptions.ErrorCode;
 import gdsc.konkuk.platformcore.global.responses.ErrorResponse;
@@ -14,6 +15,12 @@ import lombok.extern.slf4j.Slf4j;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+	@ExceptionHandler(UserAlreadyExistException.class)
+	protected ResponseEntity<ErrorResponse> handleUserAlreadyExistException(final UserAlreadyExistException e) {
+		log.error("UserAlreadyExistException Caught! [{}]", e.getLogMessage());
+		final ErrorResponse response = ErrorResponse.of(e.getMessage(), e.getLogMessage());
+		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+	}
 
 	@ExceptionHandler(BusinessException.class)
 	protected ResponseEntity<ErrorResponse> handleBusinessException(final BusinessException e) {
