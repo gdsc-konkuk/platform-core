@@ -1,4 +1,4 @@
-package gdsc.konkuk.platformcore.application.member.exceptions;
+package gdsc.konkuk.platformcore.application.member;
 
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;

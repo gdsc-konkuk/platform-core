@@ -30,7 +30,7 @@ import org.springframework.web.context.WebApplicationContext;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import gdsc.konkuk.platformcore.application.member.exceptions.MemberRegisterRequest;
+import gdsc.konkuk.platformcore.application.member.MemberRegisterRequest;
 import gdsc.konkuk.platformcore.application.member.MemberService;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistException;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
