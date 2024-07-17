@@ -40,7 +40,7 @@ public class Member {
 	private boolean isActivated;
 
 	@Column(name = "is_deleted")
-	private DeleteStatus isDeleted;
+	private boolean isDeleted;
 
 	@Column(name = "soft_deleted_at")
 	private LocalDateTime softDeletedAt;
@@ -54,7 +54,7 @@ public class Member {
 
 	@Builder
 	public Member(Long id, String memberId, String password, String name, String email, String profileImageUrl,
-		boolean isActivated, DeleteStatus isDeleted, LocalDateTime deletedAt, MemberRole role, int batch) {
+		boolean isActivated, boolean isDeleted, LocalDateTime deletedAt, MemberRole role, int batch) {
 		this.id = id;
 		this.memberId = memberId;
 		this.password = password;
