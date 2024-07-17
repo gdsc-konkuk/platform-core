@@ -11,7 +11,9 @@ public class SuccessResponse extends Response {
 		super(true, message);
 		this.data = data;
 	}
-
+	public static SuccessResponse messageOnly() {
+		return new SuccessResponse("SUCCESS", null);
+	}
 	public static SuccessResponse of(Object data) {
 		return new SuccessResponse("SUCCESS", data);
 	}
