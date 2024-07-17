@@ -11,9 +11,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
-import gdsc.konkuk.platformcore.application.member.exceptions.MemberRegisterRequest;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistException;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
@@ -26,11 +26,14 @@ class MemberServiceTest {
 	@Mock
 	private MemberRepository memberRepository;
 
+	@Mock
+	private PasswordEncoder passwordEncoder;
+
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		subject = new MemberService(memberRepository);
+		subject = new MemberService(passwordEncoder, memberRepository);
 	}
 
 	@Test
@@ -48,6 +51,7 @@ class MemberServiceTest {
 				.batch(2024)
 				.build();
 	    given(memberRepository.findByMemberId(any())).willReturn(Optional.empty());
+		given(passwordEncoder.encode(any())).willReturn("password");
 	    //when
 		SuccessResponse expected = SuccessResponse.messageOnly();
 		SuccessResponse actual = subject.register(memberRegisterRequest);
