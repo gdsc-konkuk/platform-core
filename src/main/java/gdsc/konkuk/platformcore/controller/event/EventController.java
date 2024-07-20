@@ -39,6 +39,10 @@ public class EventController {
     return ResponseEntity.created(location).body(SuccessResponse.messageOnly());
   }
 
+  // TODO
+  // 출석 key를 발급하고 회원은 반드시 해당 key를 포함하는 URL로 접속하도록 해야 함
+  // 현 상황에서는 누구나 출석 URL을 쉽게 유추하여 QR 인식 없이도 출석할 수 있음
+  // 또한, key를 발급할 경우 key 만료를 통해 출석 세션을 종료하는 기능을 쉽게 추가할 수 있음
   @DeleteMapping("/{eventId}/attendance")
   public ResponseEntity<SuccessResponse> deleteAttendance(@PathVariable Long eventId) {
     attendanceService.deleteAttendance(eventId);
