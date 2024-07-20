@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -34,7 +35,8 @@ public class EventController {
   @PostMapping("/{eventId}/attendance")
   public ResponseEntity<SuccessResponse> registerAttendance(@PathVariable Long eventId) {
     attendanceService.registerAttendance(eventId);
-    return ResponseEntity.ok(SuccessResponse.messageOnly()); // TODO: 여기서 QR에 포함할 URL을 생성해 줘야 함
+    URI location = URI.create("/api/v1/attendances/" + eventId);
+    return ResponseEntity.created(location).body(SuccessResponse.messageOnly());
   }
 
   @DeleteMapping("/{eventId}/attendance")

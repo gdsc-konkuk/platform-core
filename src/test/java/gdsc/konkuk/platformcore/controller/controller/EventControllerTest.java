@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.ArgumentMatchers.any;
@@ -126,7 +127,7 @@ public class EventControllerTest {
 
     // then
     result
-        .andExpect(status().isOk())
+        .andExpect(status().isCreated())
         .andDo(
             document(
                 "registerAttendance",
@@ -136,6 +137,7 @@ public class EventControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("이벤트 출석을 등록할 수 있다")
                         .tag("attendance")
+                        .responseHeaders(headerWithName("Location").description("등록한 출석 URL"))
                         .pathParameters(parameterWithName("eventId").description("이벤트 ID"))
                         .responseFields(
                             fieldWithPath("success").description("성공 여부"),
