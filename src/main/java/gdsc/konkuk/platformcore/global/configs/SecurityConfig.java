@@ -8,7 +8,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -61,11 +60,9 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain googleOidcFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
-        .securityMatcher("/api/v1/attendances")
+        .securityMatcher(
+            "/api/v1/attendances", "/oauth2/authorization/google", "/login/oauth2/code/google")
         .csrf(AbstractHttpConfigurer::disable)
-        .sessionManagement(
-            sessionManagement ->
-                sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
         .oauth2Login(withDefaults());
     return httpSecurity.build();
