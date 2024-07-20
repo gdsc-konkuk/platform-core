@@ -5,9 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistException;
 import gdsc.konkuk.platformcore.global.exceptions.BusinessException;
-import gdsc.konkuk.platformcore.global.exceptions.ErrorCode;
+import gdsc.konkuk.platformcore.global.exceptions.GlobalErrorCode;
 import gdsc.konkuk.platformcore.global.responses.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,24 +14,17 @@ import lombok.extern.slf4j.Slf4j;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-	@ExceptionHandler(UserAlreadyExistException.class)
-	protected ResponseEntity<ErrorResponse> handleUserAlreadyExistException(final UserAlreadyExistException e) {
-		log.error("UserAlreadyExistException Caught! [{}]", e.getLogMessage());
-		final ErrorResponse response = ErrorResponse.of(e.getMessage(), e.getLogMessage());
-		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-	}
-
 	@ExceptionHandler(BusinessException.class)
 	protected ResponseEntity<ErrorResponse> handleBusinessException(final BusinessException e) {
-		log.error("BusinessException Caught! [{}]", e.getLogMessage());
+		log.error("BusinessException Caught! [{}]", e.getLogMessage(), e);
 		final ErrorResponse response = ErrorResponse.of(e.getMessage(), e.getLogMessage());
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
 	@ExceptionHandler(Exception.class)
 	protected ResponseEntity<ErrorResponse> handleException(Exception e) {
-		log.error("Exception Uncaught! [{}]", e.getCause().toString());
-		final ErrorResponse response = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR);
+		log.error("Exception Uncaught!", e);
+		final ErrorResponse response = ErrorResponse.of(GlobalErrorCode.INTERNAL_SERVER_ERROR);
 		return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 }
