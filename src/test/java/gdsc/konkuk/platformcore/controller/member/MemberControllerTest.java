@@ -30,10 +30,8 @@ import org.springframework.web.context.WebApplicationContext;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import gdsc.konkuk.platformcore.application.member.MemberRegisterRequest;
 import gdsc.konkuk.platformcore.application.member.MemberService;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistException;
-import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
 
 @SpringBootTest
@@ -68,7 +66,6 @@ class MemberControllerTest {
 				.password("password")
 				.email("example@konkuk.ac.kr")
 				.name("홍길동")
-				.memberRole(MemberRole.MEMBER)
 				.batch(2024)
 				.build();
 
@@ -96,7 +93,6 @@ class MemberControllerTest {
 							fieldWithPath("password").description("비밀번호"),
 							fieldWithPath("email").description("이메일"),
 							fieldWithPath("name").description("이름"),
-							fieldWithPath("memberRole").description("멤버 권한"),
 							fieldWithPath("batch").description("배치")
 						)
 						.responseFields(
@@ -120,7 +116,6 @@ class MemberControllerTest {
 				.password("password")
 				.email("example@konkuk.ac.kr")
 				.name("홍길동")
-				.memberRole(MemberRole.MEMBER)
 				.batch(2024)
 				.build();
 

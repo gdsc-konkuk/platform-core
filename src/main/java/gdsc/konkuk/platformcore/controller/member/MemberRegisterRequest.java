@@ -1,18 +1,23 @@
-package gdsc.konkuk.platformcore.application.member;
+package gdsc.konkuk.platformcore.controller.member;
 
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
-import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @Builder
 public class MemberRegisterRequest {
+	@NotEmpty
 	private String memberId;
+	@NotEmpty
 	private String password;
+	@NotEmpty
 	private String name;
+	@NotEmpty
 	private String email;
-	private MemberRole memberRole;
 	private int batch;
 
 	public static Member toEntity(MemberRegisterRequest request) {
@@ -21,7 +26,6 @@ public class MemberRegisterRequest {
 				.password(request.getPassword())
 				.name(request.getName())
 				.email(request.getEmail())
-				.role(request.getMemberRole())
 				.batch(request.getBatch())
 				.build();
 	}
