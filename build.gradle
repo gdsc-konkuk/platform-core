@@ -17,7 +17,6 @@ plugins {
 }
 
 
-
 group = 'gdsc.konkuk'
 version = '0.0.1-SNAPSHOT'
 
@@ -42,6 +41,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security:2.3.3.RELEASE'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
@@ -116,3 +116,4 @@ sonar {
         property "sonar.host.url", "https://sonarcloud.io"
     }
 }
+
