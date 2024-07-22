@@ -28,10 +28,8 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 		httpSecurity
-			.csrf(csrf -> csrf.ignoringRequestMatchers(
-					new AntPathRequestMatcher("/login", "POST"),
-					new AntPathRequestMatcher("/api/v1/members", "POST")
-				)
+			//TODO: dev에서만 disable
+			.csrf(csrf -> csrf.disable()
 			)
 			.addFilterBefore(new SecurityContextPersistenceFilter(), UsernamePasswordAuthenticationFilter.class)
 
