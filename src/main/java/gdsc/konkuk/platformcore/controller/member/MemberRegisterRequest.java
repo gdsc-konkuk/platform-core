@@ -22,11 +22,11 @@ public class MemberRegisterRequest {
 
 	public static Member toEntity(MemberRegisterRequest request) {
 		return Member.builder()
-				.memberId(request.getMemberId())
-				.password(request.getPassword())
-				.name(request.getName())
-				.email(request.getEmail())
-				.batch(request.getBatch())
-				.build();
+			.memberId(request.getMemberId())
+			.password(request.getPassword())
+			.name(request.getName())
+			.email(request.getEmail())
+			.batch(request.getBatch())
+			.build();
 	}
 }

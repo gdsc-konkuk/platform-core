@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import gdsc.konkuk.platformcore.application.member.MemberService;
-import gdsc.konkuk.platformcore.global.controller.SecurityUtils;
+import gdsc.konkuk.platformcore.global.utils.SecurityUtils;
 import gdsc.konkuk.platformcore.global.responses.Response;
 import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
 import jakarta.validation.Valid;

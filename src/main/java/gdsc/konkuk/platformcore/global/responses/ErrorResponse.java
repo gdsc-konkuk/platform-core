@@ -4,7 +4,7 @@ import gdsc.konkuk.platformcore.global.exceptions.CustomErrorCode;
 import lombok.Getter;
 
 @Getter
-public class ErrorResponse extends Response{
+public class ErrorResponse extends Response {
 
 	private final String errorCode;
 
