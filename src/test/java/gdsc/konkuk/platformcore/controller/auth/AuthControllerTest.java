@@ -35,7 +35,6 @@ import org.springframework.web.context.WebApplicationContext;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
-import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
 
 @SpringBootTest
@@ -70,9 +69,8 @@ class AuthControllerTest {
 		when(memberRepository.findByMemberId(any())).thenReturn(Optional.of(Member.builder()
 				.memberId("202011288")
 				.password(passwordEncoder.encode("gdscgdsc"))
-				.isActivated(true)
-				.role(MemberRole.MEMBER)
-				.profileImageUrl("")
+				.name("우이산")
+				.email("helloworld@gmail.com")
 				.batch(2024)
 				.build()));
 
