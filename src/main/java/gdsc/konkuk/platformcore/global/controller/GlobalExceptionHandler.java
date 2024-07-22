@@ -2,6 +2,7 @@ package gdsc.konkuk.platformcore.global.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -16,8 +17,15 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(BusinessException.class)
 	protected ResponseEntity<ErrorResponse> handleBusinessException(final BusinessException e) {
-		log.error("BusinessException Caught! [{}]", e.getLogMessage(), e);
+		log.error("BusinessException Caught! [{}]", e.getLogMessage());
 		final ErrorResponse response = ErrorResponse.of(e.getMessage(), e.getLogMessage());
+		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+	}
+
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+		log.error("MethodArgumentNotValidException Caught! [{}]", e.getBindingResult());
+		final ErrorResponse response = ErrorResponse.of(GlobalErrorCode.ARGUMENT_NOT_VALID);
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
