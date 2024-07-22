@@ -3,7 +3,7 @@ package gdsc.konkuk.platformcore.global.exceptions;
 import lombok.Getter;
 
 @Getter
-public enum GlobalErrorCode implements CustomErrorCode{
+public enum GlobalErrorCode implements CustomErrorCode {
 
 	// DTO Validation에서 발생한 에러 처리를 위한 코드
 	ARGUMENT_NOT_VALID("잘못된 입력입니다. 다시 확인해주세요", "[ERROR] : 400 컨트롤러 벨리데이션 실패 잘못된 인자"),
@@ -13,7 +13,6 @@ public enum GlobalErrorCode implements CustomErrorCode{
 
 	private final String message;
 	private final String logMessage;
-
 
 	GlobalErrorCode(String message, String logMessage) {
 		this.message = message;

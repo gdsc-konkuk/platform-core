@@ -31,11 +31,11 @@ public class CustomUserDetails implements UserDetails {
 
 	@Override
 	public String getUsername() {
-		return member.getMemberId();
+		return Long.toString(member.getId());
 	}
 
 	@Override
 	public boolean isAccountNonExpired() {
-		return member.isActivated();
+		return member.isMemberActivated();
 	}
 }

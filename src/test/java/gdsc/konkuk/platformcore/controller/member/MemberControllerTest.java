@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,15 +31,19 @@ import org.springframework.web.context.WebApplicationContext;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import gdsc.konkuk.platformcore.annotation.CustomMockUser;
 import gdsc.konkuk.platformcore.application.member.MemberService;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistException;
-import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
+import gdsc.konkuk.platformcore.domain.member.entity.Member;
 
 @SpringBootTest
 @ExtendWith({RestDocumentationExtension.class})
 class MemberControllerTest {
 
 	MockMvc mockMvc;
+
+	@Mock
+	Member member;
 
 	@MockBean
 	private MemberService memberService;
@@ -69,7 +74,7 @@ class MemberControllerTest {
 				.batch(2024)
 				.build();
 
-	    given(memberService.register(any(MemberRegisterRequest.class))).willReturn(SuccessResponse.messageOnly());
+	    given(memberService.register(any(MemberRegisterRequest.class))).willReturn(member);
 	    //when
 	    mockMvc.perform(
 			RestDocumentationRequestBuilders.post("/api/v1/members")
@@ -129,5 +134,37 @@ class MemberControllerTest {
 			)
 			.andExpect(status().isBadRequest())
 			.andDo(print());
+	}
+
+	@Test
+	@DisplayName("회원 탈퇴 성공")
+	@CustomMockUser
+	void should_success_when_delete_member() throws Exception {
+		//given
+
+		//when
+		mockMvc.perform(
+			RestDocumentationRequestBuilders.delete("/api/v1/members")
+				.contentType(APPLICATION_JSON)
+				.with(csrf())
+			)
+			.andExpect(status().isOk())
+			.andDo(print())
+			.andDo(
+				document("member/delete",
+					preprocessRequest(prettyPrint()),
+					preprocessResponse(prettyPrint()),
+					resource(ResourceSnippetParameters.builder()
+						.description("존재하는 회원 탈퇴")
+						.tag("member")
+						.responseFields(
+							fieldWithPath("success").description(true),
+							fieldWithPath("message").description("회원 탈퇴 성공"),
+							fieldWithPath("data").description("null")
+						)
+						.build()
+					)
+				)
+			);
 	}
 }

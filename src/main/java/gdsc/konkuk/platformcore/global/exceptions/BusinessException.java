@@ -3,7 +3,7 @@ package gdsc.konkuk.platformcore.global.exceptions;
 import lombok.Getter;
 
 @Getter
-public class BusinessException extends RuntimeException{
+public class BusinessException extends RuntimeException {
 
 	private final String logMessage;
 

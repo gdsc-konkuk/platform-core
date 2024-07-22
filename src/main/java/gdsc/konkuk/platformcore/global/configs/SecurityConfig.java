@@ -1,5 +1,7 @@
 package gdsc.konkuk.platformcore.global.configs;
 
+import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.*;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -7,8 +9,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import gdsc.konkuk.platformcore.application.auth.CustomAuthenticationFailureHandler;
 import gdsc.konkuk.platformcore.application.auth.CustomAuthenticationSuccessHandler;
@@ -21,33 +24,27 @@ public class SecurityConfig {
 
 	private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 	private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
-	private static final String API_PREFIX = "/api/v1";
+
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 		httpSecurity
-			.addFilterBefore(new SecurityContextPersistenceFilter(), BasicAuthenticationFilter.class)
+			//TODO: dev에서만 disable
+			.csrf(csrf -> csrf.disable()
+			)
+			.addFilterBefore(new SecurityContextPersistenceFilter(), UsernamePasswordAuthenticationFilter.class)
 
 			.authorizeHttpRequests(authorize -> authorize
 				.requestMatchers(apiPath("/docs/**")).permitAll()
-				.requestMatchers(HttpMethod.POST, apiPath("/members")).permitAll()
+				.requestMatchers(HttpMethod.POST, "/api/v1/members").permitAll()
 				.requestMatchers(apiPath("/admin/**")).hasRole("ADMIN")
-				.anyRequest().authenticated())
+				.anyRequest().permitAll())
 
 			.formLogin(login -> login
 				.defaultSuccessUrl("/")
+				.usernameParameter(LOGIN_NAME)
 				.successHandler(customAuthenticationSuccessHandler)
 				.failureHandler(customAuthenticationFailureHandler)
-				.permitAll()
 			);
-		return httpSecurity.build();
-	}
-
-	@Bean
-	public SecurityFilterChain swaggerFilterchain(HttpSecurity httpSecurity) throws Exception {
-		httpSecurity
-			.securityMatcher("/docs")
-			.authorizeHttpRequests(authorize -> authorize
-				.requestMatchers("/**").authenticated());
 		return httpSecurity.build();
 	}
 

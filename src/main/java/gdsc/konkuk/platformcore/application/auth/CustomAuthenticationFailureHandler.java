@@ -21,7 +21,8 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 	private final ObjectMapper objectMapper;
 
 	@Override
-	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws
+	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+		AuthenticationException exception) throws
 		IOException {
 
 		ErrorResponse errorResponse = ErrorResponse.of(MemberErrorCode.INVALID_USER_INFO);
