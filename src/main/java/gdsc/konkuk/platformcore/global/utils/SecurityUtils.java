@@ -3,10 +3,11 @@ package gdsc.konkuk.platformcore.global.utils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-public class SecurityUtils {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-	private SecurityUtils() {
-	}
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class SecurityUtils {
 
 	public static Long getCurrentUserId() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
