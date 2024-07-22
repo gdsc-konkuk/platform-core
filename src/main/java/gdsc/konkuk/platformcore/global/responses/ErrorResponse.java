@@ -1,10 +1,10 @@
 package gdsc.konkuk.platformcore.global.responses;
 
-import gdsc.konkuk.platformcore.global.exceptions.ErrorCode;
+import gdsc.konkuk.platformcore.global.exceptions.CustomErrorCode;
 import lombok.Getter;
 
 @Getter
-public class ErrorResponse extends Response{
+public class ErrorResponse extends Response {
 
 	private final String errorCode;
 
@@ -13,12 +13,12 @@ public class ErrorResponse extends Response{
 		this.errorCode = errorCode;
 	}
 
-	private ErrorResponse(final ErrorCode errorCode) {
+	private ErrorResponse(final CustomErrorCode errorCode) {
 		super(false, errorCode.getMessage());
-		this.errorCode = errorCode.name();
+		this.errorCode = errorCode.getName();
 	}
 
-	public static ErrorResponse of(ErrorCode errorCode) {
+	public static ErrorResponse of(CustomErrorCode errorCode) {
 		return new ErrorResponse(errorCode);
 	}
 

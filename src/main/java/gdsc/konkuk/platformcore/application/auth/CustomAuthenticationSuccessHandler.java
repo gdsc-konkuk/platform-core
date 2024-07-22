@@ -23,15 +23,16 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	@Override
-	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+		Authentication authentication) throws IOException, ServletException {
 
 		setDefaultTargetUrl("/");
 		SavedRequest savedRequest = requestCache.getRequest(request, response);
 
-		if(savedRequest != null){
+		if (savedRequest != null) {
 			String targetUrl = savedRequest.getRedirectUrl();
 			redirectStrategy.sendRedirect(request, response, targetUrl);
-		}else {
+		} else {
 			redirectStrategy.sendRedirect(request, response, getDefaultTargetUrl());
 		}
 	}
