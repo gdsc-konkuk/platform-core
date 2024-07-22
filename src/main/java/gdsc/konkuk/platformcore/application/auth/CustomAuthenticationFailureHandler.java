@@ -8,9 +8,8 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import gdsc.konkuk.platformcore.global.exceptions.ErrorCode;
+import gdsc.konkuk.platformcore.application.member.exceptions.MemberErrorCode;
 import gdsc.konkuk.platformcore.global.responses.ErrorResponse;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +21,11 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 	private final ObjectMapper objectMapper;
 
 	@Override
-	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws
-		IOException, ServletException {
+	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+		AuthenticationException exception) throws
+		IOException {
 
-		ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.INVALID_USER_INFO);
+		ErrorResponse errorResponse = ErrorResponse.of(MemberErrorCode.INVALID_USER_INFO);
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
 		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
