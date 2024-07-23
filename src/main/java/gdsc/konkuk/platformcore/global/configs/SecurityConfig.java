@@ -18,7 +18,6 @@ import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import gdsc.konkuk.platformcore.application.auth.CustomAuthenticationFailureHandler;
 import gdsc.konkuk.platformcore.application.auth.CustomAuthenticationSuccessHandler;
@@ -34,35 +33,44 @@ public class SecurityConfig {
   private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
   private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
 
-	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-		httpSecurity
-			//TODO: dev에서만 disable
-			.csrf(csrf -> csrf.disable()
-			)
-      .securityMatcher("/api/v1/member", "/login")
-			.addFilterBefore(new SecurityContextPersistenceFilter(), UsernamePasswordAuthenticationFilter.class)
-			.authorizeHttpRequests(authorize -> authorize
-				.requestMatchers(apiPath("/docs/**")).permitAll()
-				.requestMatchers(HttpMethod.POST, "/api/v1/members").permitAll()
-				.requestMatchers(apiPath("/admin/**")).hasRole("ADMIN")
-				.anyRequest().permitAll())
-
-			.formLogin(login -> login
-				.defaultSuccessUrl("/")
-				.usernameParameter(LOGIN_NAME)
-				.successHandler(customAuthenticationSuccessHandler)
-				.failureHandler(customAuthenticationFailureHandler)
-			);
-		return httpSecurity.build();
-	}
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    httpSecurity
+        // TODO: dev에서만 disable
+        .csrf(AbstractHttpConfigurer::disable)
+        .securityMatcher(apiPath("/docs/**"), apiPath("/members"), apiPath("/admin/**"), "/login")
+        .addFilterBefore(
+            new SecurityContextPersistenceFilter(), UsernamePasswordAuthenticationFilter.class)
+        .authorizeHttpRequests(
+            authorize ->
+                authorize
+                    .requestMatchers(apiPath("/docs/**"))
+                    .permitAll()
+                    .requestMatchers(HttpMethod.POST, apiPath("/members/**"))
+                    .permitAll()
+                    .requestMatchers(apiPath("/admin/**"))
+                    .hasRole("ADMIN")
+                    .anyRequest()
+                    .permitAll())
+        .formLogin(
+            login ->
+                login
+                    .defaultSuccessUrl("/")
+                    .usernameParameter(LOGIN_NAME)
+                    .successHandler(customAuthenticationSuccessHandler)
+                    .failureHandler(customAuthenticationFailureHandler));
+    return httpSecurity.build();
+  }
 
   @Bean
   public SecurityFilterChain googleOidcFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
-        .securityMatcher(
-            "/api/v1/attendances", "/oauth2/authorization/google", "/login/oauth2/code/google")
+        // TODO: dev에서만 disable
         .csrf(AbstractHttpConfigurer::disable)
+        .securityMatcher(
+            apiPath("/attendances"), "/oauth2/authorization/google", "/login/oauth2/code/google")
+        .addFilterBefore(
+            new SecurityContextPersistenceFilter(), UsernamePasswordAuthenticationFilter.class)
         .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
         .oauth2Login(withDefaults());
     return httpSecurity.build();
@@ -96,7 +104,7 @@ public class SecurityConfig {
         .build();
   }
 
-	private String apiPath(String path) {
-		return API_PREFIX + path;
-	}
+  private String apiPath(String path) {
+    return API_PREFIX + path;
+  }
 }
