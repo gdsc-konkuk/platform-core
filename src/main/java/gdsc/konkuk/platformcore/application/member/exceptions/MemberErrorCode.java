@@ -1,9 +1,9 @@
 package gdsc.konkuk.platformcore.application.member.exceptions;
 
 import gdsc.konkuk.platformcore.global.exceptions.CustomErrorCode;
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-@Getter
+@RequiredArgsConstructor
 public enum MemberErrorCode implements CustomErrorCode {
 
 	USER_NOT_FOUND("사용자가 존재하지 않습니다. 다시 입력해주세요", "[ERROR] : 사용자 정보를 찾을 수 없음"),
@@ -14,11 +14,6 @@ public enum MemberErrorCode implements CustomErrorCode {
 
 	private final String message;
 	private final String logMessage;
-
-	MemberErrorCode(String message, String logMessage) {
-		this.message = message;
-		this.logMessage = logMessage;
-	}
 
 	@Override
 	public String getLogMessage() {
