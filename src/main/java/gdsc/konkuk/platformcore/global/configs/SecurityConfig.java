@@ -33,6 +33,8 @@ public class SecurityConfig {
   private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
   private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
 
+  private final GoogleOidcConfig googleOidcConfig;
+
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
@@ -86,11 +88,10 @@ public class SecurityConfig {
     return new InMemoryClientRegistrationRepository(this.googleClientRegistration());
   }
 
-  // TODO: 실제 credential로 변경 필요
   private ClientRegistration googleClientRegistration() {
     return ClientRegistration.withRegistrationId("google")
-        .clientId("google-client-id")
-        .clientSecret("google-client-secret")
+        .clientId(googleOidcConfig.getClientId())
+        .clientSecret(googleOidcConfig.getClientSecret())
         .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
         .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
         .redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
