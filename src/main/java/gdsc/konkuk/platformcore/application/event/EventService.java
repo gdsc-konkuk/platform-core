@@ -1,5 +1,6 @@
 package gdsc.konkuk.platformcore.application.event;
 
+import gdsc.konkuk.platformcore.controller.event.EventOfMonthResponse;
 import gdsc.konkuk.platformcore.domain.event.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,13 +16,13 @@ import java.util.List;
 public class EventService {
   private final EventRepository eventRepository;
 
-  public List<EventBrief> getEventsOfTheMonth(LocalDate month) {
+  public List<EventOfMonthResponse> getEventsOfTheMonth(LocalDate month) {
     return eventRepository
         .findAllByStartAtBetween(
             month.withDayOfMonth(1).atStartOfDay(),
             month.withDayOfMonth(month.lengthOfMonth()).atTime(LocalTime.MAX))
         .stream()
-        .map(EventBrief::from)
+        .map(EventOfMonthResponse::from)
         .toList();
   }
 }

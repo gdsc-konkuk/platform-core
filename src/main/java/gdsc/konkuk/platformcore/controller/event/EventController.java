@@ -1,7 +1,6 @@
 package gdsc.konkuk.platformcore.controller.event;
 
 import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
-import gdsc.konkuk.platformcore.application.event.EventBrief;
 import gdsc.konkuk.platformcore.application.event.EventService;
 import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +27,9 @@ public class EventController {
   @GetMapping
   public ResponseEntity<SuccessResponse> getEventsOfTheMonth(
       @RequestParam Integer year, @RequestParam Integer month) {
-    List<EventBrief> eventBriefs = eventService.getEventsOfTheMonth(LocalDate.of(year, month, 1));
-    return ResponseEntity.ok(SuccessResponse.of(eventBriefs));
+    List<EventOfMonthResponse> eventOfMonthResponses =
+        eventService.getEventsOfTheMonth(LocalDate.of(year, month, 1));
+    return ResponseEntity.ok(SuccessResponse.of(eventOfMonthResponses));
   }
 
   @PostMapping("/{eventId}/attendance")
