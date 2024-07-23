@@ -12,8 +12,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-// TODO: @Notnull, @Notblank와 같은 vaildation에 대한 논의가 이뤄져야 함
-// TODO: 값 객체를 나눠야 하는지에 대한 논의가 필요함 (e.g., `startAt`, `endAt`를 `EventPeriod`로 분리)
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
