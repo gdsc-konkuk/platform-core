@@ -1,13 +1,15 @@
 package gdsc.konkuk.platformcore.application.attendance;
 
+import gdsc.konkuk.platformcore.application.event.exceptions.EventErrorCode;
+import gdsc.konkuk.platformcore.application.event.exceptions.EventNotFoundException;
+import gdsc.konkuk.platformcore.application.member.exceptions.MemberErrorCode;
+import gdsc.konkuk.platformcore.application.member.exceptions.UserNotFoundException;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Participants;
 import gdsc.konkuk.platformcore.domain.attendance.repository.ParticipantsRepository;
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
 import gdsc.konkuk.platformcore.domain.event.repository.EventRepository;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
-import gdsc.konkuk.platformcore.global.exceptions.BusinessException;
-import gdsc.konkuk.platformcore.global.exceptions.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +29,7 @@ public class AttendanceService {
     Event event =
         eventRepository
             .findById(eventId)
-            .orElseThrow(() -> BusinessException.of(ErrorCode.EVENT_NOT_FOUND));
+            .orElseThrow(() -> EventNotFoundException.of(EventErrorCode.EVENT_NOT_FOUND));
 
     List<Participants> participants =
         memberRepository.findAll().stream()
@@ -58,11 +60,11 @@ public class AttendanceService {
     Member member =
         memberRepository
             .findByEmail(memberEmail)
-            .orElseThrow(() -> BusinessException.of(ErrorCode.USER_NOT_FOUND));
+            .orElseThrow(() -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));
     Participants participants =
         participantsRepository
             .findByMemberIdAndEventId(member.getId(), eventId)
-            .orElseThrow(() -> BusinessException.of(ErrorCode.EVENT_NOT_FOUND));
+            .orElseThrow(() -> EventNotFoundException.of(EventErrorCode.EVENT_NOT_FOUND));
     participants.attend();
     return participantsRepository.save(participants);
   }
