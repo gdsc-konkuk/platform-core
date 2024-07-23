@@ -62,7 +62,7 @@ public class AttendanceControllerTest {
     // when
     ResultActions result =
         mockMvc.perform(
-            RestDocumentationRequestBuilders.post("/api/v1/attendances/{eventId}", 1)
+            RestDocumentationRequestBuilders.get("/api/v1/attendances/{eventId}", 1)
                 .with(oidcLogin()));
 
     // then
