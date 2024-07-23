@@ -12,19 +12,23 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import gdsc.konkuk.platformcore.application.auth.CustomAuthenticationFailureHandler;
+import gdsc.konkuk.platformcore.application.auth.CustomAuthenticationSuccessHandler;
+import gdsc.konkuk.platformcore.global.configs.SecurityConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -36,8 +40,9 @@ import gdsc.konkuk.platformcore.application.member.MemberService;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistException;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 
-@SpringBootTest
+@WebMvcTest(MemberController.class)
 @ExtendWith({RestDocumentationExtension.class})
+@Import({SecurityConfig.class})
 class MemberControllerTest {
 
 	MockMvc mockMvc;
@@ -45,126 +50,128 @@ class MemberControllerTest {
 	@Mock
 	Member member;
 
-	@MockBean
-	private MemberService memberService;
+  @MockBean private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+  @MockBean private CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+  @MockBean private MemberService memberService;
 
 	@Autowired
 	private ObjectMapper objectMapper;
 
 	@BeforeEach
 	void setUp(WebApplicationContext webApplicationContext, RestDocumentationContextProvider restDocumentation) {
-		MockitoAnnotations.openMocks(this);
 		mockMvc = MockMvcBuilders
 			.webAppContextSetup(webApplicationContext)
 			.apply(springSecurity())
 			.apply(documentationConfiguration(restDocumentation))
 			.build();
 	}
-	
-	@Test
-	@DisplayName("새로운 멤버 회원 가입 성공")
-	void should_success_when_newMember() throws Exception {
-	    //given
-		MemberRegisterRequest memberRegisterRequest =
-			MemberRegisterRequest.builder()
-				.memberId("202011288")
-				.password("password")
-				.email("example@konkuk.ac.kr")
-				.name("홍길동")
-				.batch(2024)
-				.build();
 
-	    given(memberService.register(any(MemberRegisterRequest.class))).willReturn(member);
-	    //when
-	    mockMvc.perform(
-			RestDocumentationRequestBuilders.post("/api/v1/members")
-				.contentType(APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(memberRegisterRequest))
-				.with(csrf())
+  @Test
+  @DisplayName("새로운 멤버 회원 가입 성공")
+  void should_success_when_newMember() throws Exception {
+    // given
+    MemberRegisterRequest memberRegisterRequest =
+        MemberRegisterRequest.builder()
+            .memberId("202011288")
+            .password("password")
+            .email("example@konkuk.ac.kr")
+            .name("홍길동")
+            .batch(2024)
+            .build();
+    given(memberService.register(any(MemberRegisterRequest.class))).willReturn(member);
 
-			)
+    // when
+    ResultActions result =
+        mockMvc.perform(
+            RestDocumentationRequestBuilders.post("/api/v1/members")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(memberRegisterRequest))
+                .with(csrf()));
 
-			.andExpect(status().isCreated())
-			.andDo(print())
-			.andDo(
-				document("member/register",
-					preprocessRequest(prettyPrint()),
-					preprocessResponse(prettyPrint()),
-					resource(ResourceSnippetParameters.builder()
-						.description("새로운 멤버 회원 가입 성공")
-						.tag("member")
-						.requestFields(
-							fieldWithPath("memberId").description("회원 아이디"),
-							fieldWithPath("password").description("비밀번호"),
-							fieldWithPath("email").description("이메일"),
-							fieldWithPath("name").description("이름"),
-							fieldWithPath("batch").description("배치")
-						)
-						.responseFields(
-							fieldWithPath("success").description(true),
-							fieldWithPath("message").description("회원 가입 성공"),
-							fieldWithPath("data").description("null")
-						)
-						.build()
-					)
-				)
-			);
-	}
+    // then
+    result
+        .andDo(print())
+        .andExpect(status().isCreated())
+        .andDo(
+            document(
+                "member/register",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                resource(
+                    ResourceSnippetParameters.builder()
+                        .description("새로운 멤버 회원 가입 성공")
+                        .tag("member")
+                        .responseHeaders(headerWithName("Location").description("등록한 Member URI"))
+                        .requestFields(
+                            fieldWithPath("memberId").description("회원 아이디"),
+                            fieldWithPath("password").description("비밀번호"),
+                            fieldWithPath("email").description("이메일"),
+                            fieldWithPath("name").description("이름"),
+                            fieldWithPath("batch").description("배치"))
+                        .responseFields(
+                            fieldWithPath("success").description(true),
+                            fieldWithPath("message").description("회원 가입 성공"),
+                            fieldWithPath("data").description("null"))
+                        .build())));
+  }
 
-	@Test
-	@DisplayName("이미 존재하는 유저 회원 가입 실패")
-	void should_fail_when_existingMember() throws Exception {
-		//given
-		MemberRegisterRequest memberRegisterRequest =
-			MemberRegisterRequest.builder()
-				.memberId("202011288")
-				.password("password")
-				.email("example@konkuk.ac.kr")
-				.name("홍길동")
-				.batch(2024)
-				.build();
+  @Test
+  @DisplayName("이미 존재하는 유저 회원 가입 실패")
+  void should_fail_when_existingMember() throws Exception {
+    // given
+    MemberRegisterRequest memberRegisterRequest =
+        MemberRegisterRequest.builder()
+            .memberId("202011288")
+            .password("password")
+            .email("example@konkuk.ac.kr")
+            .name("홍길동")
+            .batch(2024)
+            .build();
+    given(memberService.register(any(MemberRegisterRequest.class)))
+        .willThrow(UserAlreadyExistException.class);
 
-		given(memberService.register(any(MemberRegisterRequest.class))).willThrow(UserAlreadyExistException.class);
-		//when
-		mockMvc.perform(
-				RestDocumentationRequestBuilders.post("/api/v1/members")
-					.contentType(APPLICATION_JSON)
-					.content(objectMapper.writeValueAsString(memberRegisterRequest))
-					.with(csrf())
-			)
-			.andExpect(status().isBadRequest())
-			.andDo(print());
-	}
+    // when
+    ResultActions result =
+        mockMvc.perform(
+            RestDocumentationRequestBuilders.post("/api/v1/members")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(memberRegisterRequest))
+                .with(csrf()));
 
-	@Test
-	@DisplayName("회원 탈퇴 성공")
-	@CustomMockUser
-	void should_success_when_delete_member() throws Exception {
-		//given
+    // then
+    result.andDo(print()).andExpect(status().isBadRequest());
+  }
 
-		//when
-		mockMvc.perform(
-			RestDocumentationRequestBuilders.delete("/api/v1/members")
-				.contentType(APPLICATION_JSON)
-				.with(csrf())
-			)
-			.andExpect(status().isOk())
-			.andDo(print())
-			.andDo(
-				document("member/delete",
-					preprocessRequest(prettyPrint()),
-					preprocessResponse(prettyPrint()),
-					resource(ResourceSnippetParameters.builder()
-						.description("존재하는 회원 탈퇴")
-						.tag("member")
-						.responseFields(
-							fieldWithPath("success").description(true),
-							fieldWithPath("message").description("회원 탈퇴 성공"),
-							fieldWithPath("data").description("null")
-						)
-						.build()
-					)
-				)
-			);
-	}
+  @Test
+  @DisplayName("회원 탈퇴 성공")
+  @CustomMockUser
+  void should_success_when_delete_member() throws Exception {
+    // given
+
+    // when
+    ResultActions result =
+        mockMvc.perform(
+            RestDocumentationRequestBuilders.delete("/api/v1/members")
+                .contentType(APPLICATION_JSON)
+                .with(csrf()));
+
+    // then
+    result
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andDo(
+            document(
+                "member/delete",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                resource(
+                    ResourceSnippetParameters.builder()
+                        .description("존재하는 회원 탈퇴")
+                        .tag("member")
+                        .responseFields(
+                            fieldWithPath("success").description(true),
+                            fieldWithPath("message").description("회원 탈퇴 성공"),
+                            fieldWithPath("data").description("null"))
+                        .build())));
+  }
 }

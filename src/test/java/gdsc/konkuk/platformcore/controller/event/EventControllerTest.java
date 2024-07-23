@@ -1,10 +1,8 @@
-package gdsc.konkuk.platformcore.controller.controller;
+package gdsc.konkuk.platformcore.controller.event;
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
-import gdsc.konkuk.platformcore.application.event.EventBrief;
 import gdsc.konkuk.platformcore.application.event.EventService;
-import gdsc.konkuk.platformcore.controller.event.EventController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -68,27 +66,37 @@ public class EventControllerTest {
     given(eventService.getEventsOfTheMonth(any(LocalDate.class)))
         .willReturn(
             List.of(
-                new EventBrief(
-                    0L, "title1", "https://domain.com/image/path/url", LocalDateTime.now(), false),
-                new EventBrief(
-                    1L, "title2", "https://domain.com/image/path/url", LocalDateTime.now(), true),
-                new EventBrief(
-                    2L,
-                    "title3",
-                    "https://domain.com/image/path/url",
-                    LocalDateTime.now(),
-                    false)));
+                // TODO: Fixture 정리
+                EventOfMonthResponse.builder()
+                    .id(0L)
+                    .title("title0")
+                    .thumbnailUrl("https://domain.com/image/path/url")
+                    .startAt(LocalDateTime.now())
+                    .hasAttendance(true)
+                    .build(),
+                EventOfMonthResponse.builder()
+                    .id(1L)
+                    .title("title1")
+                    .thumbnailUrl("https://domain.com/image/path/url")
+                    .startAt(LocalDateTime.now())
+                    .hasAttendance(false)
+                    .build(),
+                EventOfMonthResponse.builder()
+                    .id(2L)
+                    .title("title2")
+                    .thumbnailUrl("https://domain.com/image/path/url")
+                    .startAt(LocalDateTime.now())
+                    .hasAttendance(true)
+                    .build()));
 
     // when
     ResultActions result =
-        mockMvc
-            .perform(
-                RestDocumentationRequestBuilders.get("/api/v1/events?year=2021&month=1")
-                    .with(csrf()))
-            .andDo(print());
+        mockMvc.perform(
+            RestDocumentationRequestBuilders.get("/api/v1/events?year=2021&month=1").with(csrf()));
 
     // then
     result
+        .andDo(print())
         .andExpect(status().isOk())
         .andDo(
             document(
@@ -119,14 +127,13 @@ public class EventControllerTest {
   void should_register_attendance_when_pass_event_id() throws Exception {
     // when
     ResultActions result =
-        mockMvc
-            .perform(
-                RestDocumentationRequestBuilders.post("/api/v1/events/{eventId}/attendance", 1)
-                    .with(csrf()))
-            .andDo(print());
+        mockMvc.perform(
+            RestDocumentationRequestBuilders.post("/api/v1/events/{eventId}/attendance", 1)
+                .with(csrf()));
 
     // then
     result
+        .andDo(print())
         .andExpect(status().isCreated())
         .andDo(
             document(
@@ -152,14 +159,13 @@ public class EventControllerTest {
   void should_delete_attendance_when_pass_event_id() throws Exception {
     // when
     ResultActions result =
-        mockMvc
-            .perform(
-                RestDocumentationRequestBuilders.delete("/api/v1/events/{eventId}/attendance", 1)
-                    .with(csrf()))
-            .andDo(print());
+        mockMvc.perform(
+            RestDocumentationRequestBuilders.delete("/api/v1/events/{eventId}/attendance", 1)
+                .with(csrf()));
 
     // then
     result
+        .andDo(print())
         .andExpect(status().isOk())
         .andDo(
             document(
