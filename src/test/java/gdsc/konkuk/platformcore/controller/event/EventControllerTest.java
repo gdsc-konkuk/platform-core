@@ -7,7 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
@@ -27,6 +27,7 @@ import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithNam
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
@@ -38,7 +39,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(EventController.class)
+@SpringBootTest
 @ExtendWith({RestDocumentationExtension.class})
 public class EventControllerTest {
 
@@ -125,6 +126,9 @@ public class EventControllerTest {
   @DisplayName("이벤트 출석을 등록할 수 있다")
   @WithMockUser
   void should_register_attendance_when_pass_event_id() throws Exception {
+    // given
+    doNothing().when(attendanceService).registerAttendance(any(Long.class));
+
     // when
     ResultActions result =
         mockMvc.perform(
@@ -157,6 +161,9 @@ public class EventControllerTest {
   @DisplayName("이벤트 출석을 삭제할 수 있다")
   @WithMockUser
   void should_delete_attendance_when_pass_event_id() throws Exception {
+    // given
+    doNothing().when(attendanceService).deleteAttendance(any(Long.class));
+
     // when
     ResultActions result =
         mockMvc.perform(

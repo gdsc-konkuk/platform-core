@@ -12,18 +12,14 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import gdsc.konkuk.platformcore.application.auth.CustomAuthenticationFailureHandler;
-import gdsc.konkuk.platformcore.application.auth.CustomAuthenticationSuccessHandler;
-import gdsc.konkuk.platformcore.global.configs.SecurityConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
@@ -40,9 +36,8 @@ import gdsc.konkuk.platformcore.application.member.MemberService;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistException;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 
-@WebMvcTest(MemberController.class)
+@SpringBootTest
 @ExtendWith({RestDocumentationExtension.class})
-@Import({SecurityConfig.class})
 class MemberControllerTest {
 
 	MockMvc mockMvc;
@@ -50,8 +45,6 @@ class MemberControllerTest {
 	@Mock
 	Member member;
 
-  @MockBean private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
-  @MockBean private CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
   @MockBean private MemberService memberService;
 
 	@Autowired

@@ -1,20 +1,14 @@
-package gdsc.konkuk.platformcore.controller.controller;
+package gdsc.konkuk.platformcore.controller.attendance;
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
-import gdsc.konkuk.platformcore.application.auth.CustomAuthenticationFailureHandler;
-import gdsc.konkuk.platformcore.application.auth.CustomAuthenticationSuccessHandler;
-import gdsc.konkuk.platformcore.application.event.EventService;
-import gdsc.konkuk.platformcore.controller.attendance.AttendanceController;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Participants;
-import gdsc.konkuk.platformcore.global.configs.SecurityConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
@@ -38,17 +32,13 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(AttendanceController.class)
+@SpringBootTest
 @ExtendWith({RestDocumentationExtension.class})
-@Import({SecurityConfig.class})
 public class AttendanceControllerTest {
 
   private MockMvc mockMvc;
 
-  @MockBean private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
-  @MockBean private CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
   @MockBean private AttendanceService attendanceService;
-  @MockBean private EventService eventService;
 
   @BeforeEach
   void setUp(
@@ -71,14 +61,13 @@ public class AttendanceControllerTest {
 
     // when
     ResultActions result =
-        mockMvc
-            .perform(
-                RestDocumentationRequestBuilders.post("/api/v1/attendances/{eventId}", 1)
-                    .with(oidcLogin()))
-            .andDo(print());
+        mockMvc.perform(
+            RestDocumentationRequestBuilders.post("/api/v1/attendances/{eventId}", 1)
+                .with(oidcLogin()));
 
     // then
     result
+        .andDo(print())
         .andExpect(status().isOk())
         .andDo(
             document(
