@@ -51,7 +51,7 @@ jobs:
         if: ${{ failure() }}
         with:
           name: gradle-report
-          path: spring/build/reports
+          path: build/reports
 
       - name: Backend CI Discord Notification
         uses: sarisia/actions-status-discord@v1
