@@ -5,6 +5,7 @@ import gdsc.konkuk.platformcore.domain.attendance.entity.Participant;
 import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -28,19 +29,19 @@ public class AttendanceController {
 
   @GetMapping("/{attendanceId}")
   public ResponseEntity<SuccessResponse> attend(
-      @PathVariable Long attendanceId,
-      @RequestParam String qrUuid,
-      @AuthenticationPrincipal OidcUser oidcUser) {
+    @PathVariable Long attendanceId,
+    @RequestParam String qrUuid,
+    @AuthenticationPrincipal OidcUser oidcUser) {
     Participant participant = attendanceService.attend(oidcUser.getEmail(), attendanceId, qrUuid);
     return ResponseEntity.ok(SuccessResponse.of(participant));
   }
 
   @PostMapping()
   public ResponseEntity<SuccessResponse> registerAttendance(
-      @RequestBody @Valid AttendanceRegisterRequest registerRequest) {
+    @RequestBody @Valid AttendanceRegisterRequest registerRequest) {
     Long attendanceId = attendanceService.registerAttendance(registerRequest);
     return ResponseEntity.created(generateAttendanceUri(attendanceId))
-        .body(SuccessResponse.messageOnly());
+      .body(SuccessResponse.messageOnly());
   }
 
   @DeleteMapping("/{attendanceId}")
@@ -53,28 +54,28 @@ public class AttendanceController {
   public ResponseEntity<SuccessResponse> generateQr(@PathVariable Long attendanceId) {
     String qrUuid = attendanceService.generateQr(attendanceId);
     return ResponseEntity.created(generateQrUri(attendanceId, qrUuid))
-        .body(SuccessResponse.messageOnly());
+      .body(SuccessResponse.messageOnly());
   }
 
   @DeleteMapping("/{attendanceId}/qr")
   public ResponseEntity<SuccessResponse> expireQr(
-      @PathVariable Long attendanceId, @RequestParam String qrUuid) {
+    @PathVariable Long attendanceId, @RequestParam String qrUuid) {
     attendanceService.expireQr(attendanceId, qrUuid);
     return ResponseEntity.noContent().build();
   }
 
   private URI generateAttendanceUri(Long attendanceId) {
     return ServletUriComponentsBuilder.fromCurrentRequest()
-        .path("/{id}")
-        .buildAndExpand(attendanceId)
-        .toUri();
+      .path("/{id}")
+      .buildAndExpand(attendanceId)
+      .toUri();
   }
 
   private URI generateQrUri(Long attendanceId, String qrUuid) {
     return ServletUriComponentsBuilder.fromCurrentRequest()
-        .path("/{id}/qr")
-        .queryParam("qrUuid", qrUuid)
-        .buildAndExpand(attendanceId)
-        .toUri();
+      .path("/{id}/qr")
+      .queryParam("qrUuid", qrUuid)
+      .buildAndExpand(attendanceId)
+      .toUri();
   }
 }

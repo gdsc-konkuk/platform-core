@@ -18,17 +18,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
-	private final ObjectMapper objectMapper;
+  private final ObjectMapper objectMapper;
 
-	@Override
-	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-		AuthenticationException exception) throws
-		IOException {
+  @Override
+  public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+    AuthenticationException exception) throws
+    IOException {
 
-		ErrorResponse errorResponse = ErrorResponse.of(MemberErrorCode.INVALID_USER_INFO);
-		response.setContentType("application/json");
-		response.setCharacterEncoding("UTF-8");
-		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		objectMapper.writeValue(response.getWriter(), errorResponse);
-	}
+    ErrorResponse errorResponse = ErrorResponse.of(MemberErrorCode.INVALID_USER_INFO);
+    response.setContentType("application/json");
+    response.setCharacterEncoding("UTF-8");
+    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+    objectMapper.writeValue(response.getWriter(), errorResponse);
+  }
 }

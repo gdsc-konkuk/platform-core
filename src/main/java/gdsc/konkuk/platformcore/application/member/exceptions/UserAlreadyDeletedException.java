@@ -5,12 +5,12 @@ import gdsc.konkuk.platformcore.global.exceptions.CustomErrorCode;
 
 public class UserAlreadyDeletedException extends BusinessException {
 
-	protected UserAlreadyDeletedException(CustomErrorCode errorCode,
-		String logMessage) {
-		super(errorCode, logMessage);
-	}
+  protected UserAlreadyDeletedException(CustomErrorCode errorCode,
+    String logMessage) {
+    super(errorCode, logMessage);
+  }
 
-	public static UserAlreadyDeletedException of(CustomErrorCode errorCode) {
-		return new UserAlreadyDeletedException(errorCode, errorCode.getMessage());
-	}
+  public static UserAlreadyDeletedException of(CustomErrorCode errorCode) {
+    return new UserAlreadyDeletedException(errorCode, errorCode.getMessage());
+  }
 }

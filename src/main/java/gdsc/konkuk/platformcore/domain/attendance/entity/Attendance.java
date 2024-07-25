@@ -34,7 +34,8 @@ public class Attendance {
   }
 
   public boolean isActiveQr(String qrUuid) {
-    if (this.activeQrUuid == null) return false;
+    if (this.activeQrUuid == null)
+      return false;
     return this.activeQrUuid.equals(qrUuid);
   }
 

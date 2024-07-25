@@ -13,24 +13,24 @@ import org.springframework.security.test.context.support.WithSecurityContextFact
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 
 public class WithMyCustomUserSecurityContextFactory implements WithSecurityContextFactory<CustomMockUser> {
-	@Override
-	public SecurityContext createSecurityContext(CustomMockUser annotation) {
-		String memberId = annotation.memberId();
-		MemberRole role = annotation.role();
+  @Override
+  public SecurityContext createSecurityContext(CustomMockUser annotation) {
+    String memberId = annotation.memberId();
+    MemberRole role = annotation.role();
 
-		Authentication auth = new UsernamePasswordAuthenticationToken(
-			memberId,
-			"",
-			buildGrantedAuthoritiesFromRole(role)
-		);
+    Authentication auth = new UsernamePasswordAuthenticationToken(
+      memberId,
+      "",
+      buildGrantedAuthoritiesFromRole(role)
+    );
 
-		SecurityContext context = SecurityContextHolder.getContext();
-		context.setAuthentication(auth);
+    SecurityContext context = SecurityContextHolder.getContext();
+    context.setAuthentication(auth);
 
-		return context;
-	}
+    return context;
+  }
 
-	private List<GrantedAuthority> buildGrantedAuthoritiesFromRole(final MemberRole role) {
-		return List.of(new SimpleGrantedAuthority(role.toString()));
-	}
+  private List<GrantedAuthority> buildGrantedAuthoritiesFromRole(final MemberRole role) {
+    return List.of(new SimpleGrantedAuthority(role.toString()));
+  }
 }
