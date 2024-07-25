@@ -11,29 +11,29 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Component;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-	private RequestCache requestCache = new HttpSessionRequestCache();
+  private final RequestCache requestCache = new HttpSessionRequestCache();
 
-	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+  private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
-	@Override
-	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-		Authentication authentication) throws IOException, ServletException {
+  @Override
+  public void onAuthenticationSuccess(
+      HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+      throws IOException {
 
-		setDefaultTargetUrl("/");
-		SavedRequest savedRequest = requestCache.getRequest(request, response);
+    setDefaultTargetUrl("/");
+    SavedRequest savedRequest = requestCache.getRequest(request, response);
 
-		if (savedRequest != null) {
-			String targetUrl = savedRequest.getRedirectUrl();
-			redirectStrategy.sendRedirect(request, response, targetUrl);
-		} else {
-			redirectStrategy.sendRedirect(request, response, getDefaultTargetUrl());
-		}
-	}
+    if (savedRequest != null) {
+      String targetUrl = savedRequest.getRedirectUrl();
+      redirectStrategy.sendRedirect(request, response, targetUrl);
+    } else {
+      redirectStrategy.sendRedirect(request, response, getDefaultTargetUrl());
+    }
+  }
 }

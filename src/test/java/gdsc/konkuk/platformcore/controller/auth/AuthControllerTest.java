@@ -16,7 +16,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,6 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -41,70 +41,76 @@ import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
 @ExtendWith({RestDocumentationExtension.class})
 class AuthControllerTest {
 
-	@Autowired
-	private WebApplicationContext context;
+  @Autowired private WebApplicationContext context;
 
-	@Autowired
-	PasswordEncoder passwordEncoder;
+  @Autowired PasswordEncoder passwordEncoder;
 
-	@MockBean
-	MemberRepository memberRepository;
+  @MockBean MemberRepository memberRepository;
 
-	private MockMvc mockMvc;
+  private MockMvc mockMvc;
 
-	@BeforeEach
-	void setUp(RestDocumentationContextProvider restDocumentation) {
-		MockitoAnnotations.openMocks(this);
-		mockMvc = MockMvcBuilders
-			.webAppContextSetup(this.context)
-			.apply(springSecurity())
-			.apply(documentationConfiguration(restDocumentation))
-			.build();
-	}
+  @BeforeEach
+  void setUp(RestDocumentationContextProvider restDocumentation) {
+    mockMvc =
+        MockMvcBuilders.webAppContextSetup(this.context)
+            .apply(springSecurity())
+            .apply(documentationConfiguration(restDocumentation))
+            .build();
+  }
 
-	@Test
-	@DisplayName("사용자 로그인 성공")
-	@WithMockUser
-	void loginSuccess() throws Exception {
-		when(memberRepository.findByMemberId(any())).thenReturn(Optional.of(Member.builder()
-				.memberId("202011288")
-				.password(passwordEncoder.encode("gdscgdsc"))
-				.name("우이산")
-				.email("helloworld@gmail.com")
-				.batch(2024)
-				.build()));
+  @Test
+  @DisplayName("사용자 로그인 성공")
+  @WithMockUser
+  void loginSuccess() throws Exception {
+    // given
+    given(memberRepository.findByMemberId(any()))
+        .willReturn(
+            Optional.of(
+                Member.builder()
+                    .memberId("202011288")
+                    .password(passwordEncoder.encode("gdscgdsc"))
+                    .name("우이산")
+                    .email("helloworld@gmail.com")
+                    .batch("24-25")
+                    .build()));
 
-		// when
-		mockMvc.perform(RestDocumentationRequestBuilders.multipart("/login")
-				.formField("memberId", "202011288")
-				.formField("password", "gdscgdsc")
-				.contentType("application/x-www-form-urlencoded")
-				.characterEncoding("UTF-8")
-				.with(csrf())
-			)
-			.andDo(print())
+    // when
+    ResultActions result =
+        mockMvc.perform(
+            RestDocumentationRequestBuilders.multipart("/login")
+                .formField("id", "202011288")
+                .formField("password", "gdscgdsc")
+                .contentType("application/x-www-form-urlencoded")
+                .characterEncoding("UTF-8")
+                .with(csrf()));
 
-			// then
-			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("/"))
-			.andDo(document("login",
-				resource(ResourceSnippetParameters.builder()
-					.description("사용자 로그인 성공")
-					.tag("auth")
-					.build())
-			));
-	}
+    // then
+    result
+        .andDo(print())
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/"))
+        .andDo(
+            document(
+                "login",
+                resource(
+                    ResourceSnippetParameters.builder()
+                        .description("사용자 로그인 성공")
+                        .tag("auth")
+                        .build())));
+  }
 
-	@Test
-	@DisplayName("사용자 로그인 실패")
-	@WithMockUser
-	void loginFail() throws Exception {
+  @Test
+  @DisplayName("사용자 로그인 실패")
+  @WithMockUser
+  void loginFail() throws Exception {
+    // given
+    given(memberRepository.findByMemberId(any())).willReturn(Optional.empty());
 
-		when(memberRepository.findByMemberId(any())).thenReturn(Optional.empty());
+    // when
+    ResultActions result =
+        mockMvc.perform(formLogin("/login").user("202011288").password("gdscgdsc1"));
 
-		mockMvc.perform(
-				formLogin("/login").user("202011288").password("gdscgdsc1"))
-			.andDo(print())
-			.andExpect(status().isBadRequest());
-	}
+    // then
+    result.andDo(print()).andExpect(status().isBadRequest());
+  }
 }

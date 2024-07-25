@@ -13,7 +13,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import gdsc.konkuk.platformcore.application.member.MemberService;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.global.utils.SecurityUtils;
-import gdsc.konkuk.platformcore.global.responses.Response;
 import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,26 +22,27 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MemberController {
 
-	private final MemberService memberService;
+  private final MemberService memberService;
 
-	@PostMapping()
-	public ResponseEntity<Response> signup(@RequestBody @Valid MemberRegisterRequest registerRequest) {
-		Member registeredMember = memberService.register(registerRequest);
-		return ResponseEntity.created(getCreatedURI(registeredMember.getId())).body(SuccessResponse.messageOnly());
-	}
+  @PostMapping()
+  public ResponseEntity<SuccessResponse> signup(
+      @RequestBody @Valid MemberRegisterRequest registerRequest) {
+    Member registeredMember = memberService.register(registerRequest);
+    return ResponseEntity.created(getCreatedURI(registeredMember.getId()))
+        .body(SuccessResponse.messageOnly());
+  }
 
-	@DeleteMapping()
-	public ResponseEntity<Response> withdraw() {
-		Long currentId = SecurityUtils.getCurrentUserId();
-		memberService.withdraw(currentId);
-		return ResponseEntity.ok(SuccessResponse.messageOnly());
-	}
+  @DeleteMapping()
+  public ResponseEntity<SuccessResponse> withdraw() {
+    Long currentId = SecurityUtils.getCurrentUserId();
+    memberService.withdraw(currentId);
+    return ResponseEntity.noContent().build();
+  }
 
-	private URI getCreatedURI(Long memberId) {
-		return ServletUriComponentsBuilder
-			.fromCurrentRequest()
-			.path("/{id}")
-			.buildAndExpand(memberId)
-			.toUri();
-	}
+  private URI getCreatedURI(Long memberId) {
+    return ServletUriComponentsBuilder.fromCurrentRequest()
+        .path("/{id}")
+        .buildAndExpand(memberId)
+        .toUri();
+  }
 }
