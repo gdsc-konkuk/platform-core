@@ -2,6 +2,7 @@ package gdsc.konkuk.platformcore.controller.email.dto;
 
 import java.util.List;
 
+import gdsc.konkuk.platformcore.domain.email.entity.PlatformEmail;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -24,5 +25,12 @@ public class EmailSendRequest {
     this.subject = subject;
     this.content = content;
     this.receivers = receivers;
+  }
+
+  public static PlatformEmail toEntity(EmailSendRequest request) {
+    return PlatformEmail.builder()
+      .content(request.getContent())
+      .subject(request.getSubject())
+      .build();
   }
 }

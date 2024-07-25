@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import gdsc.konkuk.platformcore.controller.email.dto.EmailSendRequest;
-import gdsc.konkuk.platformcore.domain.email.entity.Email;
+import gdsc.konkuk.platformcore.domain.email.entity.PlatformEmail;
 import gdsc.konkuk.platformcore.domain.email.repository.EmailRepository;
 import gdsc.konkuk.platformcore.external.email.EmailClient;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +18,10 @@ public class EmailService {
 
   @Transactional
   public Long process(EmailSendRequest request) {
-    Email email = Email.builder()
-      .subject(request.getSubject())
-      .content(request.getContent())
-      .build();
+    PlatformEmail email = EmailSendRequest.toEntity(request);
     email.addReceivers(request.getReceivers());
     emailRepository.save(email);
-    emailClient.sendAll(email);
+    emailClient.sendEmailToReceivers(email);
     return email.getId();
   }
 }
