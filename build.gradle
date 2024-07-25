@@ -87,10 +87,13 @@ tasks.named('test') {
     finalizedBy 'jacocoTestReport'
 }
 
+jacoco {
+    toolVersion = "0.8.7"
+}
 jacocoTestReport {
     reports {
-        html.enabled true
-        xml.enabled true
+        html.required = true
+        xml.required = true
     }
 }
 
