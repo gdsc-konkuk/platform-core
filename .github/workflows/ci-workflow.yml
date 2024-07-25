@@ -33,11 +33,11 @@ jobs:
 
       - name: touch application.yml
         run: |
-          mkdir ./src/main/resources
-          touch ./src/main/resources/application-dev.yml
-          touch ./src/main/resources/application-test.yml
-          echo "${{ secrets.APPLICATION_DEV_YML }}" > ./src/main/resources/application-dev.yml
-          echo "${{ secrets.APPLICATION_TEST_YML }}" > ./src/main/resources/application-test.yml
+               mkdir ./src/main/resources
+               touch ./src/main/resources/application.yml
+          #          touch ./src/main/resources/application-test.yml
+               echo "${{ secrets.APPLICATION_DEV_YML }}" > ./src/main/resources/application.yml
+        #          echo "${{ secrets.APPLICATION_TEST_YML }}" > ./src/main/resources/application-test.yml
         shell: bash
 
       - name: Build and analyze
