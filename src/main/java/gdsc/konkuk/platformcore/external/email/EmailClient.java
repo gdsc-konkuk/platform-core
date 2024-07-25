@@ -2,6 +2,7 @@ package gdsc.konkuk.platformcore.external.email;
 
 import java.util.List;
 
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.MailParseException;
@@ -31,9 +32,9 @@ public class EmailClient {
     try {
       MimeMessage message = convertToHTMLMimeMessage(to, subject, text);
       javaMailSender.send(message);
-    } catch (MailParseException e) {
+    } catch (MailParseException | MessagingException e) {
       throw EmailSendingException.of(EmailErrorCode.MAIL_PARSING_ERROR, e.getMessage());
-    } catch (MessagingException e) {
+    } catch (MailSendException e) {
       throw EmailSendingException.of(EmailErrorCode.MAIL_SENDING_ERROR, e.getMessage());
     }
   }
