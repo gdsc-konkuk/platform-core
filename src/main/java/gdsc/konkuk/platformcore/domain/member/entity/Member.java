@@ -80,13 +80,13 @@ public class Member {
 
   @Builder
   public Member(
-      Long id,
-      String memberId,
-      String password,
-      String name,
-      String email,
-      String profileImageUrl,
-      String batch) {
+    Long id,
+    String memberId,
+    String password,
+    String name,
+    String email,
+    String profileImageUrl,
+    String batch) {
     this.id = id;
     this.memberId = validateNotNull(memberId, "memberId");
     this.password = validateNotNull(password, "password");

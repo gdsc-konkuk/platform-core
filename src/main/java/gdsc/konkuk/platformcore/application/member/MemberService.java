@@ -19,31 +19,31 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class MemberService {
 
-	private final PasswordEncoder passwordEncoder;
-	private final MemberRepository memberRepository;
+  private final PasswordEncoder passwordEncoder;
+  private final MemberRepository memberRepository;
 
-	@Transactional
-	public Member register(MemberRegisterRequest registerRequest) {
+  @Transactional
+  public Member register(MemberRegisterRequest registerRequest) {
 
-		if (checkMemberExistWithMemberId(registerRequest.getMemberId())) {
-			throw UserAlreadyExistException.of(MemberErrorCode.USER_ALREADY_EXISTS);
-		}
+    if (checkMemberExistWithMemberId(registerRequest.getMemberId())) {
+      throw UserAlreadyExistException.of(MemberErrorCode.USER_ALREADY_EXISTS);
+    }
 
-		String encodedPassword = passwordEncoder.encode(registerRequest.getPassword());
-		registerRequest.setPassword(encodedPassword);
+    String encodedPassword = passwordEncoder.encode(registerRequest.getPassword());
+    registerRequest.setPassword(encodedPassword);
 
-		return memberRepository.save(MemberRegisterRequest.toEntity(registerRequest));
-	}
+    return memberRepository.save(MemberRegisterRequest.toEntity(registerRequest));
+  }
 
-	@Transactional
-	public void withdraw(Long currentId) {
-		Member member = memberRepository.findById(currentId)
-			.orElseThrow(() -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));
-		member.withdraw();
-	}
+  @Transactional
+  public void withdraw(Long currentId) {
+    Member member = memberRepository.findById(currentId)
+      .orElseThrow(() -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));
+    member.withdraw();
+  }
 
-	private boolean checkMemberExistWithMemberId(String memberId) {
-		Optional<Member> member = memberRepository.findByMemberId(memberId);
-		return member.isPresent();
-	}
+  private boolean checkMemberExistWithMemberId(String memberId) {
+    Optional<Member> member = memberRepository.findByMemberId(memberId);
+    return member.isPresent();
+  }
 }

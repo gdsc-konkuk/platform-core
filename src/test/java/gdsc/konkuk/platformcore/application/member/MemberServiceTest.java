@@ -24,11 +24,14 @@ class MemberServiceTest {
 
   private MemberService subject;
 
-  @Mock private Member member;
+  @Mock
+  private Member member;
 
-  @Mock private MemberRepository memberRepository;
+  @Mock
+  private MemberRepository memberRepository;
 
-  @Mock private PasswordEncoder passwordEncoder;
+  @Mock
+  private PasswordEncoder passwordEncoder;
 
   @BeforeEach
   void setUp() {
@@ -41,13 +44,13 @@ class MemberServiceTest {
   void should_success_when_newMember_register() {
     // given
     MemberRegisterRequest memberRegisterRequest =
-        MemberRegisterRequest.builder()
-            .memberId("202011288")
-            .password("password")
-            .email("example@konkuk.ac.kr")
-            .name("홍길동")
-            .batch("24-25")
-            .build();
+      MemberRegisterRequest.builder()
+        .memberId("202011288")
+        .password("password")
+        .email("example@konkuk.ac.kr")
+        .name("홍길동")
+        .batch("24-25")
+        .build();
     given(memberRepository.findByMemberId(any())).willReturn(Optional.empty());
     given(memberRepository.save(any(Member.class))).willReturn(member);
     given(passwordEncoder.encode(any())).willReturn("password");
@@ -64,15 +67,15 @@ class MemberServiceTest {
   void should_fail_when_already_exist_member_register() {
     // given
     MemberRegisterRequest memberRegisterRequest =
-        MemberRegisterRequest.builder()
-            .memberId("202011288")
-            .password("password")
-            .email("example@konkuk.ac.kr")
-            .name("홍길동")
-            .batch("24-25")
-            .build();
+      MemberRegisterRequest.builder()
+        .memberId("202011288")
+        .password("password")
+        .email("example@konkuk.ac.kr")
+        .name("홍길동")
+        .batch("24-25")
+        .build();
     given(memberRepository.findByMemberId(any()))
-        .willReturn(Optional.of(MemberRegisterRequest.toEntity(memberRegisterRequest)));
+      .willReturn(Optional.of(MemberRegisterRequest.toEntity(memberRegisterRequest)));
 
     // when
     Executable action = () -> subject.register(memberRegisterRequest);
@@ -87,14 +90,14 @@ class MemberServiceTest {
     // given
     Long targetId = 1L;
     Member member =
-        Member.builder()
-            .id(1L)
-            .memberId("202011288")
-            .password("password")
-            .name("문다훈")
-            .email("example@gmail.com")
-            .batch("24-25")
-            .build();
+      Member.builder()
+        .id(1L)
+        .memberId("202011288")
+        .password("password")
+        .name("문다훈")
+        .email("example@gmail.com")
+        .batch("24-25")
+        .build();
     given(memberRepository.findById(any(Long.class))).willReturn(Optional.of(member));
 
     // when
@@ -125,14 +128,14 @@ class MemberServiceTest {
     // given
     Long targetId = 1L;
     Member member =
-        Member.builder()
-            .id(1L)
-            .memberId("202011288")
-            .password("password")
-            .name("문다훈")
-            .email("example@gmail.com")
-            .batch("24-25")
-            .build();
+      Member.builder()
+        .id(1L)
+        .memberId("202011288")
+        .password("password")
+        .name("문다훈")
+        .email("example@gmail.com")
+        .batch("24-25")
+        .build();
     given(memberRepository.findById(any(Long.class))).willReturn(Optional.of(member));
 
     // when `Member` soft deleted

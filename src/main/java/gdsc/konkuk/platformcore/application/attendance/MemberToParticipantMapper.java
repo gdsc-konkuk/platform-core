@@ -7,15 +7,15 @@ import java.util.List;
 
 public class MemberToParticipantMapper {
   public static List<Participant> mapMemberListToParticipantList(
-      List<Member> members, Long attendanceId, boolean attendance) {
+    List<Member> members, Long attendanceId, boolean attendance) {
     return members.stream()
-        .map(
-            member ->
-                Participant.builder()
-                    .attendanceId(attendanceId)
-                    .memberId(member.getId())
-                    .attendance(attendance)
-                    .build())
-        .toList();
+      .map(
+        member ->
+          Participant.builder()
+            .attendanceId(attendanceId)
+            .memberId(member.getId())
+            .attendance(attendance)
+            .build())
+      .toList();
   }
 }

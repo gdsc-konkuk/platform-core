@@ -2,6 +2,7 @@ package gdsc.konkuk.platformcore.domain.event.repository;
 
 import gdsc.konkuk.platformcore.application.event.EventWithAttendance;
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -10,7 +11,7 @@ import java.util.List;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
   @Query(
-      """
+    """
       SELECT new gdsc.konkuk.platformcore.application.event.EventWithAttendance(
         e.id, a.id, e.title, e.thumbnailUrl, e.startAt
       )
@@ -19,5 +20,5 @@ public interface EventRepository extends JpaRepository<Event, Long> {
       WHERE e.startAt BETWEEN :st AND :en
       """)
   List<EventWithAttendance> findAllWithAttendanceByStartAtBetween(
-      LocalDateTime st, LocalDateTime en);
+    LocalDateTime st, LocalDateTime en);
 }

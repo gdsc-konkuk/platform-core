@@ -41,21 +41,24 @@ import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
 @ExtendWith({RestDocumentationExtension.class})
 class AuthControllerTest {
 
-  @Autowired private WebApplicationContext context;
+  @Autowired
+  private WebApplicationContext context;
 
-  @Autowired PasswordEncoder passwordEncoder;
+  @Autowired
+  PasswordEncoder passwordEncoder;
 
-  @MockBean MemberRepository memberRepository;
+  @MockBean
+  MemberRepository memberRepository;
 
   private MockMvc mockMvc;
 
   @BeforeEach
   void setUp(RestDocumentationContextProvider restDocumentation) {
     mockMvc =
-        MockMvcBuilders.webAppContextSetup(this.context)
-            .apply(springSecurity())
-            .apply(documentationConfiguration(restDocumentation))
-            .build();
+      MockMvcBuilders.webAppContextSetup(this.context)
+        .apply(springSecurity())
+        .apply(documentationConfiguration(restDocumentation))
+        .build();
   }
 
   @Test
@@ -64,39 +67,39 @@ class AuthControllerTest {
   void loginSuccess() throws Exception {
     // given
     given(memberRepository.findByMemberId(any()))
-        .willReturn(
-            Optional.of(
-                Member.builder()
-                    .memberId("202011288")
-                    .password(passwordEncoder.encode("gdscgdsc"))
-                    .name("우이산")
-                    .email("helloworld@gmail.com")
-                    .batch("24-25")
-                    .build()));
+      .willReturn(
+        Optional.of(
+          Member.builder()
+            .memberId("202011288")
+            .password(passwordEncoder.encode("gdscgdsc"))
+            .name("우이산")
+            .email("helloworld@gmail.com")
+            .batch("24-25")
+            .build()));
 
     // when
     ResultActions result =
-        mockMvc.perform(
-            RestDocumentationRequestBuilders.multipart("/login")
-                .formField("id", "202011288")
-                .formField("password", "gdscgdsc")
-                .contentType("application/x-www-form-urlencoded")
-                .characterEncoding("UTF-8")
-                .with(csrf()));
+      mockMvc.perform(
+        RestDocumentationRequestBuilders.multipart("/login")
+          .formField("id", "202011288")
+          .formField("password", "gdscgdsc")
+          .contentType("application/x-www-form-urlencoded")
+          .characterEncoding("UTF-8")
+          .with(csrf()));
 
     // then
     result
-        .andDo(print())
-        .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl("/"))
-        .andDo(
-            document(
-                "login",
-                resource(
-                    ResourceSnippetParameters.builder()
-                        .description("사용자 로그인 성공")
-                        .tag("auth")
-                        .build())));
+      .andDo(print())
+      .andExpect(status().is3xxRedirection())
+      .andExpect(redirectedUrl("/"))
+      .andDo(
+        document(
+          "login",
+          resource(
+            ResourceSnippetParameters.builder()
+              .description("사용자 로그인 성공")
+              .tag("auth")
+              .build())));
   }
 
   @Test
@@ -108,7 +111,7 @@ class AuthControllerTest {
 
     // when
     ResultActions result =
-        mockMvc.perform(formLogin("/login").user("202011288").password("gdscgdsc1"));
+      mockMvc.perform(formLogin("/login").user("202011288").password("gdscgdsc1"));
 
     // then
     result.andDo(print()).andExpect(status().isBadRequest());

@@ -10,7 +10,7 @@ import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 @Retention(RetentionPolicy.RUNTIME)
 @WithSecurityContext(factory = WithMyCustomUserSecurityContextFactory.class)
 public @interface CustomMockUser {
-	String memberId() default "202011288";
+  String memberId() default "202011288";
 
-	MemberRole role() default MemberRole.MEMBER;
+  MemberRole role() default MemberRole.MEMBER;
 }

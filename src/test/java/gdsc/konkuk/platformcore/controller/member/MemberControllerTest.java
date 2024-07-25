@@ -41,21 +41,24 @@ class MemberControllerTest {
 
   MockMvc mockMvc;
 
-  @Mock Member member;
+  @Mock
+  Member member;
 
-  @MockBean private MemberService memberService;
+  @MockBean
+  private MemberService memberService;
 
-  @Autowired private ObjectMapper objectMapper;
+  @Autowired
+  private ObjectMapper objectMapper;
 
   @BeforeEach
   void setUp(
-      WebApplicationContext webApplicationContext,
-      RestDocumentationContextProvider restDocumentation) {
+    WebApplicationContext webApplicationContext,
+    RestDocumentationContextProvider restDocumentation) {
     mockMvc =
-        MockMvcBuilders.webAppContextSetup(webApplicationContext)
-            .apply(springSecurity())
-            .apply(documentationConfiguration(restDocumentation))
-            .build();
+      MockMvcBuilders.webAppContextSetup(webApplicationContext)
+        .apply(springSecurity())
+        .apply(documentationConfiguration(restDocumentation))
+        .build();
   }
 
   @Test
@@ -63,48 +66,48 @@ class MemberControllerTest {
   void should_success_when_newMember() throws Exception {
     // given
     MemberRegisterRequest memberRegisterRequest =
-        MemberRegisterRequest.builder()
-            .memberId("202011288")
-            .password("password")
-            .email("example@konkuk.ac.kr")
-            .name("홍길동")
-            .batch("24-25")
-            .build();
+      MemberRegisterRequest.builder()
+        .memberId("202011288")
+        .password("password")
+        .email("example@konkuk.ac.kr")
+        .name("홍길동")
+        .batch("24-25")
+        .build();
     given(memberService.register(any(MemberRegisterRequest.class))).willReturn(member);
 
     // when
     ResultActions result =
-        mockMvc.perform(
-            RestDocumentationRequestBuilders.post("/api/v1/members")
-                .contentType(APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(memberRegisterRequest))
-                .with(csrf()));
+      mockMvc.perform(
+        RestDocumentationRequestBuilders.post("/api/v1/members")
+          .contentType(APPLICATION_JSON)
+          .content(objectMapper.writeValueAsString(memberRegisterRequest))
+          .with(csrf()));
 
     // then
     result
-        .andDo(print())
-        .andExpect(status().isCreated())
-        .andDo(
-            document(
-                "member/register",
-                preprocessRequest(prettyPrint()),
-                preprocessResponse(prettyPrint()),
-                resource(
-                    ResourceSnippetParameters.builder()
-                        .description("새로운 멤버 회원 가입 성공")
-                        .tag("member")
-                        .responseHeaders(headerWithName("Location").description("등록한 Member URI"))
-                        .requestFields(
-                            fieldWithPath("memberId").description("회원 아이디"),
-                            fieldWithPath("password").description("비밀번호"),
-                            fieldWithPath("email").description("이메일"),
-                            fieldWithPath("name").description("이름"),
-                            fieldWithPath("batch").description("배치"))
-                        .responseFields(
-                            fieldWithPath("success").description(true),
-                            fieldWithPath("message").description("회원 가입 성공"),
-                            fieldWithPath("data").description("null"))
-                        .build())));
+      .andDo(print())
+      .andExpect(status().isCreated())
+      .andDo(
+        document(
+          "member/register",
+          preprocessRequest(prettyPrint()),
+          preprocessResponse(prettyPrint()),
+          resource(
+            ResourceSnippetParameters.builder()
+              .description("새로운 멤버 회원 가입 성공")
+              .tag("member")
+              .responseHeaders(headerWithName("Location").description("등록한 Member URI"))
+              .requestFields(
+                fieldWithPath("memberId").description("회원 아이디"),
+                fieldWithPath("password").description("비밀번호"),
+                fieldWithPath("email").description("이메일"),
+                fieldWithPath("name").description("이름"),
+                fieldWithPath("batch").description("배치"))
+              .responseFields(
+                fieldWithPath("success").description(true),
+                fieldWithPath("message").description("회원 가입 성공"),
+                fieldWithPath("data").description("null"))
+              .build())));
   }
 
   @Test
@@ -112,23 +115,23 @@ class MemberControllerTest {
   void should_fail_when_existingMember() throws Exception {
     // given
     MemberRegisterRequest memberRegisterRequest =
-        MemberRegisterRequest.builder()
-            .memberId("202011288")
-            .password("password")
-            .email("example@konkuk.ac.kr")
-            .name("홍길동")
-            .batch("24-25")
-            .build();
+      MemberRegisterRequest.builder()
+        .memberId("202011288")
+        .password("password")
+        .email("example@konkuk.ac.kr")
+        .name("홍길동")
+        .batch("24-25")
+        .build();
     given(memberService.register(any(MemberRegisterRequest.class)))
-        .willThrow(UserAlreadyExistException.class);
+      .willThrow(UserAlreadyExistException.class);
 
     // when
     ResultActions result =
-        mockMvc.perform(
-            RestDocumentationRequestBuilders.post("/api/v1/members")
-                .contentType(APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(memberRegisterRequest))
-                .with(csrf()));
+      mockMvc.perform(
+        RestDocumentationRequestBuilders.post("/api/v1/members")
+          .contentType(APPLICATION_JSON)
+          .content(objectMapper.writeValueAsString(memberRegisterRequest))
+          .with(csrf()));
 
     // then
     result.andDo(print()).andExpect(status().isBadRequest());
@@ -142,24 +145,24 @@ class MemberControllerTest {
 
     // when
     ResultActions result =
-        mockMvc.perform(
-            RestDocumentationRequestBuilders.delete("/api/v1/members")
-                .contentType(APPLICATION_JSON)
-                .with(csrf()));
+      mockMvc.perform(
+        RestDocumentationRequestBuilders.delete("/api/v1/members")
+          .contentType(APPLICATION_JSON)
+          .with(csrf()));
 
     // then
     result
-        .andDo(print())
-        .andExpect(status().isNoContent())
-        .andDo(
-            document(
-                "member/delete",
-                preprocessRequest(prettyPrint()),
-                preprocessResponse(prettyPrint()),
-                resource(
-                    ResourceSnippetParameters.builder()
-                        .description("존재하는 회원 탈퇴")
-                        .tag("member")
-                        .build())));
+      .andDo(print())
+      .andExpect(status().isNoContent())
+      .andDo(
+        document(
+          "member/delete",
+          preprocessRequest(prettyPrint()),
+          preprocessResponse(prettyPrint()),
+          resource(
+            ResourceSnippetParameters.builder()
+              .description("존재하는 회원 탈퇴")
+              .tag("member")
+              .build())));
   }
 }

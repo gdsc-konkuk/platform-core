@@ -11,8 +11,10 @@ import lombok.Setter;
 @Setter
 @Builder
 public class AttendanceRegisterRequest {
-  @NotNull private Long eventId;
-  @NotEmpty private String batch;
+  @NotNull
+  private Long eventId;
+  @NotEmpty
+  private String batch;
 
   public static Attendance toEntity(AttendanceRegisterRequest request) {
     return Attendance.builder().eventId(request.getEventId()).build();
