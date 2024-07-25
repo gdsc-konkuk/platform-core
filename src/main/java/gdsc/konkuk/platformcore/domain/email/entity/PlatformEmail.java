@@ -12,6 +12,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
@@ -22,34 +23,33 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Email {
+public class PlatformEmail {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "email_id")
   private Long id;
 
-  @Lob
-  @Column(name = "email_content")
+  @Column(name = "email_content", columnDefinition = "TEXT")
   private String content;
 
   private String subject;
 
   private boolean isHtml = true;
 
-  @OneToMany(mappedBy = "email", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+  @JoinColumn(name = "email_id")
   List<Receiver> receivers = new ArrayList<>();
 
   @Builder
-  public Email(String content, String subject) {
+  public PlatformEmail(String content, String subject) {
     this.content = validateNotNull(content, "content");
-    this.subject = validateNotNull(subject, "content");
+    this.subject = validateNotNull(subject, "subject");
   }
 
   public void addReceivers(List<String> receiverList) {
     for (String receiverEmail : receiverList) {
       Receiver receiver = new Receiver(receiverEmail, false);
-      receiver.registerEmail(this);
       receivers.add(receiver);
     }
   }

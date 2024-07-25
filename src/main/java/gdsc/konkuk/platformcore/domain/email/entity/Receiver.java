@@ -28,17 +28,9 @@ public class Receiver {
   @Column(name = "receiver_is_sent")
   private boolean isSent;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "email_id")
-  private Email email;
-
   @Builder
   public Receiver(String dest, boolean isSent) {
     this.dest = dest;
     this.isSent = isSent;
-  }
-
-  public void registerEmail(Email email) {
-    this.email = email;
   }
 }
