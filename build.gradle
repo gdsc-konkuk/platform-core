@@ -90,7 +90,10 @@ tasks.named('test') {
 jacoco {
     toolVersion = "0.8.7"
 }
+
 jacocoTestReport {
+    dependsOn 'copySwaggerUI'
+
     reports {
         html.required = true
         xml.required = true
