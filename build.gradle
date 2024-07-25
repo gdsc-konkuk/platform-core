@@ -14,6 +14,7 @@ plugins {
     id "org.sonarqube" version "4.4.1.3373"
     id 'com.epages.restdocs-api-spec' version '0.19.2'
     id 'org.hidetake.swagger.generator' version '2.19.2'
+    id 'jacoco'
 }
 
 
@@ -42,12 +43,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security:2.3.3.RELEASE'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
 
 
     runtimeOnly 'com.h2database:h2:2.2.224'
+//    implementation 'mysql:mysql-connector-java:8.0.32'
     implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.1")
 
 
@@ -81,6 +84,14 @@ swaggerSources {
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy 'jacocoTestReport'
+}
+
+jacocoTestReport {
+    reports {
+        html.enabled true
+        xml.enabled true
+    }
 }
 
 tasks.withType(GenerateSwaggerUI).configureEach {
@@ -114,6 +125,6 @@ sonar {
         property "sonar.projectKey", "gdsc-konkuk_platform-core"
         property "sonar.organization", "gdsc-konkuk"
         property "sonar.host.url", "https://sonarcloud.io"
+        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
     }
 }
-
