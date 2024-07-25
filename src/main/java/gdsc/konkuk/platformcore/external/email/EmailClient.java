@@ -8,7 +8,7 @@ import org.springframework.mail.MailParseException;
 
 import org.springframework.stereotype.Component;
 
-import gdsc.konkuk.platformcore.domain.email.entity.Email;
+import gdsc.konkuk.platformcore.domain.email.entity.PlatformEmail;
 import gdsc.konkuk.platformcore.domain.email.entity.Receiver;
 import gdsc.konkuk.platformcore.external.email.exceptions.EmailErrorCode;
 import gdsc.konkuk.platformcore.external.email.exceptions.EmailSendingException;
@@ -22,7 +22,7 @@ public class EmailClient {
 
   private final JavaMailSender javaMailSender;
 
-  public void sendAll(Email email) {
+  public void sendEmailToReceivers(PlatformEmail email) {
     List<Receiver> receivers = email.getReceivers();
     receivers.forEach(receiver -> sendEmail(receiver.getDest(), email.getSubject(), email.getContent()));
   }
