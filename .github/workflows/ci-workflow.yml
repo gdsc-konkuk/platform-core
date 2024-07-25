@@ -4,7 +4,7 @@ on:
     branches:
       - main
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
 jobs:
   build:
     name: Build and analyze
@@ -45,6 +45,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew build sonar --info
+
+      - name: Upload Gradle Report
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: gradle-report
+          path: spring/build/reports
 
       - name: Backend CI Discord Notification
         uses: sarisia/actions-status-discord@v1
