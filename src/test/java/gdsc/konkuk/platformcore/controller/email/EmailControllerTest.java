@@ -18,7 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
@@ -41,7 +41,7 @@ import gdsc.konkuk.platformcore.controller.email.dto.EmailSendRequest;
 // 2-1 이메일 전송 실패 - 잘못된 형식의 수신자 이메일
 // 2-2 이메일 전송 실패 - 잘못된 형식의 content
 @RestDocsTest
-@WebMvcTest(EmailController.class)
+@SpringBootTest
 class EmailControllerTest {
 
   private MockMvc mockMvc;
