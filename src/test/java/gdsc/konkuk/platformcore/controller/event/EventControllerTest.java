@@ -1,8 +1,8 @@
 package gdsc.konkuk.platformcore.controller.event;
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
-import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
 import gdsc.konkuk.platformcore.application.event.EventService;
+import gdsc.konkuk.platformcore.application.event.EventWithAttendance;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,15 +19,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
@@ -45,7 +42,6 @@ public class EventControllerTest {
 
   private MockMvc mockMvc;
 
-  @MockBean private AttendanceService attendanceService;
   @MockBean private EventService eventService;
 
   @BeforeEach
@@ -64,31 +60,13 @@ public class EventControllerTest {
   @WithMockUser
   void should_get_events_of_the_month_when_pass_year_month() throws Exception {
     // given
-    given(eventService.getEventsOfTheMonth(any(LocalDate.class)))
+    given(eventService.getEventsOfTheMonthWithAttendance(any(LocalDate.class)))
         .willReturn(
             List.of(
                 // TODO: Fixture 정리
-                EventOfMonthResponse.builder()
-                    .id(0L)
-                    .title("title0")
-                    .thumbnailUrl("https://domain.com/image/path/url")
-                    .startAt(LocalDateTime.now())
-                    .hasAttendance(true)
-                    .build(),
-                EventOfMonthResponse.builder()
-                    .id(1L)
-                    .title("title1")
-                    .thumbnailUrl("https://domain.com/image/path/url")
-                    .startAt(LocalDateTime.now())
-                    .hasAttendance(false)
-                    .build(),
-                EventOfMonthResponse.builder()
-                    .id(2L)
-                    .title("title2")
-                    .thumbnailUrl("https://domain.com/image/path/url")
-                    .startAt(LocalDateTime.now())
-                    .hasAttendance(true)
-                    .build()));
+                EventWithAttendance.builder().attendanceId(0L).eventId(0L).build(),
+                EventWithAttendance.builder().attendanceId(1L).eventId(1L).build(),
+                EventWithAttendance.builder().attendanceId(2L).eventId(2L).build()));
 
     // when
     ResultActions result =
@@ -114,80 +92,11 @@ public class EventControllerTest {
                         .responseFields(
                             fieldWithPath("success").description("성공 여부"),
                             fieldWithPath("message").description("메시지"),
-                            fieldWithPath("data[].id").description("이벤트 ID"),
-                            fieldWithPath("data[].title").description("이벤트 소개"),
+                            fieldWithPath("data[].eventId").description("이벤트 ID"),
+                            fieldWithPath("data[].title").description("이벤트 제목"),
+                            fieldWithPath("data[].attendanceId").description("출석 ID"),
                             fieldWithPath("data[].thumbnailUrl").description("썸네일 URL"),
-                            fieldWithPath("data[].startAt").description("이벤트 시작 시간"),
-                            fieldWithPath("data[].hasAttendance").description("출석 등록 여부"))
-                        .build())));
-  }
-
-  @Test
-  @DisplayName("이벤트 출석을 등록할 수 있다")
-  @WithMockUser
-  void should_register_attendance_when_pass_event_id() throws Exception {
-    // given
-    doNothing().when(attendanceService).registerAttendance(any(Long.class));
-
-    // when
-    ResultActions result =
-        mockMvc.perform(
-            RestDocumentationRequestBuilders.post("/api/v1/events/{eventId}/attendance", 1)
-                .with(csrf()));
-
-    // then
-    result
-        .andDo(print())
-        .andExpect(status().isCreated())
-        .andDo(
-            document(
-                "registerAttendance",
-                preprocessRequest(prettyPrint()),
-                preprocessResponse(prettyPrint()),
-                resource(
-                    ResourceSnippetParameters.builder()
-                        .description("이벤트 출석을 등록할 수 있다")
-                        .tag("attendance")
-                        .responseHeaders(headerWithName("Location").description("등록한 출석 URL"))
-                        .pathParameters(parameterWithName("eventId").description("이벤트 ID"))
-                        .responseFields(
-                            fieldWithPath("success").description("성공 여부"),
-                            fieldWithPath("message").description("메시지"),
-                            fieldWithPath("data").description("null"))
-                        .build())));
-  }
-
-  @Test
-  @DisplayName("이벤트 출석을 삭제할 수 있다")
-  @WithMockUser
-  void should_delete_attendance_when_pass_event_id() throws Exception {
-    // given
-    doNothing().when(attendanceService).deleteAttendance(any(Long.class));
-
-    // when
-    ResultActions result =
-        mockMvc.perform(
-            RestDocumentationRequestBuilders.delete("/api/v1/events/{eventId}/attendance", 1)
-                .with(csrf()));
-
-    // then
-    result
-        .andDo(print())
-        .andExpect(status().isOk())
-        .andDo(
-            document(
-                "deleteAttendance",
-                preprocessRequest(prettyPrint()),
-                preprocessResponse(prettyPrint()),
-                resource(
-                    ResourceSnippetParameters.builder()
-                        .description("이벤트 출석을 삭제할 수 있다")
-                        .tag("attendance")
-                        .pathParameters(parameterWithName("eventId").description("이벤트 ID"))
-                        .responseFields(
-                            fieldWithPath("success").description("성공 여부"),
-                            fieldWithPath("message").description("메시지"),
-                            fieldWithPath("data").description("null"))
+                            fieldWithPath("data[].startAt").description("이벤트 시작 시간"))
                         .build())));
   }
 }

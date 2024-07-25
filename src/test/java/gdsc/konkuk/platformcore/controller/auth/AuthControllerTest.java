@@ -41,25 +41,22 @@ import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
 @ExtendWith({RestDocumentationExtension.class})
 class AuthControllerTest {
 
-	@Autowired
-	private WebApplicationContext context;
+  @Autowired private WebApplicationContext context;
 
-	@Autowired
-	PasswordEncoder passwordEncoder;
+  @Autowired PasswordEncoder passwordEncoder;
 
-	@MockBean
-	MemberRepository memberRepository;
+  @MockBean MemberRepository memberRepository;
 
-	private MockMvc mockMvc;
+  private MockMvc mockMvc;
 
-	@BeforeEach
-	void setUp(RestDocumentationContextProvider restDocumentation) {
-		mockMvc = MockMvcBuilders
-			.webAppContextSetup(this.context)
-			.apply(springSecurity())
-			.apply(documentationConfiguration(restDocumentation))
-			.build();
-	}
+  @BeforeEach
+  void setUp(RestDocumentationContextProvider restDocumentation) {
+    mockMvc =
+        MockMvcBuilders.webAppContextSetup(this.context)
+            .apply(springSecurity())
+            .apply(documentationConfiguration(restDocumentation))
+            .build();
+  }
 
   @Test
   @DisplayName("사용자 로그인 성공")
@@ -74,14 +71,14 @@ class AuthControllerTest {
                     .password(passwordEncoder.encode("gdscgdsc"))
                     .name("우이산")
                     .email("helloworld@gmail.com")
-                    .batch(2024)
+                    .batch("24-25")
                     .build()));
 
     // when
     ResultActions result =
         mockMvc.perform(
             RestDocumentationRequestBuilders.multipart("/login")
-                .formField("memberId", "202011288")
+                .formField("id", "202011288")
                 .formField("password", "gdscgdsc")
                 .contentType("application/x-www-form-urlencoded")
                 .characterEncoding("UTF-8")

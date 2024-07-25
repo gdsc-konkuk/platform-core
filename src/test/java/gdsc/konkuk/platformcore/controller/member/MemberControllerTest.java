@@ -1,7 +1,6 @@
 package gdsc.konkuk.platformcore.controller.member;
 
 import static com.epages.restdocs.apispec.ResourceDocumentation.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
@@ -40,24 +39,24 @@ import gdsc.konkuk.platformcore.domain.member.entity.Member;
 @ExtendWith({RestDocumentationExtension.class})
 class MemberControllerTest {
 
-	MockMvc mockMvc;
+  MockMvc mockMvc;
 
-	@Mock
-	Member member;
+  @Mock Member member;
 
   @MockBean private MemberService memberService;
 
-	@Autowired
-	private ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
-	@BeforeEach
-	void setUp(WebApplicationContext webApplicationContext, RestDocumentationContextProvider restDocumentation) {
-		mockMvc = MockMvcBuilders
-			.webAppContextSetup(webApplicationContext)
-			.apply(springSecurity())
-			.apply(documentationConfiguration(restDocumentation))
-			.build();
-	}
+  @BeforeEach
+  void setUp(
+      WebApplicationContext webApplicationContext,
+      RestDocumentationContextProvider restDocumentation) {
+    mockMvc =
+        MockMvcBuilders.webAppContextSetup(webApplicationContext)
+            .apply(springSecurity())
+            .apply(documentationConfiguration(restDocumentation))
+            .build();
+  }
 
   @Test
   @DisplayName("새로운 멤버 회원 가입 성공")
@@ -69,7 +68,7 @@ class MemberControllerTest {
             .password("password")
             .email("example@konkuk.ac.kr")
             .name("홍길동")
-            .batch(2024)
+            .batch("24-25")
             .build();
     given(memberService.register(any(MemberRegisterRequest.class))).willReturn(member);
 
@@ -118,7 +117,7 @@ class MemberControllerTest {
             .password("password")
             .email("example@konkuk.ac.kr")
             .name("홍길동")
-            .batch(2024)
+            .batch("24-25")
             .build();
     given(memberService.register(any(MemberRegisterRequest.class)))
         .willThrow(UserAlreadyExistException.class);
@@ -151,7 +150,7 @@ class MemberControllerTest {
     // then
     result
         .andDo(print())
-        .andExpect(status().isOk())
+        .andExpect(status().isNoContent())
         .andDo(
             document(
                 "member/delete",
@@ -161,10 +160,6 @@ class MemberControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("존재하는 회원 탈퇴")
                         .tag("member")
-                        .responseFields(
-                            fieldWithPath("success").description(true),
-                            fieldWithPath("message").description("회원 탈퇴 성공"),
-                            fieldWithPath("data").description("null"))
                         .build())));
   }
 }

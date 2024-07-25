@@ -1,7 +1,6 @@
 package gdsc.konkuk.platformcore.application.member;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 
 import java.util.Optional;
@@ -23,23 +22,19 @@ import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
 
 class MemberServiceTest {
 
-	private MemberService subject;
+  private MemberService subject;
 
-	@Mock
-	private Member member;
+  @Mock private Member member;
 
-	@Mock
-	private MemberRepository memberRepository;
+  @Mock private MemberRepository memberRepository;
 
-	@Mock
-	private PasswordEncoder passwordEncoder;
+  @Mock private PasswordEncoder passwordEncoder;
 
-
-	@BeforeEach
-	void setUp() {
-		MockitoAnnotations.openMocks(this);
-		subject = new MemberService(passwordEncoder, memberRepository);
-	}
+  @BeforeEach
+  void setUp() {
+    MockitoAnnotations.openMocks(this);
+    subject = new MemberService(passwordEncoder, memberRepository);
+  }
 
   @Test
   @DisplayName("Register : 새로운 멤버 회원가입 성공")
@@ -51,7 +46,7 @@ class MemberServiceTest {
             .password("password")
             .email("example@konkuk.ac.kr")
             .name("홍길동")
-            .batch(2024)
+            .batch("24-25")
             .build();
     given(memberRepository.findByMemberId(any())).willReturn(Optional.empty());
     given(memberRepository.save(any(Member.class))).willReturn(member);
@@ -74,7 +69,7 @@ class MemberServiceTest {
             .password("password")
             .email("example@konkuk.ac.kr")
             .name("홍길동")
-            .batch(2024)
+            .batch("24-25")
             .build();
     given(memberRepository.findByMemberId(any()))
         .willReturn(Optional.of(MemberRegisterRequest.toEntity(memberRegisterRequest)));
@@ -98,7 +93,7 @@ class MemberServiceTest {
             .password("password")
             .name("문다훈")
             .email("example@gmail.com")
-            .batch(2024)
+            .batch("24-25")
             .build();
     given(memberRepository.findById(any(Long.class))).willReturn(Optional.of(member));
 
@@ -136,7 +131,7 @@ class MemberServiceTest {
             .password("password")
             .name("문다훈")
             .email("example@gmail.com")
-            .batch(2024)
+            .batch("24-25")
             .build();
     given(memberRepository.findById(any(Long.class))).willReturn(Optional.of(member));
 

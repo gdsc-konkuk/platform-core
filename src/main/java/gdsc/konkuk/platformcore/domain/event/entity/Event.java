@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+import static gdsc.konkuk.platformcore.global.utils.FieldValidator.validateNotNull;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -35,9 +37,6 @@ public class Event {
   @Column(name = "end_at")
   private LocalDateTime endAt;
 
-  @Column(name = "has_attendance")
-  private boolean hasAttendance;
-
   @Builder
   public Event(
       Long id,
@@ -45,22 +44,12 @@ public class Event {
       String description,
       String thumbnailUrl,
       LocalDateTime startAt,
-      LocalDateTime endAt,
-      boolean hasAttendance) {
+      LocalDateTime endAt) {
     this.id = id;
-    this.title = title;
+    this.title = validateNotNull(title, "title");
     this.description = description;
     this.thumbnailUrl = thumbnailUrl;
     this.startAt = startAt;
     this.endAt = endAt;
-    this.hasAttendance = hasAttendance;
-  }
-
-  public void registerAttendance() {
-    this.hasAttendance = true;
-  }
-
-  public void deleteAttendance() {
-    this.hasAttendance = false;
   }
 }
