@@ -12,9 +12,12 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 public class EventWithAttendance {
-  @NotNull private Long eventId;
+  @NotNull
+  private Long eventId;
   private Long attendanceId;
-  @NotEmpty private String title;
+  @NotEmpty
+  private String title;
   private String thumbnailUrl;
-  @NotNull private LocalDateTime startAt;
+  @NotNull
+  private LocalDateTime startAt;
 }

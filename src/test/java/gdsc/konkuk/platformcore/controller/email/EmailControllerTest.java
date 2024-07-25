@@ -38,71 +38,70 @@ import gdsc.konkuk.platformcore.controller.email.dto.EmailSendRequest;
 
 // 1. 이메일 전송 성공 테스트
 // 2. 이메일 전송 실패 테스트
-			// 2-1 이메일 전송 실패 - 잘못된 형식의 수신자 이메일
-			// 2-2 이메일 전송 실패 - 잘못된 형식의 content
+// 2-1 이메일 전송 실패 - 잘못된 형식의 수신자 이메일
+// 2-2 이메일 전송 실패 - 잘못된 형식의 content
 @RestDocsTest
 @WebMvcTest(EmailController.class)
 class EmailControllerTest {
 
-	private MockMvc mockMvc;
+  private MockMvc mockMvc;
 
-	@MockBean
-	private EmailService emailService;
+  @MockBean
+  private EmailService emailService;
 
-	@Autowired
-	private ObjectMapper objectMapper;
+  @Autowired
+  private ObjectMapper objectMapper;
 
+  @BeforeEach
+  void setUp(WebApplicationContext webApplicationContext, RestDocumentationContextProvider restDocumentation) {
+    MockitoAnnotations.openMocks(this);
+    mockMvc = MockMvcBuilders
+      .webAppContextSetup(webApplicationContext)
+      .apply(springSecurity())
+      .apply(documentationConfiguration(restDocumentation))
+      .build();
+  }
 
-	@BeforeEach
-	void setUp(WebApplicationContext webApplicationContext, RestDocumentationContextProvider restDocumentation) {
-		MockitoAnnotations.openMocks(this);
-		mockMvc = MockMvcBuilders
-			.webAppContextSetup(webApplicationContext)
-			.apply(springSecurity())
-			.apply(documentationConfiguration(restDocumentation))
-			.build();
-	}
+  @Test
+  @DisplayName("이메일 전송 성공")
+  @CustomMockUser
+  void should_success_when_send_email() throws Exception {
+    //given
+    EmailSendRequest request = EmailSendRequest.builder()
+      .subject("예시 이메일 제목")
+      .content("Html 문자열")
+      .receivers(List.of("ex1@gmail.com", "ex2@naver.com"))
+      .build();
 
-	@Test
-	@DisplayName("이메일 전송 성공")
-	@CustomMockUser
-	void should_success_when_send_email() throws Exception {
-		//given
-		EmailSendRequest request = EmailSendRequest.builder()
-			.subject("예시 이메일 제목")
-			.content("Html 문자열")
-			.receivers(List.of("ex1@gmail.com", "ex2@naver.com"))
-			.build();
+    when(emailService.process(request)).thenReturn(1L);
 
-		when(emailService.process(request)).thenReturn(1L);
+    ResultActions result = mockMvc.perform(
+      RestDocumentationRequestBuilders.post("/api/v1/emails")
+        .contentType(APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(request))
+        .with(csrf()));
 
-		ResultActions result = mockMvc.perform(
-															RestDocumentationRequestBuilders.post("/api/v1/emails")
-																.contentType(APPLICATION_JSON)
-																.content(objectMapper.writeValueAsString(request))
-																.with(csrf()));
+    result
+      .andExpect(status().isCreated())
+      .andDo(print());
 
-		result
-			.andExpect(status().isCreated())
-			.andDo(print());
-
-		result
-			.andDo(
-				document("emails",
-					preprocessRequest(prettyPrint()),
-					resource(ResourceSnippetParameters.builder()
-						.requestFields(
-							fieldWithPath("subject").type(JsonFieldType.STRING).description("이메일 제목"),
-							fieldWithPath("content").type(JsonFieldType.STRING).description("이메일 내용"),
-							fieldWithPath("receivers").type(JsonFieldType.ARRAY).description("수신자 이메일 목록")
-						)
-						.responseFields(
-							fieldWithPath("success").description(true),
-							fieldWithPath("message").description("이메일 전송 성공"),
-							fieldWithPath("data").description("null")
-						)
-						.build()))
-			);
-	}
+    result
+      .andDo(
+        document("emails",
+          preprocessRequest(prettyPrint()),
+          resource(ResourceSnippetParameters.builder()
+            .requestFields(
+              fieldWithPath("subject").type(JsonFieldType.STRING).description("이메일 제목"),
+              fieldWithPath("content").type(JsonFieldType.STRING).description("이메일 내용"),
+              fieldWithPath("receivers").type(JsonFieldType.ARRAY).description("수신자 이메일 목록")
+            )
+            .responseFields(
+              fieldWithPath("success").description(true),
+              fieldWithPath("message").description("이메일 전송 성공"),
+              fieldWithPath("data").description("null")
+            )
+            .build()))
+      );
+  }
 
 }

@@ -4,5 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import gdsc.konkuk.platformcore.domain.email.entity.Email;
 
-public interface EmailRepository extends JpaRepository<Email, Long>{
+public interface EmailRepository extends JpaRepository<Email, Long> {
 }

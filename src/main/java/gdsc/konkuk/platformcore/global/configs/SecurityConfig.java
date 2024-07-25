@@ -35,40 +35,40 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
-        // TODO: csrf, dev에서만 disable
-        .csrf(AbstractHttpConfigurer::disable)
-        .securityMatcher(apiPath("/members/**"), apiPath("/admin/**"), "/docs/**", "/login")
-        .authorizeHttpRequests(
-            authorize ->
-                authorize
-                    .requestMatchers("/docs/**")
-                    .permitAll()
-                    // TODO: member register, dev에서만 permitAll
-                    .requestMatchers(HttpMethod.POST, apiPath("/members"))
-                    .permitAll()
-                    .requestMatchers(apiPath("/admin/**"))
-                    .hasRole("ADMIN")
-                    .anyRequest()
-                    .authenticated())
-        .formLogin(
-            login ->
-                login
-                    .defaultSuccessUrl("/")
-                    .usernameParameter(LOGIN_NAME)
-                    .successHandler(customAuthenticationSuccessHandler)
-                    .failureHandler(customAuthenticationFailureHandler));
+      // TODO: csrf, dev에서만 disable
+      .csrf(AbstractHttpConfigurer::disable)
+      .securityMatcher(apiPath("/members/**"), apiPath("/admin/**"), "/docs/**", "/login")
+      .authorizeHttpRequests(
+        authorize ->
+          authorize
+            .requestMatchers("/docs/**")
+            .permitAll()
+            // TODO: member register, dev에서만 permitAll
+            .requestMatchers(HttpMethod.POST, apiPath("/members"))
+            .permitAll()
+            .requestMatchers(apiPath("/admin/**"))
+            .hasRole("ADMIN")
+            .anyRequest()
+            .authenticated())
+      .formLogin(
+        login ->
+          login
+            .defaultSuccessUrl("/")
+            .usernameParameter(LOGIN_NAME)
+            .successHandler(customAuthenticationSuccessHandler)
+            .failureHandler(customAuthenticationFailureHandler));
     return httpSecurity.build();
   }
 
   @Bean
   public SecurityFilterChain googleOidcFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
-        // TODO: dev에서만 disable
-        .csrf(AbstractHttpConfigurer::disable)
-        .securityMatcher(
-            apiPath("/attendances/**"), "/oauth2/authorization/google", "/login/oauth2/code/google")
-        .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
-        .oauth2Login(withDefaults());
+      // TODO: dev에서만 disable
+      .csrf(AbstractHttpConfigurer::disable)
+      .securityMatcher(
+        apiPath("/attendances/**"), "/oauth2/authorization/google", "/login/oauth2/code/google")
+      .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
+      .oauth2Login(withDefaults());
     return httpSecurity.build();
   }
 
@@ -84,18 +84,18 @@ public class SecurityConfig {
 
   private ClientRegistration googleClientRegistration() {
     return ClientRegistration.withRegistrationId("google")
-        .clientId(googleOidcConfig.getClientId())
-        .clientSecret(googleOidcConfig.getClientSecret())
-        .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-        .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-        .redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
-        .scope("openid", "profile", "email")
-        .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
-        .tokenUri("https://www.googleapis.com/oauth2/v4/token")
-        .userInfoUri("https://www.googleapis.com/oauth2/v3/userinfo")
-        .userNameAttributeName(IdTokenClaimNames.SUB)
-        .jwkSetUri("https://www.googleapis.com/oauth2/v3/certs")
-        .clientName("Google")
-        .build();
+      .clientId(googleOidcConfig.getClientId())
+      .clientSecret(googleOidcConfig.getClientSecret())
+      .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+      .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+      .redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
+      .scope("openid", "profile", "email")
+      .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
+      .tokenUri("https://www.googleapis.com/oauth2/v4/token")
+      .userInfoUri("https://www.googleapis.com/oauth2/v3/userinfo")
+      .userNameAttributeName(IdTokenClaimNames.SUB)
+      .jwkSetUri("https://www.googleapis.com/oauth2/v3/certs")
+      .clientName("Google")
+      .build();
   }
 }

@@ -11,31 +11,31 @@ import gdsc.konkuk.platformcore.domain.member.entity.Member;
 
 public class CustomUserDetails implements UserDetails {
 
-	private final Member member;
+  private final Member member;
 
-	public CustomUserDetails(Member member) {
-		this.member = member;
-	}
+  public CustomUserDetails(Member member) {
+    this.member = member;
+  }
 
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		Collection<GrantedAuthority> authorities = new ArrayList<>();
-		authorities.add(new SimpleGrantedAuthority(member.getRole().toString()));
-		return authorities;
-	}
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    Collection<GrantedAuthority> authorities = new ArrayList<>();
+    authorities.add(new SimpleGrantedAuthority(member.getRole().toString()));
+    return authorities;
+  }
 
-	@Override
-	public String getPassword() {
-		return member.getPassword();
-	}
+  @Override
+  public String getPassword() {
+    return member.getPassword();
+  }
 
-	@Override
-	public String getUsername() {
-		return Long.toString(member.getId());
-	}
+  @Override
+  public String getUsername() {
+    return Long.toString(member.getId());
+  }
 
-	@Override
-	public boolean isAccountNonExpired() {
-		return member.isMemberActivated();
-	}
+  @Override
+  public boolean isAccountNonExpired() {
+    return member.isMemberActivated();
+  }
 }

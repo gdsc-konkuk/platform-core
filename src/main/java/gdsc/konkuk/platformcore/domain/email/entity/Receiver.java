@@ -17,28 +17,28 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Receiver {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "receiver_id")
-	private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "receiver_id")
+  private Long id;
 
-	@Column(name = "receiver_dest")
-	private String dest;
+  @Column(name = "receiver_dest")
+  private String dest;
 
-	@Column(name = "receiver_is_sent")
-	private boolean isSent;
+  @Column(name = "receiver_is_sent")
+  private boolean isSent;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "email_id")
-	private Email email;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "email_id")
+  private Email email;
 
-	@Builder
-	public Receiver(String dest, boolean isSent) {
-		this.dest = dest;
-		this.isSent = isSent;
-	}
+  @Builder
+  public Receiver(String dest, boolean isSent) {
+    this.dest = dest;
+    this.isSent = isSent;
+  }
 
-	public void registerEmail(Email email) {
-		this.email = email;
-	}
+  public void registerEmail(Email email) {
+    this.email = email;
+  }
 }

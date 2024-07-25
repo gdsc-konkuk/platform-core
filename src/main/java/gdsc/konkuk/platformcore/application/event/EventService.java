@@ -2,6 +2,7 @@ package gdsc.konkuk.platformcore.application.event;
 
 import gdsc.konkuk.platformcore.domain.event.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +18,7 @@ public class EventService {
 
   public List<EventWithAttendance> getEventsOfTheMonthWithAttendance(LocalDate month) {
     return eventRepository.findAllWithAttendanceByStartAtBetween(
-        month.withDayOfMonth(1).atStartOfDay(),
-        month.withDayOfMonth(month.lengthOfMonth()).atTime(LocalTime.MAX));
+      month.withDayOfMonth(1).atStartOfDay(),
+      month.withDayOfMonth(month.lengthOfMonth()).atTime(LocalTime.MAX));
   }
 }

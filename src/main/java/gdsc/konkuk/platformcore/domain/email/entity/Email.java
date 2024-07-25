@@ -24,33 +24,33 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Email {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "email_id")
-	private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "email_id")
+  private Long id;
 
-	@Lob
-	@Column(name = "email_content")
-	private String content;
+  @Lob
+  @Column(name = "email_content")
+  private String content;
 
-	private String subject;
+  private String subject;
 
-	private boolean isHtml = true;
+  private boolean isHtml = true;
 
-	@OneToMany(mappedBy = "email", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	List<Receiver> receivers = new ArrayList<>();
+  @OneToMany(mappedBy = "email", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  List<Receiver> receivers = new ArrayList<>();
 
-	@Builder
-	public Email (String content, String subject) {
-		this.content = validateNotNull(content, "content");
-		this.subject = validateNotNull(subject, "content");
-	}
+  @Builder
+  public Email(String content, String subject) {
+    this.content = validateNotNull(content, "content");
+    this.subject = validateNotNull(subject, "content");
+  }
 
-	public void addReceivers(List<String> receiverList) {
-		for(String receiverEmail : receiverList) {
-			Receiver receiver = new Receiver(receiverEmail, false);
-			receiver.registerEmail(this);
-			receivers.add(receiver);
-		}
-	}
+  public void addReceivers(List<String> receiverList) {
+    for (String receiverEmail : receiverList) {
+      Receiver receiver = new Receiver(receiverEmail, false);
+      receiver.registerEmail(this);
+      receivers.add(receiver);
+    }
+  }
 }

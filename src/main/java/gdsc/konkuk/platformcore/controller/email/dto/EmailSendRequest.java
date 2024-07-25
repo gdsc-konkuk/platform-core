@@ -12,17 +12,17 @@ import lombok.Setter;
 @Getter
 @Setter
 public class EmailSendRequest {
-	@NotEmpty
-	private String subject;
-	@NotEmpty
-	private String content;
-	@NotNull
-	private List<@Email String> receivers;
+  @NotEmpty
+  private String subject;
+  @NotEmpty
+  private String content;
+  @NotNull
+  private List<@Email String> receivers;
 
-	@Builder
-	public EmailSendRequest(String subject, String content, List<String> receivers) {
-		this.subject = subject;
-		this.content = content;
-		this.receivers = receivers;
-	}
+  @Builder
+  public EmailSendRequest(String subject, String content, List<String> receivers) {
+    this.subject = subject;
+    this.content = content;
+    this.receivers = receivers;
+  }
 }

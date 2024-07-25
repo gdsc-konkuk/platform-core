@@ -16,6 +16,7 @@ import gdsc.konkuk.platformcore.domain.event.repository.EventRepository;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,14 +35,14 @@ public class AttendanceService {
   @Transactional
   public Participant attend(String memberEmail, Long attendanceId, String qrUuid) {
     Member member =
-        memberRepository
-            .findByEmail(memberEmail)
-            .orElseThrow(() -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));
+      memberRepository
+        .findByEmail(memberEmail)
+        .orElseThrow(() -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));
     Attendance attendance =
-        attendanceRepository
-            .findById(attendanceId)
-            .orElseThrow(
-                () -> AttendanceNotFoundException.of(AttendanceErrorCode.ATTENDANCE_NOT_FOUND));
+      attendanceRepository
+        .findById(attendanceId)
+        .orElseThrow(
+          () -> AttendanceNotFoundException.of(AttendanceErrorCode.ATTENDANCE_NOT_FOUND));
     if (!attendance.isActiveQr(qrUuid)) {
       throw QrInvalidException.of(AttendanceErrorCode.INVALID_QR_UUID);
     }
@@ -58,8 +59,8 @@ public class AttendanceService {
 
     List<Member> members = memberRepository.findAllByBatch(registerRequest.getBatch());
     List<Participant> participants =
-        MemberToParticipantMapper.mapMemberListToParticipantList(
-            members, newAttendance.getId(), false);
+      MemberToParticipantMapper.mapMemberListToParticipantList(
+        members, newAttendance.getId(), false);
     participantRepository.saveAll(participants);
 
     return newAttendance.getId();
@@ -74,20 +75,20 @@ public class AttendanceService {
   @Transactional
   public String generateQr(Long attendanceId) {
     Attendance attendance =
-        attendanceRepository
-            .findById(attendanceId)
-            .orElseThrow(
-                () -> AttendanceNotFoundException.of(AttendanceErrorCode.ATTENDANCE_NOT_FOUND));
+      attendanceRepository
+        .findById(attendanceId)
+        .orElseThrow(
+          () -> AttendanceNotFoundException.of(AttendanceErrorCode.ATTENDANCE_NOT_FOUND));
     return attendance.generateQr();
   }
 
   @Transactional
   public void expireQr(Long attendanceId, String qrUuid) {
     Attendance attendance =
-        attendanceRepository
-            .findById(attendanceId)
-            .orElseThrow(
-                () -> AttendanceNotFoundException.of(AttendanceErrorCode.ATTENDANCE_NOT_FOUND));
+      attendanceRepository
+        .findById(attendanceId)
+        .orElseThrow(
+          () -> AttendanceNotFoundException.of(AttendanceErrorCode.ATTENDANCE_NOT_FOUND));
     if (!attendance.isActiveQr(qrUuid)) {
       throw QrInvalidException.of(AttendanceErrorCode.INVALID_QR_UUID);
     }
@@ -97,7 +98,7 @@ public class AttendanceService {
 
   private void checkEventExist(Long eventId) {
     eventRepository
-        .findById(eventId)
-        .orElseThrow(() -> EventNotFoundException.of(EventErrorCode.EVENT_NOT_FOUND));
+      .findById(eventId)
+      .orElseThrow(() -> EventNotFoundException.of(EventErrorCode.EVENT_NOT_FOUND));
   }
 }

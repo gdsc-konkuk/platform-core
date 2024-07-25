@@ -11,20 +11,20 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class EmailService{
+public class EmailService {
 
-	private final EmailClient emailClient;
-	private final EmailRepository emailRepository;
+  private final EmailClient emailClient;
+  private final EmailRepository emailRepository;
 
-	@Transactional
-	public Long process(EmailSendRequest request) {
-		Email email = Email.builder()
-			.subject(request.getSubject())
-			.content(request.getContent())
-			.build();
-		email.addReceivers(request.getReceivers());
-		emailRepository.save(email);
-		emailClient.sendAll(email);
-		return email.getId();
-	}
+  @Transactional
+  public Long process(EmailSendRequest request) {
+    Email email = Email.builder()
+      .subject(request.getSubject())
+      .content(request.getContent())
+      .build();
+    email.addReceivers(request.getReceivers());
+    emailRepository.save(email);
+    emailClient.sendAll(email);
+    return email.getId();
+  }
 }

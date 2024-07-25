@@ -39,12 +39,12 @@ public class Event {
 
   @Builder
   public Event(
-      Long id,
-      String title,
-      String description,
-      String thumbnailUrl,
-      LocalDateTime startAt,
-      LocalDateTime endAt) {
+    Long id,
+    String title,
+    String description,
+    String thumbnailUrl,
+    LocalDateTime startAt,
+    LocalDateTime endAt) {
     this.id = id;
     this.title = validateNotNull(title, "title");
     this.description = description;

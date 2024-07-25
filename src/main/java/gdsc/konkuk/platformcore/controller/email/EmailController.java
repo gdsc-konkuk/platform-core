@@ -19,11 +19,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EmailController {
 
-	private final EmailService emailService;
+  private final EmailService emailService;
 
-	@PostMapping()
-	public ResponseEntity<SuccessResponse> sendEmail(@RequestBody @Valid EmailSendRequest request) {
-		Long emailId = emailService.process(request);
-		return ResponseEntity.created(URI.create("/api/v1/emails/" + emailId)).body(SuccessResponse.messageOnly());
-	}
+  @PostMapping()
+  public ResponseEntity<SuccessResponse> sendEmail(@RequestBody @Valid EmailSendRequest request) {
+    Long emailId = emailService.process(request);
+    return ResponseEntity.created(URI.create("/api/v1/emails/" + emailId)).body(SuccessResponse.messageOnly());
+  }
 }

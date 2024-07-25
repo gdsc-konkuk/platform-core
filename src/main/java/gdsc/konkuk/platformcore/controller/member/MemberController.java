@@ -26,10 +26,10 @@ public class MemberController {
 
   @PostMapping()
   public ResponseEntity<SuccessResponse> signup(
-      @RequestBody @Valid MemberRegisterRequest registerRequest) {
+    @RequestBody @Valid MemberRegisterRequest registerRequest) {
     Member registeredMember = memberService.register(registerRequest);
     return ResponseEntity.created(getCreatedURI(registeredMember.getId()))
-        .body(SuccessResponse.messageOnly());
+      .body(SuccessResponse.messageOnly());
   }
 
   @DeleteMapping()
@@ -41,8 +41,8 @@ public class MemberController {
 
   private URI getCreatedURI(Long memberId) {
     return ServletUriComponentsBuilder.fromCurrentRequest()
-        .path("/{id}")
-        .buildAndExpand(memberId)
-        .toUri();
+      .path("/{id}")
+      .buildAndExpand(memberId)
+      .toUri();
   }
 }

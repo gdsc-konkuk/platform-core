@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 @ConfigurationPropertiesScan
 public class PlatformCoreApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(PlatformCoreApplication.class, args);
-	}
+  public static void main(String[] args) {
+    SpringApplication.run(PlatformCoreApplication.class, args);
+  }
 }

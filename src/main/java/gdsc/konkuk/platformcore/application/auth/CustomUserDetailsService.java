@@ -1,6 +1,7 @@
 package gdsc.konkuk.platformcore.application.auth;
 
 import gdsc.konkuk.platformcore.application.member.exceptions.UserNotFoundException;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,9 +21,9 @@ public class CustomUserDetailsService implements UserDetailsService {
   @Override
   public UserDetails loadUserByUsername(String memberId) throws UsernameNotFoundException {
     Member member =
-        memberRepository
-            .findByMemberId(memberId)
-            .orElseThrow(() -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));
+      memberRepository
+        .findByMemberId(memberId)
+        .orElseThrow(() -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));
     return new CustomUserDetails(member);
   }
 }

@@ -20,30 +20,30 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EmailClient {
 
-	private final JavaMailSender javaMailSender;
+  private final JavaMailSender javaMailSender;
 
-	public void sendAll(Email email) {
-		List<Receiver> receivers = email.getReceivers();
-		receivers.forEach(receiver -> sendEmail(receiver.getDest(), email.getSubject(), email.getContent()));
-	}
+  public void sendAll(Email email) {
+    List<Receiver> receivers = email.getReceivers();
+    receivers.forEach(receiver -> sendEmail(receiver.getDest(), email.getSubject(), email.getContent()));
+  }
 
-	private void sendEmail(String to, String subject, String text) {
-		try {
-			MimeMessage message = convertToHTMLMimeMessage(to, subject, text);
-			javaMailSender.send(message);
-		} catch (MailParseException e) {
-			throw EmailSendingException.of(EmailErrorCode.MAIL_PARSING_ERROR, e.getMessage());
-		} catch (MessagingException e) {
-			throw EmailSendingException.of(EmailErrorCode.MAIL_SENDING_ERROR, e.getMessage());
-		}
-	}
+  private void sendEmail(String to, String subject, String text) {
+    try {
+      MimeMessage message = convertToHTMLMimeMessage(to, subject, text);
+      javaMailSender.send(message);
+    } catch (MailParseException e) {
+      throw EmailSendingException.of(EmailErrorCode.MAIL_PARSING_ERROR, e.getMessage());
+    } catch (MessagingException e) {
+      throw EmailSendingException.of(EmailErrorCode.MAIL_SENDING_ERROR, e.getMessage());
+    }
+  }
 
-	private MimeMessage convertToHTMLMimeMessage(String to, String subject, String text) throws MessagingException{
-		MimeMessage message = javaMailSender.createMimeMessage();
-		message.setSubject(subject);
-		MimeMessageHelper helper = new MimeMessageHelper(message, true);
-		helper.setTo(to);
-		helper.setText(text, true);
-		return message;
-	}
+  private MimeMessage convertToHTMLMimeMessage(String to, String subject, String text) throws MessagingException {
+    MimeMessage message = javaMailSender.createMimeMessage();
+    message.setSubject(subject);
+    MimeMessageHelper helper = new MimeMessageHelper(message, true);
+    helper.setTo(to);
+    helper.setText(text, true);
+    return message;
+  }
 }
