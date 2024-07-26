@@ -6,6 +6,7 @@ import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class MemberAttendanceInfo {
               .memberRole(member.getRole())
               .profileImageUrl(member.getProfileImageUrl())
               .department(member.getDepartment())
-              .attendanceInfoList(List.of())
+              .attendanceInfoList(new ArrayList<>())
               .build());
     }
     for (AttendanceInfo attendanceInfo : attendanceInfoList) {
