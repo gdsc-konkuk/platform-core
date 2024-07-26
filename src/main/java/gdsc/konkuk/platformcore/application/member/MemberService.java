@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import gdsc.konkuk.platformcore.application.attendance.AttendanceInfo;
+import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceErrorCode;
+import gdsc.konkuk.platformcore.application.attendance.exceptions.ParticipantNotFoundException;
 import gdsc.konkuk.platformcore.controller.member.AttendanceUpdateRequest;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Participant;
 import gdsc.konkuk.platformcore.domain.attendance.repository.AttendanceRepository;
@@ -79,6 +81,10 @@ public class MemberService {
             .stream()
             .collect(toMap(Participant::getId, identity()));
     for (AttendanceUpdateRequest attendanceUpdateRequest : attendanceUpdateRequests) {
+      if (!participantMap.containsKey(attendanceUpdateRequest.getParticipantId())) {
+        throw ParticipantNotFoundException.of(AttendanceErrorCode.PARTICIPANT_NOT_FOUND);
+      }
+
       Participant participant = participantMap.get(attendanceUpdateRequest.getParticipantId());
       participant.updateAttendance(attendanceUpdateRequest.isAttendance());
     }
