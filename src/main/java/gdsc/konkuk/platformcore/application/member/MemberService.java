@@ -3,10 +3,14 @@ package gdsc.konkuk.platformcore.application.member;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import gdsc.konkuk.platformcore.application.attendance.AttendanceInfo;
+import gdsc.konkuk.platformcore.controller.member.AttendanceUpdateRequest;
+import gdsc.konkuk.platformcore.domain.attendance.entity.Participant;
 import gdsc.konkuk.platformcore.domain.attendance.repository.AttendanceRepository;
+import gdsc.konkuk.platformcore.domain.attendance.repository.ParticipantRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +23,9 @@ import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -27,6 +34,7 @@ public class MemberService {
   private final PasswordEncoder passwordEncoder;
   private final MemberRepository memberRepository;
   private final AttendanceRepository attendanceRepository;
+  private final ParticipantRepository participantRepository;
 
   @Transactional
   public Member register(MemberRegisterRequest registerRequest) {
@@ -57,6 +65,23 @@ public class MemberService {
             month.withDayOfMonth(1).atStartOfDay(),
             month.withDayOfMonth(month.lengthOfMonth()).atTime(LocalTime.MAX));
     return MemberAttendanceInfo.from(batchMemberList, attendanceInfoList);
+  }
+
+  @Transactional
+  public void updateAttendances(
+      String batch, LocalDate month, List<AttendanceUpdateRequest> attendanceUpdateRequests) {
+    Map<Long, Participant> participantMap =
+        participantRepository
+            .findAllByBatchAndStartAtBetween(
+                batch,
+                month.withDayOfMonth(1).atStartOfDay(),
+                month.withDayOfMonth(month.lengthOfMonth()).atTime(LocalTime.MAX))
+            .stream()
+            .collect(toMap(Participant::getId, identity()));
+    for (AttendanceUpdateRequest attendanceUpdateRequest : attendanceUpdateRequests) {
+      Participant participant = participantMap.get(attendanceUpdateRequest.getParticipantId());
+      participant.updateAttendance(attendanceUpdateRequest.isAttendance());
+    }
   }
 
   private boolean checkMemberExistWithMemberId(String memberId) {

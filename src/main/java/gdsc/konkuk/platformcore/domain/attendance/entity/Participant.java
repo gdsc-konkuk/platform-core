@@ -38,4 +38,8 @@ public class Participant {
   public void attend() {
     this.attendance = true;
   }
+
+  public void updateAttendance(boolean attendance) {
+    this.attendance = attendance;
+  }
 }
