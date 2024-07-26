@@ -192,6 +192,7 @@ class MemberControllerTest {
                                 .attendanceId(1L)
                                 .memberId(0L)
                                 .eventId(1L)
+                                .participantId(1L)
                                 .attendanceDate(LocalDateTime.of(2024, 7, 3, 0, 0))
                                 .attendance(true)
                                 .build(),
@@ -199,6 +200,7 @@ class MemberControllerTest {
                                 .attendanceId(2L)
                                 .memberId(0L)
                                 .eventId(2L)
+                                .participantId(2L)
                                 .attendanceDate(LocalDateTime.of(2024, 7, 5, 0, 0))
                                 .attendance(false)
                                 .build(),
@@ -206,6 +208,7 @@ class MemberControllerTest {
                                 .attendanceId(3L)
                                 .memberId(0L)
                                 .eventId(3L)
+                                .participantId(3L)
                                 .attendanceDate(LocalDateTime.of(2024, 7, 8, 0, 0))
                                 .attendance(true)
                                 .build()))
@@ -221,6 +224,7 @@ class MemberControllerTest {
                                 .attendanceId(1L)
                                 .memberId(1L)
                                 .eventId(1L)
+                                .participantId(4L)
                                 .attendanceDate(LocalDateTime.of(2024, 7, 3, 0, 0))
                                 .attendance(true)
                                 .build(),
@@ -228,6 +232,7 @@ class MemberControllerTest {
                                 .attendanceId(2L)
                                 .memberId(1L)
                                 .eventId(2L)
+                                .participantId(5L)
                                 .attendanceDate(LocalDateTime.of(2024, 7, 5, 0, 0))
                                 .attendance(false)
                                 .build(),
@@ -235,6 +240,7 @@ class MemberControllerTest {
                                 .attendanceId(3L)
                                 .memberId(1L)
                                 .eventId(3L)
+                                .participantId(6L)
                                 .attendanceDate(LocalDateTime.of(2024, 7, 8, 0, 0))
                                 .attendance(false)
                                 .build()))
@@ -250,6 +256,7 @@ class MemberControllerTest {
                                 .attendanceId(1L)
                                 .memberId(2L)
                                 .eventId(1L)
+                                .participantId(7L)
                                 .attendanceDate(LocalDateTime.of(2024, 7, 3, 0, 0))
                                 .attendance(true)
                                 .build(),
@@ -257,6 +264,7 @@ class MemberControllerTest {
                                 .attendanceId(2L)
                                 .memberId(2L)
                                 .eventId(2L)
+                                .participantId(8L)
                                 .attendanceDate(LocalDateTime.of(2024, 7, 5, 0, 0))
                                 .attendance(false)
                                 .build(),
@@ -264,6 +272,7 @@ class MemberControllerTest {
                                 .attendanceId(3L)
                                 .memberId(2L)
                                 .eventId(3L)
+                                .participantId(9L)
                                 .attendanceDate(LocalDateTime.of(2024, 7, 8, 0, 0))
                                 .attendance(true)
                                 .build()))
@@ -312,6 +321,8 @@ class MemberControllerTest {
                                 .description("멤버 아이디"),
                             fieldWithPath("data[].attendanceInfoList[].eventId")
                                 .description("이벤트 아이디"),
+                            fieldWithPath("data[].attendanceInfoList[].participantId")
+                                .description("참가자 아이디"),
                             fieldWithPath("data[].attendanceInfoList[].attendanceDate")
                                 .description("출석 날짜"),
                             fieldWithPath("data[].attendanceInfoList[].attendance")

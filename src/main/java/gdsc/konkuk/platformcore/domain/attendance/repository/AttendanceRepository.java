@@ -11,7 +11,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
   @Query(
       """
       SELECT new gdsc.konkuk.platformcore.application.attendance.AttendanceInfo(
-        a.id, a.eventId, p.memberId, e.startAt, p.attendance
+        a.id, a.eventId, p.memberId, p.id, e.startAt, p.attendance
       )
       FROM Attendance a
       LEFT JOIN Event e ON a.eventId = e.id

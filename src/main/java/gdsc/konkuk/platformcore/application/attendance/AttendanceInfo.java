@@ -14,6 +14,7 @@ public class AttendanceInfo {
   private Long attendanceId;
   private Long eventId;
   private Long memberId;
+  private Long participantId;
   private LocalDateTime attendanceDate;
   private boolean attendance;
 }
