@@ -43,6 +43,7 @@ public class MemberAttendanceInfo {
               .build());
     }
     for (AttendanceInfo attendanceInfo : attendanceInfoList) {
+      if (!memberAttendanceInfoMap.containsKey(attendanceInfo.getMemberId())) continue;
       MemberAttendanceInfo memberAttendanceInfo =
           memberAttendanceInfoMap.get(attendanceInfo.getMemberId());
       memberAttendanceInfo.getAttendanceInfoList().add(attendanceInfo);
