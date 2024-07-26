@@ -59,8 +59,9 @@ public class MemberController {
       @PathVariable String batch,
       @RequestParam Integer year,
       @RequestParam Integer month,
-      @RequestBody @Valid List<AttendanceUpdateRequest> attendanceUpdateRequests) {
-    memberService.updateAttendances(batch, LocalDate.of(year, month, 1), attendanceUpdateRequests);
+      @RequestBody @Valid AttendanceUpdateRequest attendanceUpdateRequest) {
+    memberService.updateAttendances(
+        batch, LocalDate.of(year, month, 1), attendanceUpdateRequest.getAttendanceUpdateInfoList());
     return ResponseEntity.ok(SuccessResponse.messageOnly());
   }
 

@@ -332,11 +332,15 @@ class MemberControllerTest {
   @CustomMockUser
   void should_success_when_update_attendances_by_batch() throws Exception {
     // given
-    List<AttendanceUpdateRequest> attendanceUpdateRequests =
+    List<AttendanceUpdateInfo> attendanceUpdateInfoList =
         List.of(
-            AttendanceUpdateRequest.builder().participantId(1L).attendance(true).build(),
-            AttendanceUpdateRequest.builder().participantId(2L).attendance(false).build(),
-            AttendanceUpdateRequest.builder().participantId(3L).attendance(true).build());
+            AttendanceUpdateInfo.builder().participantId(1L).attendance(true).build(),
+            AttendanceUpdateInfo.builder().participantId(2L).attendance(false).build(),
+            AttendanceUpdateInfo.builder().participantId(3L).attendance(true).build());
+    AttendanceUpdateRequest attendanceUpdateRequest =
+        AttendanceUpdateRequest.builder()
+            .attendanceUpdateInfoList(attendanceUpdateInfoList)
+            .build();
     doNothing().when(memberService).updateAttendances(anyString(), any(), any());
 
     // when
@@ -346,7 +350,7 @@ class MemberControllerTest {
                 .param("year", "2024")
                 .param("month", "7")
                 .contentType(APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(attendanceUpdateRequests))
+                .content(objectMapper.writeValueAsString(attendanceUpdateRequest))
                 .with(csrf()));
 
     // then
@@ -368,9 +372,11 @@ class MemberControllerTest {
                             parameterWithName("month").description("수정할 월"),
                             parameterWithName("_csrf").ignored())
                         .requestFields(
-                            fieldWithPath("[]").description("출석 정보 수정 리스트"),
-                            fieldWithPath("[].participantId").description("참가자 아이디"),
-                            fieldWithPath("[].attendance").description("출석 여부"))
+                            fieldWithPath("attendanceUpdateInfoList[]").description("출석 정보 수정 리스트"),
+                            fieldWithPath("attendanceUpdateInfoList[].participantId")
+                                .description("참가자 아이디"),
+                            fieldWithPath("attendanceUpdateInfoList[].attendance")
+                                .description("출석 여부"))
                         .responseFields(
                             fieldWithPath("success").description(true),
                             fieldWithPath("message").description("멤버 출석 정보 수정 성공"),

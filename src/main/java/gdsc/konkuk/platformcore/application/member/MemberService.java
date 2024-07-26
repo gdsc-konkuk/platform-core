@@ -9,7 +9,7 @@ import java.util.Optional;
 import gdsc.konkuk.platformcore.application.attendance.AttendanceInfo;
 import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceErrorCode;
 import gdsc.konkuk.platformcore.application.attendance.exceptions.ParticipantNotFoundException;
-import gdsc.konkuk.platformcore.controller.member.AttendanceUpdateRequest;
+import gdsc.konkuk.platformcore.controller.member.AttendanceUpdateInfo;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Participant;
 import gdsc.konkuk.platformcore.domain.attendance.repository.AttendanceRepository;
 import gdsc.konkuk.platformcore.domain.attendance.repository.ParticipantRepository;
@@ -71,7 +71,7 @@ public class MemberService {
 
   @Transactional
   public void updateAttendances(
-      String batch, LocalDate month, List<AttendanceUpdateRequest> attendanceUpdateRequests) {
+      String batch, LocalDate month, List<AttendanceUpdateInfo> attendanceUpdateInfoList) {
     Map<Long, Participant> participantMap =
         participantRepository
             .findAllByBatchAndStartAtBetween(
@@ -80,13 +80,14 @@ public class MemberService {
                 month.withDayOfMonth(month.lengthOfMonth()).atTime(LocalTime.MAX))
             .stream()
             .collect(toMap(Participant::getId, identity()));
-    for (AttendanceUpdateRequest attendanceUpdateRequest : attendanceUpdateRequests) {
-      if (!participantMap.containsKey(attendanceUpdateRequest.getParticipantId())) {
+
+    for (AttendanceUpdateInfo attendanceUpdateInfo : attendanceUpdateInfoList) {
+      if (!participantMap.containsKey(attendanceUpdateInfo.getParticipantId())) {
         throw ParticipantNotFoundException.of(AttendanceErrorCode.PARTICIPANT_NOT_FOUND);
       }
 
-      Participant participant = participantMap.get(attendanceUpdateRequest.getParticipantId());
-      participant.updateAttendance(attendanceUpdateRequest.isAttendance());
+      Participant participant = participantMap.get(attendanceUpdateInfo.getParticipantId());
+      participant.updateAttendance(attendanceUpdateInfo.isAttendance());
     }
   }
 
