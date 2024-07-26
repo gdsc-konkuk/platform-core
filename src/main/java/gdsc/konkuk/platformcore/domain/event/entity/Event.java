@@ -37,6 +37,8 @@ public class Event {
   @Column(name = "end_at")
   private LocalDateTime endAt;
 
+  // TODO: event images
+
   @Builder
   public Event(
     Long id,
