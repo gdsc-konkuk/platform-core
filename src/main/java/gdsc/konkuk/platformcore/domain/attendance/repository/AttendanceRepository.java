@@ -4,10 +4,14 @@ import gdsc.konkuk.platformcore.application.attendance.AttendanceInfo;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
+  Optional<Attendance> findByEventId(Long aLong);
+
   @Query(
       """
       SELECT new gdsc.konkuk.platformcore.application.attendance.AttendanceInfo(
