@@ -8,6 +8,7 @@ import gdsc.konkuk.platformcore.application.member.MemberAttendanceInfo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,6 +52,16 @@ public class MemberController {
     List<MemberAttendanceInfo> memberAttendanceInfoList =
         memberService.getMemberAttendanceInfo(batch, LocalDate.of(year, month, 1));
     return ResponseEntity.ok(SuccessResponse.of(memberAttendanceInfoList));
+  }
+
+  @PatchMapping("/{batch}/attendances")
+  public ResponseEntity<SuccessResponse> updateAttendances(
+      @PathVariable String batch,
+      @RequestParam Integer year,
+      @RequestParam Integer month,
+      @RequestBody @Valid List<AttendanceUpdateRequest> attendanceUpdateRequests) {
+    memberService.updateAttendances(batch, LocalDate.of(year, month, 1), attendanceUpdateRequests);
+    return ResponseEntity.ok(SuccessResponse.messageOnly());
   }
 
   private URI getCreatedURI(Long memberId) {
