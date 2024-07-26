@@ -1,7 +1,12 @@
 package gdsc.konkuk.platformcore.application.member;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
+import gdsc.konkuk.platformcore.application.attendance.AttendanceInfo;
+import gdsc.konkuk.platformcore.domain.attendance.repository.AttendanceRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +26,7 @@ public class MemberService {
 
   private final PasswordEncoder passwordEncoder;
   private final MemberRepository memberRepository;
+  private final AttendanceRepository attendanceRepository;
 
   @Transactional
   public Member register(MemberRegisterRequest registerRequest) {
@@ -37,9 +43,20 @@ public class MemberService {
 
   @Transactional
   public void withdraw(Long currentId) {
-    Member member = memberRepository.findById(currentId)
-      .orElseThrow(() -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));
+    Member member =
+        memberRepository
+            .findById(currentId)
+            .orElseThrow(() -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));
     member.withdraw();
+  }
+
+  public List<MemberAttendanceInfo> getMemberAttendanceInfo(String batch, LocalDate month) {
+    List<Member> batchMemberList = memberRepository.findAllByBatch(batch);
+    List<AttendanceInfo> attendanceInfoList =
+        attendanceRepository.findAllAttendanceInfoByStartAtBetween(
+            month.withDayOfMonth(1).atStartOfDay(),
+            month.withDayOfMonth(month.lengthOfMonth()).atTime(LocalTime.MAX));
+    return MemberAttendanceInfo.from(batchMemberList, attendanceInfoList);
   }
 
   private boolean checkMemberExistWithMemberId(String memberId) {
