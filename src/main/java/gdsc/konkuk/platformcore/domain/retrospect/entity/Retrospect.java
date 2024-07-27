@@ -31,4 +31,8 @@ public class Retrospect {
     this.eventId = validateNotNull(eventId, "eventId");
     this.content = validateNotNull(content, "content");
   }
+
+  public void updateContent(String content) {
+    this.content = validateNotNull(content, "content");
+  }
 }

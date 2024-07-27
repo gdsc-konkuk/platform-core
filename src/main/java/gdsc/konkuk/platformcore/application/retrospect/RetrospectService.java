@@ -27,4 +27,14 @@ public class RetrospectService {
         .orElseThrow(
             () -> RetrospectNotFoundException.of(RetrospectErrorCode.RETROSPECT_NOT_FOUND));
   }
+
+  @Transactional
+  public void updateRetrospect(Long retrospectId, String content) {
+    Retrospect retrospect =
+        retrospectRepository
+            .findById(retrospectId)
+            .orElseThrow(
+                () -> RetrospectNotFoundException.of(RetrospectErrorCode.RETROSPECT_NOT_FOUND));
+    retrospect.updateContent(content);
+  }
 }
