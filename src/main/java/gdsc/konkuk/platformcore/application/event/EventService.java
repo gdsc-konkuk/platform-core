@@ -1,9 +1,12 @@
 package gdsc.konkuk.platformcore.application.event;
 
+import gdsc.konkuk.platformcore.application.event.exceptions.EventErrorCode;
+import gdsc.konkuk.platformcore.application.event.exceptions.EventNotFoundException;
 import gdsc.konkuk.platformcore.application.retrospect.RetrospectService;
 import gdsc.konkuk.platformcore.controller.event.EventRegisterRequest;
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
 import gdsc.konkuk.platformcore.domain.event.repository.EventRepository;
+import gdsc.konkuk.platformcore.domain.retrospect.entity.Retrospect;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -30,7 +33,15 @@ public class EventService {
 
   public List<EventWithAttendance> getEventsOfTheMonthWithAttendance(LocalDate month) {
     return eventRepository.findAllWithAttendanceByStartAtBetween(
-      month.withDayOfMonth(1).atStartOfDay(),
-      month.withDayOfMonth(month.lengthOfMonth()).atTime(LocalTime.MAX));
+        month.withDayOfMonth(1).atStartOfDay(),
+        month.withDayOfMonth(month.lengthOfMonth()).atTime(LocalTime.MAX));
+  }
+
+  public Retrospect getRetrospect(Long eventId) {
+    Event event =
+        eventRepository
+            .findById(eventId)
+            .orElseThrow(() -> EventNotFoundException.of(EventErrorCode.EVENT_NOT_FOUND));
+    return retrospectService.getRetrospectByEvent(event);
   }
 }
