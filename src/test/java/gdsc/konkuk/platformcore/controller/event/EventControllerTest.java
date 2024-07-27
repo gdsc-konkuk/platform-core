@@ -7,6 +7,7 @@ import gdsc.konkuk.platformcore.application.event.EventService;
 import gdsc.konkuk.platformcore.application.event.EventWithAttendance;
 
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
+import gdsc.konkuk.platformcore.domain.retrospect.entity.Retrospect;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -52,14 +53,12 @@ public class EventControllerTest {
 
   private MockMvc mockMvc;
 
-  @Mock
-  Event event;
+  @Mock Event event;
+  @Mock Retrospect retrospect;
 
-  @MockBean
-  private EventService eventService;
+  @MockBean private EventService eventService;
 
-  @Autowired
-  private ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
   @BeforeEach
   void setUp(
@@ -166,5 +165,45 @@ public class EventControllerTest {
                 fieldWithPath("data[].thumbnailUrl").description("썸네일 URL"),
                 fieldWithPath("data[].startAt").description("이벤트 시작 시간"))
               .build())));
+  }
+
+  @Test
+  @DisplayName("이벤트 회고를 조회할 수 있다")
+  @WithMockUser
+  void should_get_retrospect_when_pass_event_id() throws Exception {
+    // given
+    given(eventService.getRetrospect(any(Long.class))).willReturn(retrospect);
+    given(retrospect.getId()).willReturn(1L);
+    given(retrospect.getEventId()).willReturn(1L);
+    given(retrospect.getContent()).willReturn("test contents");
+
+    // when
+    ResultActions result =
+        mockMvc.perform(
+            RestDocumentationRequestBuilders.get("/api/v1/events/{eventId}/retrospect", 1L)
+                .with(csrf()));
+
+    // then
+    result
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andDo(
+            document(
+                "getRetrospect",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                resource(
+                    ResourceSnippetParameters.builder()
+                        .description("이벤트 회고를 조회할 수 있다")
+                        .tag("events")
+                        .pathParameters(parameterWithName("eventId").description("이벤트 ID"))
+                        .responseFields(
+                            fieldWithPath("success").description("성공 여부"),
+                            fieldWithPath("message").description("메시지"),
+                            fieldWithPath("data").description("이벤트 회고"),
+                            fieldWithPath("data.id").description("회고 ID"),
+                            fieldWithPath("data.eventId").description("이벤트 ID"),
+                            fieldWithPath("data.content").description("회고 내용"))
+                        .build())));
   }
 }

@@ -3,11 +3,13 @@ package gdsc.konkuk.platformcore.controller.event;
 import gdsc.konkuk.platformcore.application.event.EventService;
 import gdsc.konkuk.platformcore.application.event.EventWithAttendance;
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
+import gdsc.konkuk.platformcore.domain.retrospect.entity.Retrospect;
 import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,6 +41,12 @@ public class EventController {
     Event newEvent = eventService.register(registerRequest);
     return ResponseEntity.created(getCreatedURI(newEvent.getId()))
         .body(SuccessResponse.messageOnly());
+  }
+
+  @GetMapping("/{eventId}/retrospect")
+  public ResponseEntity<SuccessResponse> getRetrospect(@PathVariable Long eventId) {
+    Retrospect retrospect = eventService.getRetrospect(eventId);
+    return ResponseEntity.ok(SuccessResponse.of(retrospect));
   }
 
   private URI getCreatedURI(Long memberId) {
