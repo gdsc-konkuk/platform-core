@@ -65,7 +65,7 @@ public class AttendanceService {
 
     List<Member> members = memberRepository.findAllByBatch(registerRequest.getBatch());
     List<Participant> participants =
-        ParticipantMapper.mapMemberListToParticipantList(members, newAttendance.getId(), false);
+        ParticipantMapper.mapMemberListToAbsentParticipantList(members, newAttendance.getId());
     participantRepository.saveAll(participants);
 
     return newAttendance.getId();

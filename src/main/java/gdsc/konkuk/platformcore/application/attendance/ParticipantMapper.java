@@ -6,15 +6,15 @@ import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import java.util.List;
 
 public class ParticipantMapper {
-  public static List<Participant> mapMemberListToParticipantList(
-      List<Member> members, Long attendanceId, boolean attendance) {
+  public static List<Participant> mapMemberListToAbsentParticipantList(
+      List<Member> members, Long attendanceId) {
     return members.stream()
         .map(
             member ->
                 Participant.builder()
                     .attendanceId(attendanceId)
                     .memberId(member.getId())
-                    .attendance(attendance)
+                    .attendance(false)
                     .build())
         .toList();
   }
