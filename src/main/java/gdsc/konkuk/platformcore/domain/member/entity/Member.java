@@ -46,6 +46,9 @@ public class Member {
   @Column(name = "profile_image_url")
   private String profileImageUrl;
 
+  @Column(name = "department")
+  private String department;
+
   @Column(name = "is_activated")
   private boolean isActivated = true;
 
@@ -80,19 +83,21 @@ public class Member {
 
   @Builder
   public Member(
-    Long id,
-    String memberId,
-    String password,
-    String name,
-    String email,
-    String profileImageUrl,
-    String batch) {
+      Long id,
+      String memberId,
+      String password,
+      String name,
+      String email,
+      String profileImageUrl,
+      String department,
+      String batch) {
     this.id = id;
     this.memberId = validateNotNull(memberId, "memberId");
     this.password = validateNotNull(password, "password");
     this.name = validateNotNull(name, "name");
     this.email = validateNotNull(email, "email");
     this.profileImageUrl = profileImageUrl;
+    this.department = department;
     this.batch = batch;
   }
 }

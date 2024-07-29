@@ -1,3 +1,4 @@
+import io.swagger.v3.oas.models.servers.Server
 import org.hidetake.gradle.swagger.generator.GenerateSwaggerUI
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
@@ -69,7 +70,7 @@ dependencies {
 openapi3 {
     servers = [
             { url = 'http://localhost:8080' },
-    ]
+    ] as List<? extends Closure<Server>>
     title = 'Post Service API'
     description = 'Post Service API description'
     version = '1.0.0'

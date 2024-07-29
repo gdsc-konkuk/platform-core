@@ -5,6 +5,8 @@ import static org.mockito.BDDMockito.*;
 
 import java.util.Optional;
 
+import gdsc.konkuk.platformcore.domain.attendance.repository.AttendanceRepository;
+import gdsc.konkuk.platformcore.domain.attendance.repository.ParticipantRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,12 +33,20 @@ class MemberServiceTest {
   private MemberRepository memberRepository;
 
   @Mock
+  private AttendanceRepository attendanceRepository;
+
+  @Mock
+  private ParticipantRepository participantRepository;
+
+  @Mock
   private PasswordEncoder passwordEncoder;
 
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    subject = new MemberService(passwordEncoder, memberRepository);
+    subject =
+        new MemberService(
+            passwordEncoder, memberRepository, attendanceRepository, participantRepository);
   }
 
   @Test
