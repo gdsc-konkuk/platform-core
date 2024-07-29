@@ -5,12 +5,14 @@ import static gdsc.konkuk.platformcore.global.utils.FieldValidator.*;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import java.util.Objects;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Embeddable
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class EmailDetails {
 
   @Column(name = "email_subject")
@@ -18,6 +20,7 @@ public class EmailDetails {
   @Column(name = "email_content", columnDefinition = "TEXT")
   private String content;
 
+  @Builder
   public EmailDetails(String subject, String content) {
     this.subject = validateNotNull(subject, "subject");
     this.content = validateNotNull(content, "content");
