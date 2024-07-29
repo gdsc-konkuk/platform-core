@@ -1,12 +1,19 @@
 package gdsc.konkuk.platformcore.controller.member;
 
 import java.net.URI;
+import java.time.LocalDate;
+import java.util.List;
 
+import gdsc.konkuk.platformcore.application.member.MemberAttendanceInfo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -26,10 +33,10 @@ public class MemberController {
 
   @PostMapping()
   public ResponseEntity<SuccessResponse> signup(
-    @RequestBody @Valid MemberRegisterRequest registerRequest) {
+      @RequestBody @Valid MemberRegisterRequest registerRequest) {
     Member registeredMember = memberService.register(registerRequest);
     return ResponseEntity.created(getCreatedURI(registeredMember.getId()))
-      .body(SuccessResponse.messageOnly());
+        .body(SuccessResponse.messageOnly());
   }
 
   @DeleteMapping()
@@ -39,10 +46,29 @@ public class MemberController {
     return ResponseEntity.noContent().build();
   }
 
+  @GetMapping("/{batch}/attendances")
+  public ResponseEntity<SuccessResponse> getAttendances(
+      @PathVariable String batch, @RequestParam Integer year, @RequestParam Integer month) {
+    List<MemberAttendanceInfo> memberAttendanceInfoList =
+        memberService.getMemberAttendanceInfo(batch, LocalDate.of(year, month, 1));
+    return ResponseEntity.ok(SuccessResponse.of(memberAttendanceInfoList));
+  }
+
+  @PatchMapping("/{batch}/attendances")
+  public ResponseEntity<SuccessResponse> updateAttendances(
+      @PathVariable String batch,
+      @RequestParam Integer year,
+      @RequestParam Integer month,
+      @RequestBody @Valid AttendanceUpdateRequest attendanceUpdateRequest) {
+    memberService.updateAttendances(
+        batch, LocalDate.of(year, month, 1), attendanceUpdateRequest.getAttendanceUpdateInfoList());
+    return ResponseEntity.ok(SuccessResponse.messageOnly());
+  }
+
   private URI getCreatedURI(Long memberId) {
     return ServletUriComponentsBuilder.fromCurrentRequest()
-      .path("/{id}")
-      .buildAndExpand(memberId)
-      .toUri();
+        .path("/{id}")
+        .buildAndExpand(memberId)
+        .toUri();
   }
 }

@@ -1,5 +1,6 @@
 package gdsc.konkuk.platformcore.application.attendance;
 
+import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceAlreadyExistException;
 import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceErrorCode;
 import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceNotFoundException;
 import gdsc.konkuk.platformcore.application.attendance.exceptions.QrInvalidException;
@@ -12,6 +13,7 @@ import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Participant;
 import gdsc.konkuk.platformcore.domain.attendance.repository.AttendanceRepository;
 import gdsc.konkuk.platformcore.domain.attendance.repository.ParticipantRepository;
+import gdsc.konkuk.platformcore.domain.event.entity.Event;
 import gdsc.konkuk.platformcore.domain.event.repository.EventRepository;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
@@ -35,14 +37,14 @@ public class AttendanceService {
   @Transactional
   public Participant attend(String memberEmail, Long attendanceId, String qrUuid) {
     Member member =
-      memberRepository
-        .findByEmail(memberEmail)
-        .orElseThrow(() -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));
+        memberRepository
+            .findByEmail(memberEmail)
+            .orElseThrow(() -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));
     Attendance attendance =
-      attendanceRepository
-        .findById(attendanceId)
-        .orElseThrow(
-          () -> AttendanceNotFoundException.of(AttendanceErrorCode.ATTENDANCE_NOT_FOUND));
+        attendanceRepository
+            .findById(attendanceId)
+            .orElseThrow(
+                () -> AttendanceNotFoundException.of(AttendanceErrorCode.ATTENDANCE_NOT_FOUND));
     if (!attendance.isActiveQr(qrUuid)) {
       throw QrInvalidException.of(AttendanceErrorCode.INVALID_QR_UUID);
     }
@@ -52,15 +54,18 @@ public class AttendanceService {
 
   @Transactional
   public Long registerAttendance(AttendanceRegisterRequest registerRequest) {
-    checkEventExist(registerRequest.getEventId());
+    Event event =
+        eventRepository
+            .findById(registerRequest.getEventId())
+            .orElseThrow(() -> EventNotFoundException.of(EventErrorCode.EVENT_NOT_FOUND));
+    checkAttendanceAlreadyExist(event);
 
     Attendance newAttendance = AttendanceRegisterRequest.toEntity(registerRequest);
     attendanceRepository.saveAndFlush(newAttendance);
 
     List<Member> members = memberRepository.findAllByBatch(registerRequest.getBatch());
     List<Participant> participants =
-      MemberToParticipantMapper.mapMemberListToParticipantList(
-        members, newAttendance.getId(), false);
+        ParticipantMapper.mapMemberListToAbsentParticipantList(members, newAttendance.getId());
     participantRepository.saveAll(participants);
 
     return newAttendance.getId();
@@ -75,20 +80,20 @@ public class AttendanceService {
   @Transactional
   public String generateQr(Long attendanceId) {
     Attendance attendance =
-      attendanceRepository
-        .findById(attendanceId)
-        .orElseThrow(
-          () -> AttendanceNotFoundException.of(AttendanceErrorCode.ATTENDANCE_NOT_FOUND));
+        attendanceRepository
+            .findById(attendanceId)
+            .orElseThrow(
+                () -> AttendanceNotFoundException.of(AttendanceErrorCode.ATTENDANCE_NOT_FOUND));
     return attendance.generateQr();
   }
 
   @Transactional
   public void expireQr(Long attendanceId, String qrUuid) {
     Attendance attendance =
-      attendanceRepository
-        .findById(attendanceId)
-        .orElseThrow(
-          () -> AttendanceNotFoundException.of(AttendanceErrorCode.ATTENDANCE_NOT_FOUND));
+        attendanceRepository
+            .findById(attendanceId)
+            .orElseThrow(
+                () -> AttendanceNotFoundException.of(AttendanceErrorCode.ATTENDANCE_NOT_FOUND));
     if (!attendance.isActiveQr(qrUuid)) {
       throw QrInvalidException.of(AttendanceErrorCode.INVALID_QR_UUID);
     }
@@ -96,9 +101,13 @@ public class AttendanceService {
     attendance.expireQr();
   }
 
-  private void checkEventExist(Long eventId) {
-    eventRepository
-      .findById(eventId)
-      .orElseThrow(() -> EventNotFoundException.of(EventErrorCode.EVENT_NOT_FOUND));
+  private void checkAttendanceAlreadyExist(Event event) {
+    attendanceRepository
+        .findByEventId(event.getId())
+        .ifPresent(
+            attendance -> {
+              throw AttendanceAlreadyExistException.of(
+                  AttendanceErrorCode.ATTENDANCE_ALREADY_EXIST);
+            });
   }
 }
