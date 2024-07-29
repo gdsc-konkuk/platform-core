@@ -6,7 +6,6 @@ import gdsc.konkuk.platformcore.controller.email.dto.EmailTaskDetailsResponse;
 import gdsc.konkuk.platformcore.controller.email.dto.EmailTaskListResponse;
 import gdsc.konkuk.platformcore.controller.email.mapper.EmailTaskMapper;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
-import gdsc.konkuk.platformcore.global.responses.Response;
 import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -29,13 +28,13 @@ public class EmailController {
   private final EmailService emailService;
 
   @GetMapping
-  public ResponseEntity<Response> getAllEmailTask() {
+  public ResponseEntity<SuccessResponse> getAllEmailTask() {
     EmailTaskListResponse emailTasks = EmailTaskMapper.mapToEmailTaskListResponse(emailService.getAllTaskAsList());
     return ResponseEntity.ok(SuccessResponse.of(emailTasks));
   }
 
   @GetMapping("/{taskId}")
-  public ResponseEntity<Response> getEmailTask(@PathVariable Long taskId) {
+  public ResponseEntity<SuccessResponse> getEmailTask(@PathVariable Long taskId) {
     EmailTaskDetailsResponse emailTask = EmailTaskMapper.mapToEmailTaskDetailsResponse(emailService.getTaskDetails(taskId));
     return ResponseEntity.ok(SuccessResponse.of(emailTask));
   }
@@ -43,17 +42,17 @@ public class EmailController {
   @PostMapping()
   public ResponseEntity<SuccessResponse> scheduleEmailTask(@RequestBody @Valid EmailSendRequest request) {
     EmailTask emailTask = emailService.registerTask(request);
-    return ResponseEntity.created(URI.create("/api/v1/emails/" + emailTask.getId())).build();
+    return ResponseEntity.created(URI.create("/api/v1/emails/" + emailTask.getId())).body(SuccessResponse.messageOnly());
   }
 
   @PutMapping("/{emailId}")
-  public ResponseEntity<Response> updateEmailTask(@PathVariable Long emailId, @RequestBody @Valid EmailSendRequest request) {
+  public ResponseEntity<SuccessResponse> updateEmailTask(@PathVariable Long emailId, @RequestBody @Valid EmailSendRequest request) {
     emailService.update(emailId, request);
     return ResponseEntity.noContent().build();
   }
 
   @DeleteMapping("/{emailId}")
-  public ResponseEntity<Response> deleteEmailTask(@PathVariable Long emailId) {
+  public ResponseEntity<SuccessResponse> deleteEmailTask(@PathVariable Long emailId) {
     emailService.delete(emailId);
     return ResponseEntity.noContent().build();
   }
