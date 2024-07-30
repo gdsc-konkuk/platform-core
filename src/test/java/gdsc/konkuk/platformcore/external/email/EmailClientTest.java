@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.*;
 
+import gdsc.konkuk.platformcore.domain.email.entity.EmailDetails;
+import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +17,7 @@ import org.mockito.Mock;
 import org.springframework.mail.MailParseException;
 import org.springframework.mail.javamail.JavaMailSender;
 
-import gdsc.konkuk.platformcore.domain.email.entity.PlatformEmail;
+import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.external.email.exceptions.EmailSendingException;
 
 class EmailClientTest {
@@ -33,14 +36,18 @@ class EmailClientTest {
   @Test
   @DisplayName("이메일의 내용 및 제목 형식 오류 발생")
   void should_fail_when_email_parsing() {
-    //given
-    PlatformEmail platformEmail = new PlatformEmail("example", "example");
-    platformEmail.addReceivers(List.of("ex@gmail.com"));
+     //given
+    EmailTask emailTask =
+        EmailTask.builder()
+            .emailDetails(EmailDetails.builder().subject("예시 이메일 제목").content("Html 문자열").build())
+            .receivers(new EmailReceivers(List.of("aaa@gmail.com")))
+            .sendAt(LocalDateTime.of(2021, 10, 10, 10, 10))
+            .build();
     //when
     when(javaMailSender.createMimeMessage()).thenThrow(new MailParseException("error"));
-    Executable result = () -> emailClient.sendEmailToReceivers(platformEmail);
+    Executable result = () -> emailClient.sendEmailToReceivers(emailTask);
 
-    //then
+     //then
     assertThrowsExactly(EmailSendingException.class, result);
   }
 }

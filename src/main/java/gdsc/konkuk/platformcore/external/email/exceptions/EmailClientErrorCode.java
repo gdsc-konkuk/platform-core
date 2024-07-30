@@ -2,8 +2,7 @@ package gdsc.konkuk.platformcore.external.email.exceptions;
 
 import gdsc.konkuk.platformcore.global.exceptions.CustomErrorCode;
 
-public enum EmailErrorCode implements CustomErrorCode {
-
+public enum EmailClientErrorCode implements CustomErrorCode {
   MAIL_PARSING_ERROR("메일 전송을 다시 시도해 주세요", "메일 파싱에 실패했습니다."),
   MAIL_SENDING_ERROR("메일 전송을 다시 시도해 주세요", "메일 전송에 실패했습니다."),
   ;
@@ -11,7 +10,7 @@ public enum EmailErrorCode implements CustomErrorCode {
   private final String message;
   private final String logMessage;
 
-  EmailErrorCode(String message, String logMessage) {
+  EmailClientErrorCode(String message, String logMessage) {
     this.message = message;
     this.logMessage = logMessage;
   }
