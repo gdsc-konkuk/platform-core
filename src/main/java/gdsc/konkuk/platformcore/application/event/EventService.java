@@ -2,11 +2,10 @@ package gdsc.konkuk.platformcore.application.event;
 
 import gdsc.konkuk.platformcore.application.event.exceptions.EventErrorCode;
 import gdsc.konkuk.platformcore.application.event.exceptions.EventNotFoundException;
-import gdsc.konkuk.platformcore.application.retrospect.RetrospectService;
 import gdsc.konkuk.platformcore.controller.event.EventRegisterRequest;
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
 import gdsc.konkuk.platformcore.domain.event.repository.EventRepository;
-import gdsc.konkuk.platformcore.domain.retrospect.entity.Retrospect;
+import gdsc.konkuk.platformcore.domain.event.entity.Retrospect;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -21,14 +20,11 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class EventService {
   private final EventRepository eventRepository;
-  private final RetrospectService retrospectService;
 
   @Transactional
   public Event register(EventRegisterRequest registerRequest) {
     Event newEvent = EventRegisterRequest.toEntity(registerRequest);
-    Event savedEvent = eventRepository.saveAndFlush(newEvent);
-    retrospectService.register(savedEvent, "내용이 없습니다.");
-    return savedEvent;
+    return eventRepository.save(newEvent);
   }
 
   public List<EventWithAttendance> getEventsOfTheMonthWithAttendance(LocalDate month) {
@@ -42,6 +38,15 @@ public class EventService {
         eventRepository
             .findById(eventId)
             .orElseThrow(() -> EventNotFoundException.of(EventErrorCode.EVENT_NOT_FOUND));
-    return retrospectService.getRetrospectByEvent(event);
+    return event.getRetrospect();
+  }
+
+  @Transactional
+  public void updateRetrospect(Long eventId, String content) {
+    Event event =
+        eventRepository
+            .findById(eventId)
+            .orElseThrow(() -> EventNotFoundException.of(EventErrorCode.EVENT_NOT_FOUND));
+    event.updateRetrospectContent(content);
   }
 }

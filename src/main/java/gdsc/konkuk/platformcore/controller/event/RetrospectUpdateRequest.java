@@ -1,4 +1,4 @@
-package gdsc.konkuk.platformcore.controller.retrospect;
+package gdsc.konkuk.platformcore.controller.event;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;

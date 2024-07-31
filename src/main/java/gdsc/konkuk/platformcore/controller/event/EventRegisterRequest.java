@@ -27,6 +27,7 @@ public class EventRegisterRequest {
         .thumbnailUrl(request.getThumbnailUrl())
         .startAt(request.getStartAt())
         .endAt(request.getEndAt())
+        .retrospectContent("내용이 없습니다.")
         .build();
   }
 }
