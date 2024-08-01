@@ -1,6 +1,7 @@
 package gdsc.konkuk.platformcore.domain.event.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -37,19 +38,29 @@ public class Event {
   @Column(name = "end_at")
   private LocalDateTime endAt;
 
+  // TODO: event images
+
+  @Embedded private Retrospect retrospect;
+
   @Builder
   public Event(
-    Long id,
-    String title,
-    String description,
-    String thumbnailUrl,
-    LocalDateTime startAt,
-    LocalDateTime endAt) {
+      Long id,
+      String title,
+      String description,
+      String thumbnailUrl,
+      LocalDateTime startAt,
+      LocalDateTime endAt,
+      String retrospectContent) {
     this.id = id;
     this.title = validateNotNull(title, "title");
     this.description = description;
     this.thumbnailUrl = thumbnailUrl;
     this.startAt = startAt;
     this.endAt = endAt;
+    this.retrospect = Retrospect.builder().content(retrospectContent).build();
+  }
+
+  public void updateRetrospectContent(String content) {
+    retrospect.updateContent(content);
   }
 }
