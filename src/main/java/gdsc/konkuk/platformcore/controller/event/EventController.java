@@ -5,6 +5,7 @@ import gdsc.konkuk.platformcore.application.event.EventWithAttendance;
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
 import gdsc.konkuk.platformcore.domain.event.entity.Retrospect;
 import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
@@ -38,7 +39,7 @@ public class EventController {
 
   @PostMapping
   public ResponseEntity<SuccessResponse> register(
-      @RequestBody EventRegisterRequest registerRequest) {
+      @RequestBody @Valid EventRegisterRequest registerRequest) {
     Event newEvent = eventService.register(registerRequest);
     return ResponseEntity.created(getCreatedURI(newEvent.getId()))
         .body(SuccessResponse.messageOnly());
@@ -52,7 +53,7 @@ public class EventController {
 
   @PatchMapping("/{eventId}/retrospect")
   public ResponseEntity<SuccessResponse> updateRetrospect(
-      @PathVariable Long eventId, @RequestBody RetrospectUpdateRequest updateRequest) {
+      @PathVariable Long eventId, @RequestBody @Valid RetrospectUpdateRequest updateRequest) {
     eventService.updateRetrospect(eventId, updateRequest.getContent());
     return ResponseEntity.ok(SuccessResponse.messageOnly());
   }
