@@ -28,7 +28,7 @@ public class EmailService {
   }
 
   public List<EmailTask> getAllTaskWhereNotSent() {
-    return emailTaskRepository.findAllWhereNotsent();
+    return emailTaskRepository.findAllWhereNotSent();
   }
 
   @Transactional

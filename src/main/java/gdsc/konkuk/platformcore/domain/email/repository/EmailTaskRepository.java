@@ -9,5 +9,5 @@ import org.springframework.data.jpa.repository.Query;
 public interface EmailTaskRepository extends JpaRepository<EmailTask, Long> {
 
   @Query("SELECT e FROM EmailTask e WHERE e.isSent = false")
-  List<EmailTask> findAllWhereNotsent();
+  List<EmailTask> findAllWhereNotSent();
 }
