@@ -32,8 +32,7 @@ public class EmailService {
   }
 
   @Transactional
-  public EmailTask registerTask(EmailSendRequest request) {
-    EmailTask emailTask = EmailSendRequest.toEntity(request);
+  public EmailTask registerTask(EmailTask emailTask) {
     return emailTaskRepository.save(emailTask);
   }
 
