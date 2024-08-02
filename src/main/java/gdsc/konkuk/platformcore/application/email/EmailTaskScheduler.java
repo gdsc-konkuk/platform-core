@@ -46,7 +46,7 @@ public class EmailTaskScheduler implements TaskScheduler {
   }
 
   @Override
-  public void cancelTask(String taskId) {
+  public synchronized void cancelTask(String taskId) {
 
     Future<?> scheduledFuture = taskInMemoryRepository.getTask(taskId);
 
