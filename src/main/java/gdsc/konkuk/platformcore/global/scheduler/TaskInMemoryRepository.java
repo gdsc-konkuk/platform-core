@@ -20,7 +20,7 @@ public class TaskInMemoryRepository {
 
     ScheduledFuture<?> future = taskMap.get(taskId);
     if(future == null) {
-      throw TaskNotFoundException.of(GlobalErrorCode.SCHEDULED_TASK_NOT_FOUND);
+      throw TaskNotFoundException.of(GlobalErrorCode.SCHEDULED_TASK_NOT_AVAILABLE);
     }
     return future;
   }
@@ -39,7 +39,7 @@ public class TaskInMemoryRepository {
   public void removeTask(String taskId) {
     ScheduledFuture<?> task = taskMap.remove(taskId);
     if(task == null) {
-      throw TaskNotFoundException.of(GlobalErrorCode.SCHEDULED_TASK_NOT_FOUND);
+      throw TaskNotFoundException.of(GlobalErrorCode.SCHEDULED_TASK_NOT_AVAILABLE);
     }
   }
 }

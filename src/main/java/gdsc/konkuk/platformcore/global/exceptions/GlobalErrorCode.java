@@ -11,7 +11,7 @@ public enum GlobalErrorCode implements CustomErrorCode {
   NOT_FOUND("찾을 수 없습니다. 다시 확인해주세요", "[ERROR] : 404 에러 발생"),
   INTERNAL_SERVER_ERROR("서버 오류입니다. 잠시후 재시도 해주세요", "[ERROR] : 500 예상치못한 에러 발생"),
 
-  SCHEDULED_TASK_NOT_FOUND("예약된 작업이 존재하지 않습니다.", "[ERROR] : 인메모리 저장소에 예약된 작업을 찾을 수 없음");
+  SCHEDULED_TASK_NOT_AVAILABLE("해당 작업은 유효하지 않습니다.", "[ERROR] : 인메모리 저장소에 예약된 작업을 찾을 수 없음");
 
   private final String message;
   private final String logMessage;
