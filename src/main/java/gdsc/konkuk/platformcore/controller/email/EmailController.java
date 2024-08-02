@@ -1,5 +1,6 @@
 package gdsc.konkuk.platformcore.controller.email;
 
+import gdsc.konkuk.platformcore.application.email.EmailScheduleService;
 import gdsc.konkuk.platformcore.application.email.EmailService;
 import gdsc.konkuk.platformcore.controller.email.dto.EmailSendRequest;
 import gdsc.konkuk.platformcore.controller.email.dto.EmailTaskDetailsResponse;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class EmailController {
 
   private final EmailService emailService;
+  private final EmailScheduleService emailScheduleService;
 
   @GetMapping
   public ResponseEntity<SuccessResponse> getAllEmailTask() {
@@ -41,19 +44,19 @@ public class EmailController {
 
   @PostMapping()
   public ResponseEntity<SuccessResponse> scheduleEmailTask(@RequestBody @Valid EmailSendRequest request) {
-    EmailTask emailTask = emailService.registerTask(request);
+    EmailTask emailTask = emailScheduleService.scheduleEmailTask(request);
     return ResponseEntity.created(URI.create("/api/v1/emails/" + emailTask.getId())).body(SuccessResponse.messageOnly());
   }
 
-  @PutMapping("/{emailId}")
+  @PatchMapping("/{emailId}")
   public ResponseEntity<SuccessResponse> updateEmailTask(@PathVariable Long emailId, @RequestBody @Valid EmailSendRequest request) {
-    emailService.update(emailId, request);
+    emailScheduleService.reScheduleEmailTask(emailId, request);
     return ResponseEntity.noContent().build();
   }
 
   @DeleteMapping("/{emailId}")
   public ResponseEntity<SuccessResponse> deleteEmailTask(@PathVariable Long emailId) {
-    emailService.delete(emailId);
+    emailScheduleService.cancelEmailTask(emailId);
     return ResponseEntity.noContent().build();
   }
 }
