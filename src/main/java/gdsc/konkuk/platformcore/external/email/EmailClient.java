@@ -2,6 +2,7 @@ package gdsc.konkuk.platformcore.external.email;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -17,6 +18,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class EmailClient {
@@ -31,6 +33,7 @@ public class EmailClient {
 
   private void sendEmail(String to, EmailDetails emailDetails) {
     try {
+      log.info("Sending email to {}", to);
       MimeMessage message =
           convertToHTMLMimeMessage(to, emailDetails.getSubject(), emailDetails.getContent());
       javaMailSender.send(message);
