@@ -52,7 +52,6 @@ public class EmailService {
   public void markAsCompleted(Long emailTaskId) {
       EmailTask emailTask =findEmailTaskById(emailTaskRepository, emailTaskId);
       emailTask.markAsSent();
-      emailTaskRepository.save(emailTask);
   }
 
   @Transactional
