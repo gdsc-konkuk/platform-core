@@ -6,14 +6,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.util.AssertionErrors.assertNotNull;
 
-import gdsc.konkuk.platformcore.application.email.exceptions.EmailAlreadyProcessedException;
 import gdsc.konkuk.platformcore.controller.email.dto.EmailSendRequest;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
+import gdsc.konkuk.platformcore.external.discord.DiscordClient;
 import gdsc.konkuk.platformcore.external.email.EmailClient;
+import gdsc.konkuk.platformcore.external.email.exceptions.EmailSendingException;
+import gdsc.konkuk.platformcore.global.exceptions.GlobalErrorCode;
 import gdsc.konkuk.platformcore.global.exceptions.TaskNotFoundException;
 import gdsc.konkuk.platformcore.global.scheduler.TaskInMemoryRepository;
 import java.time.LocalDateTime;
@@ -38,6 +41,9 @@ class EmailIntegrationTest {
 
   @MockBean
   private EmailClient emailClient;
+
+  @MockBean
+  private DiscordClient discordClient;
 
   @Autowired
   private ScheduledThreadPoolExecutor executor;
@@ -187,5 +193,26 @@ class EmailIntegrationTest {
     assertThrows(
         TaskNotFoundException.class,
         () -> emailTaskFacade.cancel(scheduledTask.getId()));
+  }
+
+  @Test
+  void should_send_discord_message_when_email_sending_error() throws InterruptedException {
+    //given
+    EmailSendRequest emailRequest =
+        EmailSendRequest.builder()
+            .subject("subject")
+            .content("content")
+            .receivers(List.of("example1.com", "example2.com"))
+            .sendAt(LocalDateTime.now().plusSeconds(1L))
+            .build();
+    doThrow(EmailSendingException.of(GlobalErrorCode.INTERNAL_SERVER_ERROR))
+        .when(emailClient).sendEmailToReceivers(any());
+    //when
+    EmailTask scheduledTask = emailTaskFacade.register(emailRequest);
+    sleep(2000);
+
+    //then
+    verify(emailClient).sendEmailToReceivers(any());
+    verify(discordClient).sendErrorMessage(any());
   }
 }
