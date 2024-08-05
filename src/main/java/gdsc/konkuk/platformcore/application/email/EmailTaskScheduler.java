@@ -44,10 +44,10 @@ public class EmailTaskScheduler implements TaskScheduler {
             EmailTask sendingTask = emailService.getTaskDetails(id);
             emailClient.sendEmailToReceivers(sendingTask);
             emailService.markAsCompleted(id);
-            taskInMemoryRepository.removeTask(String.valueOf(id));
           } catch (Exception e) {
             log.error("[ERROR] : 이메일 전송과정에서 에러가 발생했습니다.", e);
             discordClient.sendErrorMessage(e);
+          } finally {
             taskInMemoryRepository.removeTask(String.valueOf(id));
           }
         };
