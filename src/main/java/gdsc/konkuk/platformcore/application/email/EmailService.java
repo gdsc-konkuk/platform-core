@@ -27,9 +27,12 @@ public class EmailService {
     return findEmailTaskById(emailTaskRepository, taskId);
   }
 
+  public List<EmailTask> getAllTaskWhereNotSent() {
+    return emailTaskRepository.findAllWhereNotSent();
+  }
+
   @Transactional
-  public EmailTask registerTask(EmailSendRequest request) {
-    EmailTask emailTask = EmailSendRequest.toEntity(request);
+  public EmailTask registerTask(EmailTask emailTask) {
     return emailTaskRepository.save(emailTask);
   }
 
@@ -43,6 +46,12 @@ public class EmailService {
     task.changeEmailReceivers(request.toEmailReceivers());
     task.changeSendAt(request.getSendAt());
     return task;
+  }
+
+  @Transactional
+  public void markAsCompleted(Long emailTaskId) {
+      EmailTask emailTask =findEmailTaskById(emailTaskRepository, emailTaskId);
+      emailTask.markAsSent();
   }
 
   @Transactional
