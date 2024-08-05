@@ -1,4 +1,4 @@
-package gdsc.konkuk.platformcore.global.scheduler;
+package gdsc.konkuk.platformcore.global.configs;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import org.springframework.context.annotation.Bean;
