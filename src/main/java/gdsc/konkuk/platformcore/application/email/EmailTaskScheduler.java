@@ -5,6 +5,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailAlreadyProcessedException;
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailErrorCode;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
+import gdsc.konkuk.platformcore.external.discord.DiscordClient;
 import gdsc.konkuk.platformcore.external.email.EmailClient;
 import gdsc.konkuk.platformcore.global.scheduler.TaskInMemoryRepository;
 import gdsc.konkuk.platformcore.global.scheduler.TaskScheduler;
@@ -28,18 +29,27 @@ public class EmailTaskScheduler implements TaskScheduler {
   private final EmailService emailService;
   private final ScheduledThreadPoolExecutor executor;
   private final EmailClient emailClient;
+  private final DiscordClient discordClient;
 
 
   @Override
   public void scheduleSyncTask(Object emailTask, long delay) {
 
     EmailTask email = (EmailTask) emailTask;
+    Long id = email.getId();
 
     Runnable sendEmailTask =
         () -> {
-          emailClient.sendEmailToReceivers(email);
-          emailService.markAsCompleted(email.getId());
-          taskInMemoryRepository.removeTask(String.valueOf(email.getId()));
+          try {
+            EmailTask sendingTask = emailService.getTaskDetails(id);
+            emailClient.sendEmailToReceivers(sendingTask);
+            emailService.markAsCompleted(id);
+            taskInMemoryRepository.removeTask(String.valueOf(id));
+          } catch (Exception e) {
+            log.error("[ERROR] : 이메일 전송과정에서 에러가 발생했습니다.", e);
+            discordClient.sendErrorMessage(e);
+            taskInMemoryRepository.removeTask(String.valueOf(id));
+          }
         };
     ScheduledFuture<?> future = executor.schedule(sendEmailTask, delay, SECONDS);
     taskInMemoryRepository.addTask(String.valueOf(email.getId()), future);
@@ -49,9 +59,7 @@ public class EmailTaskScheduler implements TaskScheduler {
   public synchronized void cancelTask(String taskId) {
 
     Future<?> scheduledFuture = taskInMemoryRepository.getTask(taskId);
-
     boolean isCanceled = scheduledFuture.cancel(false);
-
     if (!isCanceled) {
       throw EmailAlreadyProcessedException.of(EmailErrorCode.EMAIL_ALREADY_PROCESSED);
     }
