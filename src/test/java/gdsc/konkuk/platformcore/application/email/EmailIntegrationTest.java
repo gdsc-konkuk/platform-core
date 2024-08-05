@@ -31,10 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 class EmailIntegrationTest {
 
   @Autowired
-  private EmailScheduleService emailScheduleService;
-
-  @Autowired
-  private EmailTaskScheduler emailTaskScheduler;
+  private EmailTaskFacade emailTaskFacade;
 
   @Autowired
   private TaskInMemoryRepository taskInMemoryRepository;
@@ -58,7 +55,7 @@ class EmailIntegrationTest {
   /*
   * 1. 데이터베이스에 이메일 정보 저장
   * 2. 스케줄러에 작업 예약
-  * 3. 인메모리 저장소에 futuer 저장
+  * 3. 인메모리 저장소에 future 저장
   * */
   @Test
   @DisplayName("작업 저장 성공")
@@ -73,7 +70,7 @@ class EmailIntegrationTest {
             .sendAt(LocalDateTime.now().plusHours(1))
             .build();
     // when
-    EmailTask emailTask = emailScheduleService.scheduleEmailTask(emailRequest);
+    EmailTask emailTask = emailTaskFacade.register(emailRequest);
     // then
     assertNotNull("Task should not be null", emailTask);
     assertNotNull(
@@ -93,7 +90,7 @@ class EmailIntegrationTest {
             .sendAt(LocalDateTime.now().plusSeconds(5L))
             .build();
     // when
-    emailScheduleService.scheduleEmailTask(emailRequest);
+    emailTaskFacade.register(emailRequest);
     sleep(10000);
     // then
     verify(emailClient).sendEmailToReceivers(any(EmailTask.class));
@@ -120,7 +117,7 @@ class EmailIntegrationTest {
             .receivers(List.of("example1.com", "example2.com"))
             .sendAt(LocalDateTime.now().plusHours(1))
             .build();
-    EmailTask emailTask = emailScheduleService.scheduleEmailTask(emailRequest);
+    EmailTask emailTask = emailTaskFacade.register(emailRequest);
     assertEquals(1, executor.getQueue().size());
     assertEquals(1, taskInMemoryRepository.size());
     EmailSendRequest updatedRequest =
@@ -131,7 +128,7 @@ class EmailIntegrationTest {
             .sendAt(LocalDateTime.now().plusHours(2))
             .build();
     // when
-    emailScheduleService.reScheduleEmailTask(emailTask.getId(), updatedRequest);
+    emailTaskFacade.update(emailTask.getId(), updatedRequest);
     // then
     assertEquals(1, executor.getQueue().size());
     assertNotNull(
@@ -156,11 +153,11 @@ class EmailIntegrationTest {
             .receivers(List.of("example1.com", "example2.com"))
             .sendAt(LocalDateTime.now().plusHours(1))
             .build();
-    EmailTask emailTask = emailScheduleService.scheduleEmailTask(emailRequest);
+    EmailTask emailTask = emailTaskFacade.register(emailRequest);
     assertEquals(1, executor.getQueue().size());
 
     // when
-    emailScheduleService.cancelEmailTask(emailTask.getId());
+    emailTaskFacade.cancel(emailTask.getId());
 
 
     // then
@@ -173,7 +170,6 @@ class EmailIntegrationTest {
 
   @Test
   @DisplayName("이미 처리된 작업 취소 시도 시 예외 발생")
-  @Transactional
   void should_fail_when_cancel_already_processed_task() throws Exception {
     //given
     EmailSendRequest emailRequest =
@@ -184,12 +180,12 @@ class EmailIntegrationTest {
             .sendAt(LocalDateTime.now().plusSeconds(1L))
             .build();
     //when
-    EmailTask scheduledTask = emailScheduleService.scheduleEmailTask(emailRequest);
+    EmailTask scheduledTask = emailTaskFacade.register(emailRequest);
 
     sleep(2000);
     //then
     assertThrows(
-        EmailAlreadyProcessedException.class,
-        () -> emailScheduleService.cancelEmailTask(scheduledTask.getId()));
+        TaskNotFoundException.class,
+        () -> emailTaskFacade.cancel(scheduledTask.getId()));
   }
 }

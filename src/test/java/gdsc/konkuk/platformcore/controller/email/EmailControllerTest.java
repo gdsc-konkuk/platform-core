@@ -11,7 +11,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import gdsc.konkuk.platformcore.application.email.EmailScheduleService;
+import gdsc.konkuk.platformcore.application.email.EmailTaskFacade;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -49,7 +49,7 @@ class EmailControllerTest {
   @MockBean private EmailService emailService;
 
   @MockBean
-  EmailScheduleService emailScheduleService;
+  EmailTaskFacade emailTaskFacade;
 
   @Autowired
   private ObjectMapper objectMapper;
@@ -82,7 +82,7 @@ class EmailControllerTest {
     EmailTask mockTask = new EmailTask(1L, emailDetails, emailReceivers, request.getSendAt());
 
     //when
-    when(emailScheduleService.scheduleEmailTask(any())).thenReturn(mockTask);
+    when(emailTaskFacade.register(any())).thenReturn(mockTask);
 
     ResultActions result = mockMvc.perform(
       RestDocumentationRequestBuilders.post("/api/v1/emails")
@@ -97,7 +97,7 @@ class EmailControllerTest {
 
     result
       .andDo(
-        document("emails",
+        document("email post",
           preprocessRequest(prettyPrint()),
           resource(ResourceSnippetParameters.builder()
             .tag("email")
@@ -235,7 +235,7 @@ class EmailControllerTest {
   @DisplayName("등록된 이메일 작업을 취소한다.")
   void should_success_when_cancel_registered_task() throws Exception {
     //given
-    doNothing().when(emailScheduleService).cancelEmailTask(any());
+    doNothing().when(emailTaskFacade).cancel(any());
 
     //when
     ResultActions result = mockMvc.perform(

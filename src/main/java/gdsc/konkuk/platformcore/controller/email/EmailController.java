@@ -1,6 +1,6 @@
 package gdsc.konkuk.platformcore.controller.email;
 
-import gdsc.konkuk.platformcore.application.email.EmailScheduleService;
+import gdsc.konkuk.platformcore.application.email.EmailTaskFacade;
 import gdsc.konkuk.platformcore.application.email.EmailService;
 import gdsc.konkuk.platformcore.controller.email.dto.EmailSendRequest;
 import gdsc.konkuk.platformcore.controller.email.dto.EmailTaskDetailsResponse;
@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class EmailController {
 
   private final EmailService emailService;
-  private final EmailScheduleService emailScheduleService;
+  private final EmailTaskFacade emailTaskFacade;
 
   @GetMapping
   public ResponseEntity<SuccessResponse> getAllEmailTask() {
@@ -43,19 +43,19 @@ public class EmailController {
 
   @PostMapping()
   public ResponseEntity<SuccessResponse> scheduleEmailTask(@RequestBody @Valid EmailSendRequest request) {
-    EmailTask emailTask = emailScheduleService.scheduleEmailTask(request);
+    EmailTask emailTask = emailTaskFacade.register(request);
     return ResponseEntity.created(URI.create("/api/v1/emails/" + emailTask.getId())).body(SuccessResponse.messageOnly());
   }
 
   @PatchMapping("/{emailId}")
   public ResponseEntity<SuccessResponse> updateEmailTask(@PathVariable Long emailId, @RequestBody @Valid EmailSendRequest request) {
-    emailScheduleService.reScheduleEmailTask(emailId, request);
+    emailTaskFacade.update(emailId, request);
     return ResponseEntity.noContent().build();
   }
 
   @DeleteMapping("/{emailId}")
   public ResponseEntity<SuccessResponse> deleteEmailTask(@PathVariable Long emailId) {
-    emailScheduleService.cancelEmailTask(emailId);
+    emailTaskFacade.cancel(emailId);
     return ResponseEntity.noContent().build();
   }
 }

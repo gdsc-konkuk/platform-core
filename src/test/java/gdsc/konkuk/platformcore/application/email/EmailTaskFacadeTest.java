@@ -16,9 +16,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-class EmailScheduleServiceTest {
+class EmailTaskFacadeTest {
 
-  private EmailScheduleService subject;
+  private EmailTaskFacade subject;
 
   @Mock
   private EmailService emailService;
@@ -38,7 +38,7 @@ class EmailScheduleServiceTest {
   @BeforeEach
   void setUp() {
     openMocks(this);
-    subject = new EmailScheduleService(emailService, emailTaskScheduler);
+    subject = new EmailTaskFacade(emailService, emailTaskScheduler);
   }
 
   @Test
@@ -55,7 +55,7 @@ class EmailScheduleServiceTest {
     //when
     when(emailService.update(1L, emailRequest)).thenReturn(mock1);
     //then
-    subject.reScheduleEmailTask(1L, emailRequest);
+    subject.update(1L, emailRequest);
     verify(emailTaskScheduler).cancelTask("1");
   }
 
@@ -65,7 +65,7 @@ class EmailScheduleServiceTest {
     //given
     Long emailId = 1L;
     //when
-    subject.cancelEmailTask(1L);
+    subject.cancel(1L);
 
     //then
     verify(emailTaskScheduler).cancelTask("1");
