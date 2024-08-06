@@ -13,7 +13,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
   @Query(
     """
       SELECT new gdsc.konkuk.platformcore.application.event.EventWithAttendance(
-        e.id, a.id, e.title, e.thumbnailUrl, e.startAt
+        e.id, a.id, e.title, e.startAt
       )
       FROM Event e
         lEFT JOIN Attendance a ON e.id = a.eventId
