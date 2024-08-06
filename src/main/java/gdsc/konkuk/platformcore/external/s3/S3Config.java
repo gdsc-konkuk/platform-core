@@ -1,4 +1,4 @@
-package gdsc.konkuk.platformcore.external.image;
+package gdsc.konkuk.platformcore.external.s3;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
