@@ -1,9 +1,13 @@
 package gdsc.konkuk.platformcore.controller.attendance;
 
 import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
+import gdsc.konkuk.platformcore.application.event.EventService;
+import gdsc.konkuk.platformcore.application.event.EventWithAttendance;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Participant;
 import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
@@ -26,6 +30,15 @@ import java.net.URI;
 @RequiredArgsConstructor
 public class AttendanceController {
   private final AttendanceService attendanceService;
+  private final EventService eventService;
+
+  @GetMapping
+  public ResponseEntity<SuccessResponse> getEventsOfTheMonthWithAttendance(
+      @RequestParam Integer year, @RequestParam Integer month) {
+    List<EventWithAttendance> eventsOfMonthWithAttendance =
+        eventService.getEventsOfTheMonthWithAttendance(LocalDate.of(year, month, 1));
+    return ResponseEntity.ok(SuccessResponse.of(eventsOfMonthWithAttendance));
+  }
 
   @GetMapping("/{attendanceId}")
   public ResponseEntity<SuccessResponse> attend(
