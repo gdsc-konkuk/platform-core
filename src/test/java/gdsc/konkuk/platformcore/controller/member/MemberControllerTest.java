@@ -309,7 +309,7 @@ class MemberControllerTest {
                             fieldWithPath("data[].memberId").description("멤버 아이디"),
                             fieldWithPath("data[].memberName").description("멤버 이름"),
                             fieldWithPath("data[].memberRole").description("멤버 역할"),
-                            fieldWithPath("data[].profileImageUrl").description("멤버 프로필 이미지"),
+                            // fieldWithPath("data[].profileImageUrl").description("멤버 프로필 이미지"),
                             fieldWithPath("data[].department").description("멤버 학과"),
                             fieldWithPath("data[].attendanceInfoList").description("멤버 출석 정보 리스트"),
                             fieldWithPath("data[].attendanceInfoList[].attendanceId")

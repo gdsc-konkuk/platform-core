@@ -82,7 +82,6 @@ public class EventControllerTest {
         EventRegisterRequest.builder()
             .title("test title")
             .description("test description")
-            .thumbnailUrl("https://doamin.com/test/thumbnail.jpg")
             .startAt(LocalDateTime.now())
             .endAt(LocalDateTime.now().plusHours(2))
             .build();
