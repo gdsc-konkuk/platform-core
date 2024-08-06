@@ -40,7 +40,7 @@ public class AttendanceController {
     return ResponseEntity.ok(SuccessResponse.of(eventsOfMonthWithAttendance));
   }
 
-  @GetMapping("/{attendanceId}")
+  @GetMapping("/attend/{attendanceId}")
   public ResponseEntity<SuccessResponse> attend(
     @PathVariable Long attendanceId,
     @RequestParam String qrUuid,
