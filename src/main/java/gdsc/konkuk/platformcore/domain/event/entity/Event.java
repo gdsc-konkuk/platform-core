@@ -1,5 +1,6 @@
 package gdsc.konkuk.platformcore.domain.event.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -38,7 +39,7 @@ public class Event {
   @Column(name = "end_at")
   private LocalDateTime endAt;
 
-  @OneToMany(mappedBy = "eventId")
+  @OneToMany(mappedBy = "eventId", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<EventImage> eventImageList;
 
   @Embedded private Retrospect retrospect;
