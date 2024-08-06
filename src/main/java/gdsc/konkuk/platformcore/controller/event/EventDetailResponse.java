@@ -1,6 +1,6 @@
 package gdsc.konkuk.platformcore.controller.event;
 
-import java.io.File;
+import gdsc.konkuk.platformcore.external.s3.StorageObject;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Builder;
@@ -16,7 +16,7 @@ public class EventDetailResponse {
   private String content;
   private LocalDateTime startAt;
   private LocalDateTime endAt;
-  private List<File> images;
+  private List<StorageObject> images;
 
   @Builder
   public EventDetailResponse(
@@ -25,7 +25,7 @@ public class EventDetailResponse {
       String content,
       LocalDateTime startAt,
       LocalDateTime endAt,
-      List<File> images) {
+      List<StorageObject> images) {
     this.id = id;
     this.title = title;
     this.content = content;
