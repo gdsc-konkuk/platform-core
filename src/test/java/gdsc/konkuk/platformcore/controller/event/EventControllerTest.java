@@ -158,6 +158,7 @@ public class EventControllerTest {
   }
 
   @Test
+  @WithMockUser
   @DisplayName("회고 수정 성공")
   void should_update_retrospect_when_pass_content() throws Exception {
     // given
