@@ -10,8 +10,8 @@ import gdsc.konkuk.platformcore.domain.event.entity.Event;
 import gdsc.konkuk.platformcore.domain.event.repository.EventRepository;
 import gdsc.konkuk.platformcore.domain.event.entity.Retrospect;
 import gdsc.konkuk.platformcore.external.s3.StorageClient;
+import gdsc.konkuk.platformcore.external.s3.StorageObject;
 import gdsc.konkuk.platformcore.global.utils.FileValidator;
-import java.io.File;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 
@@ -32,7 +32,7 @@ public class EventService {
 
   public EventDetailResponse getEvent(Long eventId) throws IOException {
     Event event = findById(eventId);
-    List<File> images = storageClient.downloadFiles(event.getEventImageKeys());
+    List<StorageObject> images = storageClient.getObjects(event.getEventImageKeys());
 
     return EventDetailResponse.builder()
         .id(event.getId())
@@ -51,17 +51,20 @@ public class EventService {
   }
 
   @Transactional
-  public Event register(EventRegisterRequest registerRequest, List<MultipartFile> imageFiles) {
-    Event newEvent = EventRegisterRequest.toEntity(registerRequest);
+  public Event register(EventRegisterRequest registerRequest, List<MultipartFile> imageFiles)
+      throws IOException {
+    Event newEvent = eventRepository.saveAndFlush(EventRegisterRequest.toEntity(registerRequest));
 
     // upload images
-    List<String> eventImageKeyList =
-        storageClient.uploadFiles(imageFiles, FileValidator::validateFileMimeTypeImage);
-    for (String imageKey : eventImageKeyList) {
-      newEvent.addEventImageByKey(imageKey);
+    if (imageFiles != null) {
+      List<String> eventImageKeyList =
+          storageClient.uploadFiles(imageFiles, FileValidator::validateFileMimeTypeImage);
+      for (String imageKey : eventImageKeyList) {
+        newEvent.addEventImageByKey(imageKey);
+      }
     }
 
-    return eventRepository.save(newEvent);
+    return newEvent;
   }
 
   public List<EventWithAttendance> getEventsOfTheMonthWithAttendance(LocalDate month) {
@@ -76,23 +79,28 @@ public class EventService {
   }
 
   @Transactional
-  public void update(Long eventId, EventUpdateRequest request, List<MultipartFile> newImageFiles) {
+  public void update(Long eventId, EventUpdateRequest request, List<MultipartFile> newImageFiles)
+      throws IOException {
     Event event = findById(eventId);
     event.update(
         request.getTitle(), request.getContent(), request.getStartAt(), request.getEndAt());
 
     // upload new images
-    List<String> eventImageKeyList =
-        storageClient.uploadFiles(newImageFiles, FileValidator::validateFileMimeTypeImage);
-    for (String imageKey : eventImageKeyList) {
-      event.addEventImageByKey(imageKey);
+    if (newImageFiles != null) {
+      List<String> eventImageKeyList =
+          storageClient.uploadFiles(newImageFiles, FileValidator::validateFileMimeTypeImage);
+      for (String imageKey : eventImageKeyList) {
+        event.addEventImageByKey(imageKey);
+      }
     }
 
     // delete images
-    for (String imageKey : request.getEventImageKeysToDelete()) {
-      event.deleteEventImageByKey(imageKey);
+    if (request.getEventImageKeysToDelete() != null) {
+      for (String imageKey : request.getEventImageKeysToDelete()) {
+        event.deleteEventImageByKey(imageKey);
+      }
+      storageClient.deleteFiles(request.getEventImageKeysToDelete());
     }
-    storageClient.deleteFiles(request.getEventImageKeysToDelete());
   }
 
   @Transactional

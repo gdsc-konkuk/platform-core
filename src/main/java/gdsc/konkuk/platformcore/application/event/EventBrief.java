@@ -1,6 +1,6 @@
 package gdsc.konkuk.platformcore.application.event;
 
-import java.io.File;
+import java.net.URL;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,5 +14,5 @@ public class EventBrief {
   private String title;
   private String content;
   private LocalDateTime startAt;
-  private File thumbnail;
+  private URL thumbnail;
 }

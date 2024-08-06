@@ -2,8 +2,7 @@ package gdsc.konkuk.platformcore.application.event;
 
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
 import gdsc.konkuk.platformcore.external.s3.StorageClient;
-import java.io.File;
-import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,11 +23,11 @@ public class EventMapper {
         .toList();
   }
 
-  private static Optional<File> getThumbnail(
+  private static Optional<URL> getThumbnail(
       List<String> eventImageKeys, StorageClient storageClient) {
     try {
-      return Optional.of(storageClient.downloadFile(eventImageKeys.get(0)));
-    } catch (IOException e) {
+      return Optional.of(storageClient.getDownloadUrl(eventImageKeys.get(0)));
+    } catch (Exception e) {
       return Optional.empty();
     }
   }
