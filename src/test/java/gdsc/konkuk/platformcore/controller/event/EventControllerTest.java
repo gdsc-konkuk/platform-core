@@ -34,6 +34,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.MockitoAnnotations.openMocks;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
@@ -78,18 +79,19 @@ public class EventControllerTest {
     EventRegisterRequest eventRegisterRequest =
         EventRegisterRequest.builder()
             .title("test title")
-            .description("test description")
+            .content("test description")
             .startAt(LocalDateTime.now())
             .endAt(LocalDateTime.now().plusHours(2))
             .build();
-    given(eventService.register(any())).willReturn(this.event);
+    given(eventService.register(any(), any())).willReturn(this.event);
 
     // when
     ResultActions result =
         mockMvc.perform(
             RestDocumentationRequestBuilders.post("/api/v1/events")
-                .contentType(APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(eventRegisterRequest))
+                .contentType(MULTIPART_FORM_DATA)
+                .formField("imageFiles", "test")
+                .formField("registerRequest", objectMapper.writeValueAsString(eventRegisterRequest))
                 .with(csrf()));
 
     // then
