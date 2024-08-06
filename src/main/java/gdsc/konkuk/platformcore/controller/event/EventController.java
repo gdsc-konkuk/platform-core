@@ -44,7 +44,8 @@ public class EventController {
   @PostMapping
   public ResponseEntity<SuccessResponse> register(
       @RequestPart("detail") @Valid EventRegisterRequest registerRequest,
-      @RequestPart("images") List<MultipartFile> imageFiles) {
+      @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles)
+      throws IOException {
     Event newEvent = eventService.register(registerRequest, imageFiles);
     return ResponseEntity.created(getCreatedURI(newEvent.getId()))
         .body(SuccessResponse.messageOnly());
@@ -59,8 +60,9 @@ public class EventController {
   @PatchMapping("/{eventId}")
   public ResponseEntity<SuccessResponse> update(
       @PathVariable Long eventId,
-      @RequestPart("detail") @Valid EventUpdateRequest updateRequest,
-      @RequestPart("new-images") List<MultipartFile> files) {
+      @RequestPart(value = "detail") @Valid EventUpdateRequest updateRequest,
+      @RequestPart(value = "new-images", required = false) List<MultipartFile> files)
+      throws IOException {
     eventService.update(eventId, updateRequest, files);
     return ResponseEntity.ok(SuccessResponse.messageOnly());
   }
