@@ -50,7 +50,7 @@ public class EmailTaskScheduler implements TaskScheduler {
           } finally {
             taskInMemoryRepository.removeTask(String.valueOf(id));
           }
-        };
+    };
     ScheduledFuture<?> future = executor.schedule(sendEmailTask, delay, SECONDS);
     taskInMemoryRepository.addTask(String.valueOf(email.getId()), future);
   }

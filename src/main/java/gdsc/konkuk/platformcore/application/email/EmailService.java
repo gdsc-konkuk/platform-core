@@ -10,6 +10,7 @@ import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -31,7 +32,7 @@ public class EmailService {
     return emailTaskRepository.findAllWhereNotSent();
   }
 
-  @Transactional
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public EmailTask registerTask(EmailTask emailTask) {
     return emailTaskRepository.save(emailTask);
   }

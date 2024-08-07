@@ -86,7 +86,7 @@ class EmailServiceTest {
 
   @Test
   @DisplayName("registerTask : 이메일 전송 작업 등록 성공")
-  void sholud_success_when_register_task() {
+  void should_success_when_register_task() {
     // given
 
     EmailSendRequest emailRequest =
