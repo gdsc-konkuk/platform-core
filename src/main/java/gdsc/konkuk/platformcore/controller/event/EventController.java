@@ -36,7 +36,7 @@ public class EventController {
   }
 
   @GetMapping("/{eventId}")
-  public ResponseEntity<SuccessResponse> getEvent(@PathVariable Long eventId) throws IOException {
+  public ResponseEntity<SuccessResponse> getEvent(@PathVariable Long eventId) {
     EventDetailResponse eventDetailResponse = eventService.getEvent(eventId);
     return ResponseEntity.ok(SuccessResponse.of(eventDetailResponse));
   }

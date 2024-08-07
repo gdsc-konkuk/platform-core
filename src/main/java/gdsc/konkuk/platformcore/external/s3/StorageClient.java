@@ -42,11 +42,11 @@ public class StorageClient {
     return objectKeyList;
   }
 
-  public URL getDownloadUrl(String objectKey) throws IOException {
+  public URL getDownloadUrl(String objectKey) {
     return s3Template.createSignedGetURL(s3Config.getBucket(), objectKey, Duration.ofMinutes(10));
   }
 
-  public List<StorageObject> getObjects(List<String> objectKeyList) throws IOException {
+  public List<StorageObject> getObjects(List<String> objectKeyList) {
     List<StorageObject> preSignedUrls = new ArrayList<>();
     for (String objectKey : objectKeyList) {
       preSignedUrls.add(

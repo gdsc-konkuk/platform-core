@@ -30,7 +30,7 @@ public class EventService {
   private final EventRepository eventRepository;
   private final StorageClient storageClient;
 
-  public EventDetailResponse getEvent(Long eventId) throws IOException {
+  public EventDetailResponse getEvent(Long eventId) {
     Event event = findById(eventId);
     List<StorageObject> images = storageClient.getObjects(event.getEventImageKeys());
 
