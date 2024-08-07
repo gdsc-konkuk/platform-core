@@ -96,7 +96,7 @@ class EmailServiceTest {
             .receivers(List.of("example1.com", "example2.com"))
             .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
             .build();
-    given(emailTaskRepository.saveAndFlush(any(EmailTask.class))).willReturn(mock1);
+    given(emailTaskRepository.save(any(EmailTask.class))).willReturn(mock1);
     // when
     EmailTask expected = EmailSendRequest.toEntity(emailRequest);
     EmailTask actual = subject.registerTask(EmailSendRequest.toEntity(emailRequest));
