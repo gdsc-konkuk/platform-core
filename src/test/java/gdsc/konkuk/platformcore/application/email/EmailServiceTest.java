@@ -86,7 +86,7 @@ class EmailServiceTest {
 
   @Test
   @DisplayName("registerTask : 이메일 전송 작업 등록 성공")
-  void sholud_success_when_register_task() {
+  void should_success_when_register_task() {
     // given
 
     EmailSendRequest emailRequest =
@@ -96,7 +96,7 @@ class EmailServiceTest {
             .receivers(List.of("example1.com", "example2.com"))
             .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
             .build();
-    given(emailTaskRepository.save(any(EmailTask.class))).willReturn(mock1);
+    given(emailTaskRepository.saveAndFlush(any(EmailTask.class))).willReturn(mock1);
     // when
     EmailTask expected = EmailSendRequest.toEntity(emailRequest);
     EmailTask actual = subject.registerTask(EmailSendRequest.toEntity(emailRequest));
