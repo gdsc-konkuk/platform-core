@@ -72,7 +72,7 @@ public class Event {
   }
 
   public void deleteEventImageByKey(String imageKey) {
-    this.eventImageList.removeIf(eventImage -> eventImage.equals(imageKey));
+    this.eventImageList.removeIf(eventImage -> eventImage.isKeyEqual(imageKey));
   }
 
   public void updateRetrospectContent(String content) {

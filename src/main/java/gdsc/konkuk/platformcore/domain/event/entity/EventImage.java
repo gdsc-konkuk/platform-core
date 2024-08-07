@@ -30,16 +30,7 @@ public class EventImage {
     this.objectKey = objectKey;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-
-    if (o instanceof String) {
-      return objectKey.equals(o);
-    }
-
-    if (o == null || getClass() != o.getClass()) return false;
-    EventImage that = (EventImage) o;
-    return objectKey.equals(that.objectKey);
+  public boolean isKeyEqual(String imageKey) {
+    return objectKey.equals(imageKey);
   }
 }
