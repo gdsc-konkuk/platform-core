@@ -1,5 +1,6 @@
 package gdsc.konkuk.platformcore.controller.event;
 
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Builder;
@@ -14,5 +15,5 @@ public class EventUpdateRequest {
   private String content;
   private LocalDateTime startAt;
   private LocalDateTime endAt;
-  private List<String> eventImageKeysToDelete;
+  private List<URL> eventImagesToDelete;
 }

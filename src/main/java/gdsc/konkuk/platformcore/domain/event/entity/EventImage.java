@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.net.URL;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,16 +22,16 @@ public class EventImage {
   @Column(name = "event_id")
   private Long eventId;
 
-  @Column(name = "object_key")
-  private String objectKey;
+  @Column(name = "url")
+  private URL url;
 
   @Builder
-  public EventImage(Long eventId, String objectKey) {
+  public EventImage(Long eventId, URL url) {
     this.eventId = eventId;
-    this.objectKey = objectKey;
+    this.url = url;
   }
 
-  public boolean isKeyEqual(String imageKey) {
-    return objectKey.equals(imageKey);
+  public boolean isUrlEqual(URL imageKey) {
+    return url.equals(imageKey);
   }
 }

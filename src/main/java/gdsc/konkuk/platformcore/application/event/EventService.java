@@ -10,9 +10,9 @@ import gdsc.konkuk.platformcore.domain.event.entity.Event;
 import gdsc.konkuk.platformcore.domain.event.repository.EventRepository;
 import gdsc.konkuk.platformcore.domain.event.entity.Retrospect;
 import gdsc.konkuk.platformcore.external.s3.StorageClient;
-import gdsc.konkuk.platformcore.external.s3.StorageObject;
 import gdsc.konkuk.platformcore.global.utils.FileValidator;
 import java.io.IOException;
+import java.net.URL;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -32,7 +32,6 @@ public class EventService {
 
   public EventDetailResponse getEvent(Long eventId) {
     Event event = findById(eventId);
-    List<StorageObject> images = storageClient.getObjects(event.getEventImageKeys());
 
     return EventDetailResponse.builder()
         .id(event.getId())
@@ -40,7 +39,7 @@ public class EventService {
         .content(event.getContent())
         .startAt(event.getStartAt())
         .endAt(event.getEndAt())
-        .images(images)
+        .images(event.getEventImageUrls())
         .build();
   }
 
@@ -57,10 +56,10 @@ public class EventService {
 
     // upload images
     if (imageFiles != null) {
-      List<String> eventImageKeyList =
+      List<URL> eventImageUrls =
           storageClient.uploadFiles(imageFiles, FileValidator::validateFileMimeTypeImage);
-      for (String imageKey : eventImageKeyList) {
-        newEvent.addEventImageByKey(imageKey);
+      for (URL imageUrl : eventImageUrls) {
+        newEvent.addEventImageByUrl(imageUrl);
       }
     }
 
@@ -87,19 +86,19 @@ public class EventService {
 
     // upload new images
     if (newImageFiles != null) {
-      List<String> eventImageKeyList =
+      List<URL> eventImageUrls =
           storageClient.uploadFiles(newImageFiles, FileValidator::validateFileMimeTypeImage);
-      for (String imageKey : eventImageKeyList) {
-        event.addEventImageByKey(imageKey);
+      for (URL imageUrl : eventImageUrls) {
+        event.addEventImageByUrl(imageUrl);
       }
     }
 
     // delete images
-    if (request.getEventImageKeysToDelete() != null) {
-      for (String imageKey : request.getEventImageKeysToDelete()) {
-        event.deleteEventImageByKey(imageKey);
+    if (request.getEventImagesToDelete() != null) {
+      for (URL imageUrl : request.getEventImagesToDelete()) {
+        event.deleteEventImageByUrl(imageUrl);
       }
-      storageClient.deleteFiles(request.getEventImageKeysToDelete());
+      storageClient.deleteFiles(request.getEventImagesToDelete());
     }
   }
 

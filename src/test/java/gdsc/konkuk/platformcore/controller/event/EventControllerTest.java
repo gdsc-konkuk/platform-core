@@ -8,7 +8,6 @@ import gdsc.konkuk.platformcore.application.event.EventService;
 
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
 import gdsc.konkuk.platformcore.domain.event.entity.Retrospect;
-import gdsc.konkuk.platformcore.external.s3.StorageObject;
 import java.net.URL;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -153,18 +152,9 @@ public class EventControllerTest {
                 .endAt(LocalDateTime.now().plusHours(2))
                 .images(
                     List.of(
-                        StorageObject.builder()
-                            .key("asdfasdf")
-                            .url(new URL("https://foo.com/bar/baz1.jpg"))
-                            .build(),
-                        StorageObject.builder()
-                            .key("asdffdsa")
-                            .url(new URL("https://foo.com/bar/baz2.jpg"))
-                            .build(),
-                        StorageObject.builder()
-                            .key("asdffffff")
-                            .url(new URL("https://foo.com/bar/baz3.png"))
-                            .build()))
+                        new URL("https://foo.com/bar/baz1.jpg"),
+                        new URL("https://foo.com/bar/baz2.jpg"),
+                        new URL("https://foo.com/bar/baz3.png")))
                 .build());
 
     // when
@@ -194,8 +184,7 @@ public class EventControllerTest {
                             fieldWithPath("data.content").description("이벤트 내용"),
                             fieldWithPath("data.startAt").description("이벤트 시작 시간"),
                             fieldWithPath("data.endAt").description("이벤트 종료 시간"),
-                            fieldWithPath("data.images[].key").description("이미지 Key"),
-                            fieldWithPath("data.images[].url").description("이미지 URL"))
+                            fieldWithPath("data.images[]").description("이미지 URL"))
                         .build())));
   }
 
@@ -282,7 +271,8 @@ public class EventControllerTest {
             .content("test description")
             .startAt(LocalDateTime.now())
             .endAt(LocalDateTime.now().plusHours(2))
-            .eventImageKeysToDelete(List.of("key1", "key2"))
+            .eventImagesToDelete(
+                List.of(new URL("https://s3.com/key1"), new URL("https://s3.com/key2")))
             .build();
     MockMultipartFile mockImages =
         new MockMultipartFile("new-images", "test.jpg", "image/jpeg", "test".getBytes());
@@ -332,7 +322,10 @@ public class EventControllerTest {
                         .requestFields(
                             fieldWithPath("newImages[]")
                                 .description(
-                                    "**주의! form field 이름은 `new-images`입니다.**\n새로 추가할 이미지 파일 목록 (여러개)")
+                                    """
+                                    **주의! form field 이름은 `new-images`입니다.**
+                                    새로 추가할 이미지 파일 목록 (여러개)
+                                    """)
                                 .optional(),
                             fieldWithPath("detail")
                                 .description(
@@ -348,7 +341,7 @@ public class EventControllerTest {
                             fieldWithPath("detail.content").description("이벤트 내용"),
                             fieldWithPath("detail.startAt").description("이벤트 시작 시간"),
                             fieldWithPath("detail.endAt").description("이벤트 종료 시간"),
-                            fieldWithPath("detail.eventImageKeysToDelete[]")
+                            fieldWithPath("detail.eventImagesToDelete[]")
                                 .description("삭제할 이미지 Key 목록"))
                         .responseFields(
                             fieldWithPath("success").description("성공 여부"),

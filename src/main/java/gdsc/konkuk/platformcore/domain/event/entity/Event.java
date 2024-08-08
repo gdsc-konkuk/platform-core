@@ -8,8 +8,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -62,17 +64,26 @@ public class Event {
     this.retrospect = Retrospect.builder().content(retrospectContent).build();
   }
 
-  public List<String> getEventImageKeys() {
-    return this.eventImageList.stream().map(EventImage::getObjectKey).toList();
+  public Optional<URL> getThumbnail() {
+    try {
+      // Event의 첫 사진을 썸네일로 사용
+      return Optional.of(this.eventImageList.get(0).getUrl());
+    } catch (Exception e) {
+      return Optional.empty();
+    }
   }
 
-  public void addEventImageByKey(String imageKey) {
-    EventImage eventImage = new EventImage(this.id, imageKey);
+  public List<URL> getEventImageUrls() {
+    return this.eventImageList.stream().map(EventImage::getUrl).toList();
+  }
+
+  public void addEventImageByUrl(URL imageUrl) {
+    EventImage eventImage = new EventImage(this.id, imageUrl);
     this.eventImageList.add(eventImage);
   }
 
-  public void deleteEventImageByKey(String imageKey) {
-    this.eventImageList.removeIf(eventImage -> eventImage.isKeyEqual(imageKey));
+  public void deleteEventImageByUrl(URL imageUrl) {
+    this.eventImageList.removeIf(eventImage -> eventImage.isUrlEqual(imageUrl));
   }
 
   public void updateRetrospectContent(String content) {

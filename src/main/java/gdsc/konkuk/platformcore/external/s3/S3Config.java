@@ -9,4 +9,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("spring.cloud.aws.s3")
 public class S3Config {
   private final String bucket;
+  private final String region;
 }

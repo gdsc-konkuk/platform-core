@@ -4,8 +4,8 @@ import static java.util.UUID.randomUUID;
 
 import io.awspring.cloud.s3.S3Template;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -22,47 +22,55 @@ public class StorageClient {
   private final S3Config s3Config;
   private final S3Template s3Template;
 
-  public List<String> uploadFiles(List<MultipartFile> files, Consumer<MultipartFile> fileValidator)
+  public List<URL> uploadFiles(List<MultipartFile> files, Consumer<MultipartFile> fileValidator)
       throws IOException {
-    List<String> objectKeyList = new ArrayList<>();
-    if (files == null) {
-      throw new IllegalArgumentException("files is null");
-    }
+    List<URL> objectUrls = new ArrayList<>();
+
+    if (files == null) throw new IllegalArgumentException("files is null");
 
     for (MultipartFile file : files) {
       fileValidator.accept(file);
-      String extension =
-          Objects.requireNonNull(file.getOriginalFilename())
-              .substring(file.getOriginalFilename().lastIndexOf("."));
-
-      String objectKey = randomUUID() + extension;
+      String objectKey = genObjectKey(file.getOriginalFilename());
       s3Template.upload(s3Config.getBucket(), objectKey, file.getInputStream());
-      objectKeyList.add(objectKey);
+      objectUrls.add(genObjectUrl(objectKey));
     }
-    return objectKeyList;
+    return objectUrls;
   }
 
-  public URL getDownloadUrl(String objectKey) {
-    return s3Template.createSignedGetURL(s3Config.getBucket(), objectKey, Duration.ofMinutes(10));
+  public void deleteFiles(List<URL> objectUrls) {
+    if (objectUrls == null) throw new IllegalArgumentException("objectUrls is null");
+
+    for (URL objectUrl : objectUrls) {
+      s3Template.deleteObject(s3Config.getBucket(), extractObjectKeyFromUrl(objectUrl));
+    }
   }
 
-  public List<StorageObject> getObjects(List<String> objectKeyList) {
-    List<StorageObject> preSignedUrls = new ArrayList<>();
-    for (String objectKey : objectKeyList) {
-      preSignedUrls.add(
-          StorageObject.builder()
-              .key(objectKey)
-              .url(
-                  s3Template.createSignedGetURL(
-                      s3Config.getBucket(), objectKey, Duration.ofMinutes(10)))
-              .build());
+  private String extractObjectKeyFromUrl(URL url) {
+    String baseUrl =
+        "https://" + s3Config.getBucket() + ".s3." + s3Config.getRegion() + ".amazonaws.com/";
+
+    if (url.toString().startsWith(baseUrl)) {
+      return url.toString().substring(baseUrl.length());
+    } else {
+      throw new IllegalArgumentException("주어진 URL이 S3 Object URL이 아닙니다.");
     }
-    return preSignedUrls;
   }
 
-  public void deleteFiles(List<String> objectKeyList) {
-    for (String objectKey : objectKeyList) {
-      s3Template.deleteObject(s3Config.getBucket(), objectKey);
-    }
+  private URL genObjectUrl(String objectKey) throws MalformedURLException {
+    return new URL(
+        "https://"
+            + s3Config.getBucket()
+            + ".s3."
+            + s3Config.getRegion()
+            + ".amazonaws.com/"
+            + objectKey);
+  }
+
+  private String genObjectKey(String filename) {
+    return randomUUID() + extractExtension(filename);
+  }
+
+  private String extractExtension(String filename) {
+    return Objects.requireNonNull(filename).substring(filename.lastIndexOf("."));
   }
 }
