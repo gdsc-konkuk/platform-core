@@ -13,7 +13,7 @@ import static gdsc.konkuk.platformcore.global.utils.FieldValidator.validateNotNu
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Retrospect {
-  @Column(name = "content", columnDefinition = "TEXT")
+  @Column(name = "retrospect_content", columnDefinition = "TEXT")
   private String content;
 
   @Builder

@@ -43,8 +43,9 @@ public class Member {
   @Column(name = "member_email")
   private String email;
 
-  @Column(name = "profile_image_url")
-  private String profileImageUrl;
+  //  현 기능 상 Member Profile Image의 사용처가 없음
+  //  @Column(name = "profile_image_url")
+  //  private String profileImageUrl;
 
   @Column(name = "department")
   private String department;
@@ -88,7 +89,7 @@ public class Member {
       String password,
       String name,
       String email,
-      String profileImageUrl,
+      //      String profileImageUrl,
       String department,
       String batch) {
     this.id = id;
@@ -96,7 +97,7 @@ public class Member {
     this.password = validateNotNull(password, "password");
     this.name = validateNotNull(name, "name");
     this.email = validateNotNull(email, "email");
-    this.profileImageUrl = profileImageUrl;
+    //    this.profileImageUrl = profileImageUrl;
     this.department = department;
     this.batch = batch;
   }

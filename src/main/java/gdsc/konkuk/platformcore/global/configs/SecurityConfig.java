@@ -5,6 +5,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,42 +34,53 @@ public class SecurityConfig {
   private final GoogleOidcConfig googleOidcConfig;
 
   @Bean
+  @Order(2)
   public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
-      // TODO: csrf, dev에서만 disable
-      .csrf(AbstractHttpConfigurer::disable)
-      .securityMatcher(apiPath("/members/**"), apiPath("/admin/**"), "/docs/**", "/login")
-      .authorizeHttpRequests(
-        authorize ->
-          authorize
-            .requestMatchers("/docs/**")
-            .permitAll()
-            // TODO: member register, dev에서만 permitAll
-            .requestMatchers(HttpMethod.POST, apiPath("/members"))
-            .permitAll()
-            .requestMatchers(apiPath("/admin/**"))
-            .hasRole("ADMIN")
-            .anyRequest()
-            .authenticated())
-      .formLogin(
-        login ->
-          login
-            .defaultSuccessUrl("/")
-            .usernameParameter(LOGIN_NAME)
-            .successHandler(customAuthenticationSuccessHandler)
-            .failureHandler(customAuthenticationFailureHandler));
+        // TODO: csrf, dev에서만 disable
+        .csrf(AbstractHttpConfigurer::disable)
+        .securityMatcher(
+            apiPath("/members/**"),
+            apiPath("/events/**"),
+            apiPath("/attendances/**"),
+            apiPath("/emails/**"),
+            apiPath("/admin/**"),
+            "/docs/**",
+            "/login")
+        .authorizeHttpRequests(
+            authorize ->
+                authorize
+                    .requestMatchers("/docs/**")
+                    .permitAll()
+                    // TODO: member register, dev에서만 permitAll
+                    .requestMatchers(HttpMethod.POST, apiPath("/members"))
+                    .permitAll()
+                    .requestMatchers(apiPath("/admin/**"))
+                    .hasRole("ADMIN")
+                    .anyRequest()
+                    .authenticated())
+        .formLogin(
+            login ->
+                login
+                    .defaultSuccessUrl("/")
+                    .usernameParameter(LOGIN_NAME)
+                    .successHandler(customAuthenticationSuccessHandler)
+                    .failureHandler(customAuthenticationFailureHandler));
     return httpSecurity.build();
   }
 
   @Bean
+  @Order(1)
   public SecurityFilterChain googleOidcFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
-      // TODO: dev에서만 disable
-      .csrf(AbstractHttpConfigurer::disable)
-      .securityMatcher(
-        apiPath("/attendances/**"), "/oauth2/authorization/google", "/login/oauth2/code/google")
-      .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
-      .oauth2Login(withDefaults());
+        // TODO: dev에서만 disable
+        .csrf(AbstractHttpConfigurer::disable)
+        .securityMatcher(
+            apiPath("/attendances/attend/**"),
+            "/oauth2/authorization/google",
+            "/login/oauth2/code/google")
+        .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
+        .oauth2Login(withDefaults());
     return httpSecurity.build();
   }
 

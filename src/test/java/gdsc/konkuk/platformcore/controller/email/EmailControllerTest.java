@@ -233,6 +233,7 @@ class EmailControllerTest {
 
   @Test
   @DisplayName("등록된 이메일 작업을 취소한다.")
+  @CustomMockUser
   void should_success_when_cancel_registered_task() throws Exception {
     //given
     doNothing().when(emailTaskFacade).cancel(any());

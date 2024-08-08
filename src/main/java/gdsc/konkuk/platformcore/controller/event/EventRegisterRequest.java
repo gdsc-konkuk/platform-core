@@ -14,17 +14,14 @@ import java.time.LocalDateTime;
 @Builder
 public class EventRegisterRequest {
   @NotEmpty private String title;
-  private String description;
-  private String thumbnailUrl;
-  // TODO: event images
+  @NotNull private String content;
   @NotNull private LocalDateTime startAt;
   @NotNull private LocalDateTime endAt;
 
   public static Event toEntity(EventRegisterRequest request) {
     return Event.builder()
         .title(request.getTitle())
-        .description(request.getDescription())
-        .thumbnailUrl(request.getThumbnailUrl())
+        .content(request.getContent())
         .startAt(request.getStartAt())
         .endAt(request.getEndAt())
         .retrospectContent("내용이 없습니다.")
