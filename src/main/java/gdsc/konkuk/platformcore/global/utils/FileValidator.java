@@ -11,7 +11,7 @@ public class FileValidator {
     String fileName = file.getOriginalFilename();
     String mimetype = new MimetypesFileTypeMap().getContentType(fileName);
     if (!mimetype.startsWith(mimeType + "/")) {
-      throw new IllegalArgumentException(fileName + " must be " + mimeType + " file");
+      throw new IllegalArgumentException(String.format("%s must be %s file", fileName, mimeType));
     }
   }
 
