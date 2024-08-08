@@ -1,13 +1,17 @@
 package gdsc.konkuk.platformcore.external.s3;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
 @Getter
-@RequiredArgsConstructor
-@ConfigurationProperties("spring.cloud.aws.s3")
+@Setter
+@Configuration
 public class S3Properties {
-  private final String bucket;
-  private final String region;
+  @Value("${spring.cloud.aws.s3.bucket}")
+  private String bucket;
+
+  @Value("${spring.cloud.aws.region.static}")
+  private String region;
 }
