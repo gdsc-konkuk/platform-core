@@ -24,7 +24,7 @@ public class MemberAttendanceInfo {
   @NotNull private Long memberId;
   @NotEmpty private String memberName;
   @NotNull private MemberRole memberRole;
-  private String profileImageUrl;
+  //  private String profileImageUrl;
   @NotEmpty private String department;
   @NotNull List<AttendanceInfo> attendanceInfoList;
 
@@ -38,7 +38,7 @@ public class MemberAttendanceInfo {
               .memberId(member.getId())
               .memberName(member.getName())
               .memberRole(member.getRole())
-              .profileImageUrl(member.getProfileImageUrl())
+              //              .profileImageUrl(member.getProfileImageUrl())
               .department(member.getDepartment())
               .attendanceInfoList(new ArrayList<>())
               .build());

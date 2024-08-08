@@ -1,11 +1,17 @@
 package gdsc.konkuk.platformcore.domain.event.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,11 +32,8 @@ public class Event {
   @Column(name = "title")
   private String title;
 
-  @Column(name = "description")
-  private String description;
-
-  @Column(name = "thumbnail_url")
-  private String thumbnailUrl;
+  @Column(name = "content", columnDefinition = "TEXT")
+  private String content;
 
   @Column(name = "start_at")
   private LocalDateTime startAt;
@@ -38,7 +41,8 @@ public class Event {
   @Column(name = "end_at")
   private LocalDateTime endAt;
 
-  // TODO: event images
+  @OneToMany(mappedBy = "eventId", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<EventImage> eventImageList;
 
   @Embedded private Retrospect retrospect;
 
@@ -46,21 +50,50 @@ public class Event {
   public Event(
       Long id,
       String title,
-      String description,
-      String thumbnailUrl,
+      String content,
       LocalDateTime startAt,
       LocalDateTime endAt,
+      List<EventImage> eventImageList,
       String retrospectContent) {
     this.id = id;
     this.title = validateNotNull(title, "title");
-    this.description = description;
-    this.thumbnailUrl = thumbnailUrl;
-    this.startAt = startAt;
-    this.endAt = endAt;
+    this.content = validateNotNull(content, "content");
+    this.startAt = validateNotNull(startAt, "startAt");
+    this.endAt = validateNotNull(endAt, "endAt");
+    this.eventImageList = eventImageList == null ? new ArrayList<>() : eventImageList;
     this.retrospect = Retrospect.builder().content(retrospectContent).build();
   }
 
+  public Optional<URL> getThumbnail() {
+    try {
+      // Event의 첫 사진을 썸네일로 사용
+      return Optional.of(this.eventImageList.get(0).getUrl());
+    } catch (Exception e) {
+      return Optional.empty();
+    }
+  }
+
+  public List<URL> getEventImageUrls() {
+    return this.eventImageList.stream().map(EventImage::getUrl).toList();
+  }
+
+  public void addEventImageByUrl(URL imageUrl) {
+    EventImage eventImage = new EventImage(this.id, imageUrl);
+    this.eventImageList.add(eventImage);
+  }
+
+  public void deleteEventImageByUrl(URL imageUrl) {
+    this.eventImageList.removeIf(eventImage -> eventImage.isUrlEqual(imageUrl));
+  }
+
   public void updateRetrospectContent(String content) {
-    retrospect.updateContent(content);
+    this.retrospect.updateContent(content);
+  }
+
+  public void update(String title, String description, LocalDateTime startAt, LocalDateTime endAt) {
+    if (title != null) this.title = title;
+    if (description != null) this.content = description;
+    if (startAt != null) this.startAt = startAt;
+    if (endAt != null) this.endAt = endAt;
   }
 }
