@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Component
 @RequiredArgsConstructor
 public class StorageClient {
-  private final S3Config s3Config;
+  private final S3Properties s3Properties;
   private final S3Template s3Template;
 
   public List<URL> uploadFiles(List<MultipartFile> files, Consumer<MultipartFile> fileValidator)
@@ -31,7 +31,7 @@ public class StorageClient {
     for (MultipartFile file : files) {
       fileValidator.accept(file);
       String objectKey = genObjectKey(file.getOriginalFilename());
-      s3Template.upload(s3Config.getBucket(), objectKey, file.getInputStream());
+      s3Template.upload(s3Properties.getBucket(), objectKey, file.getInputStream());
       objectUrls.add(genObjectUrl(objectKey));
     }
     return objectUrls;
@@ -41,13 +41,17 @@ public class StorageClient {
     if (objectUrls == null) throw new IllegalArgumentException("objectUrls is null");
 
     for (URL objectUrl : objectUrls) {
-      s3Template.deleteObject(s3Config.getBucket(), extractObjectKeyFromUrl(objectUrl));
+      s3Template.deleteObject(s3Properties.getBucket(), extractObjectKeyFromUrl(objectUrl));
     }
   }
 
   private String extractObjectKeyFromUrl(URL url) {
     String baseUrl =
-        "https://" + s3Config.getBucket() + ".s3." + s3Config.getRegion() + ".amazonaws.com/";
+        "https://"
+            + s3Properties.getBucket()
+            + ".s3."
+            + s3Properties.getRegion()
+            + ".amazonaws.com/";
 
     if (url.toString().startsWith(baseUrl)) {
       return url.toString().substring(baseUrl.length());
@@ -59,9 +63,9 @@ public class StorageClient {
   private URL genObjectUrl(String objectKey) throws MalformedURLException {
     return new URL(
         "https://"
-            + s3Config.getBucket()
+            + s3Properties.getBucket()
             + ".s3."
-            + s3Config.getRegion()
+            + s3Properties.getRegion()
             + ".amazonaws.com/"
             + objectKey);
   }
