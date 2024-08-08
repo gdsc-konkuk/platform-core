@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
   @Query(
-    """
+      """
       SELECT new gdsc.konkuk.platformcore.application.event.EventWithAttendance(
         e.id, a.id, e.title, e.startAt
       )
@@ -20,5 +20,13 @@ public interface EventRepository extends JpaRepository<Event, Long> {
       WHERE e.startAt BETWEEN :st AND :en
       """)
   List<EventWithAttendance> findAllWithAttendanceByStartAtBetween(
-    LocalDateTime st, LocalDateTime en);
+      LocalDateTime st, LocalDateTime en);
+
+  @Query(
+      """
+      SELECT e
+      FROM Event e
+      JOIN FETCH e.eventImageList
+      """)
+  List<Event> findAll();
 }
