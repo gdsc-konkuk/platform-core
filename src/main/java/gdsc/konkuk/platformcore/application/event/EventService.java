@@ -32,15 +32,7 @@ public class EventService {
 
   public EventDetailResponse getEvent(Long eventId) {
     Event event = findById(eventId);
-
-    return EventDetailResponse.builder()
-        .id(event.getId())
-        .title(event.getTitle())
-        .content(event.getContent())
-        .startAt(event.getStartAt())
-        .endAt(event.getEndAt())
-        .images(event.getEventImageUrls())
-        .build();
+    return EventDetailResponse.fromEntity(event);
   }
 
   public EventBriefResponse getAllBriefs() {

@@ -1,5 +1,6 @@
 package gdsc.konkuk.platformcore.controller.event;
 
+import gdsc.konkuk.platformcore.domain.event.entity.Event;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,5 +33,16 @@ public class EventDetailResponse {
     this.startAt = startAt;
     this.endAt = endAt;
     this.images = images;
+  }
+
+  public static EventDetailResponse fromEntity(Event event) {
+    return EventDetailResponse.builder()
+        .id(event.getId())
+        .title(event.getTitle())
+        .content(event.getContent())
+        .startAt(event.getStartAt())
+        .endAt(event.getEndAt())
+        .images(event.getEventImageUrls())
+        .build();
   }
 }
