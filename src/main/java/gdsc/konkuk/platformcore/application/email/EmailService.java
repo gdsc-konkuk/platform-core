@@ -7,7 +7,9 @@ import gdsc.konkuk.platformcore.application.email.exceptions.EmailErrorCode;
 import gdsc.konkuk.platformcore.controller.email.dto.EmailSendRequest;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -44,8 +46,10 @@ public class EmailService {
     validateEmailTaskAlreadySent(task);
 
     task.changeEmailDetails(request.toEmailDetails());
-    task.changeEmailReceivers(request.toEmailReceivers());
     task.changeSendAt(request.getSendAt());
+
+    Set<String> updatedReceivers = mergeReceivers(task, request.getReceivers());
+    task.changeEmailReceivers(updatedReceivers);
     return task;
   }
 
@@ -65,5 +69,13 @@ public class EmailService {
     if (emailTask.isSent()) {
       throw EmailAlreadyProcessedException.of(EmailErrorCode.EMAIL_ALREADY_PROCESSED);
     }
+  }
+
+  private Set<String> mergeReceivers(EmailTask emailTask, Set<String> updatedReceivers) {
+    List<String> receiversInPrevSet = emailTask.filterReceiversInPrevSet(updatedReceivers);
+    List<String> receiversInNewSet = emailTask.filterReceiversNotInPrevSet(updatedReceivers);
+    Set<String> mergedReceiver = new HashSet<>(receiversInPrevSet);
+    mergedReceiver.addAll(receiversInNewSet);
+    return mergedReceiver;
   }
 }
