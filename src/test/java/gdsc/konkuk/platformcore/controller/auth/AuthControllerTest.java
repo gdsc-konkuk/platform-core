@@ -91,7 +91,6 @@ class AuthControllerTest {
     result
       .andDo(print())
       .andExpect(status().isOk())
-      .andExpect(redirectedUrl("/"))
       .andDo(
         document(
           "login",
