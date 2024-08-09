@@ -5,7 +5,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.JoinColumn;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 
 import jakarta.persistence.Embeddable;
@@ -24,7 +23,7 @@ public class EmailReceivers {
   @Column(name = "receiver_email")
   Set<String> receivers = new HashSet<>();
 
-  public EmailReceivers(List<String> receivers) {
+  public EmailReceivers(Set<String> receivers) {
     this.receivers.addAll(receivers);
   }
 
@@ -39,5 +38,13 @@ public class EmailReceivers {
     if (o == null || getClass() != o.getClass()) return false;
     EmailReceivers that = (EmailReceivers) o;
     return Objects.equals(receivers, that.receivers);
+  }
+
+  public void removeAll() {
+    this.receivers.clear();
+  }
+
+  public void insertAll(Set<String> set) {
+    this.receivers.addAll(set);
   }
 }
