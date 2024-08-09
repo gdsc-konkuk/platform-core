@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,12 +20,12 @@ public class EmailSendRequest {
   @NotEmpty
   private String content;
   @NotNull
-  private List<@Email String> receivers;
+  private Set<@Email String> receivers;
   @NotNull
   private LocalDateTime sendAt;
 
   @Builder
-  public EmailSendRequest(String subject, String content, List<String> receivers, LocalDateTime sendAt) {
+  public EmailSendRequest(String subject, String content, Set<String> receivers, LocalDateTime sendAt) {
     this.subject = subject;
     this.content = content;
     this.receivers = receivers;

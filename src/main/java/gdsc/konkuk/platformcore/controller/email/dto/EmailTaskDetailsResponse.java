@@ -18,7 +18,10 @@ public class EmailTaskDetailsResponse {
   public EmailTaskDetailsResponse(EmailDetails emailDetails, EmailReceivers emailReceivers, LocalDateTime sendAt) {
     this.subject = emailDetails.getSubject();
     this.content = emailDetails.getContent();
-    this.receivers = emailReceivers.getReceivers();
+    this.receivers = emailReceivers
+        .getReceivers()
+        .stream()
+        .toList();
     this.sendAt = sendAt;
   }
 }
