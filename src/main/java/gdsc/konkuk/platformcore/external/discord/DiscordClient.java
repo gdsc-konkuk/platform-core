@@ -1,5 +1,6 @@
 package gdsc.konkuk.platformcore.external.discord;
 
+import java.net.URI;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +27,7 @@ public class DiscordClient {
     headers.setContentType(MediaType.APPLICATION_JSON);
     HttpEntity<DiscordMessage> entity = new HttpEntity<>(message, headers);
     try {
-      restTemplate.postForObject(WEB_HOOK_URL, entity, String.class);
+      restTemplate.postForObject(URI.create(WEB_HOOK_URL), entity, String.class);
     } catch (Exception ex) {
       log.error(Arrays.toString(ex.getStackTrace()));
     }

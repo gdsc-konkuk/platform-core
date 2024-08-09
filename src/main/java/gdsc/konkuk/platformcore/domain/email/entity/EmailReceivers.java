@@ -1,5 +1,10 @@
 package gdsc.konkuk.platformcore.domain.email.entity;
 
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -14,6 +19,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class EmailReceivers {
 
+  @ElementCollection
+  @CollectionTable(
+      name = "email_receivers",
+      joinColumns = @JoinColumn(name = "task_id")
+  )
+  @Column(name = "receiver_email")
   List<String> receivers = new ArrayList<>();
 
   public EmailReceivers(List<String> receivers) {
