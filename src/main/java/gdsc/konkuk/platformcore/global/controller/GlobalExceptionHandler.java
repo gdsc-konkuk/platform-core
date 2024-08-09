@@ -78,7 +78,7 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(Exception.class)
-  protected ResponseEntity<ErrorResponse> handleException(RuntimeException e) {
+  protected ResponseEntity<ErrorResponse> handleException(Exception e) {
     log.error("Exception Uncaught!", e);
     final ErrorResponse response = ErrorResponse.of(GlobalErrorCode.INTERNAL_SERVER_ERROR);
     return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
