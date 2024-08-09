@@ -19,6 +19,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Slf4j
 @Component
@@ -30,6 +31,7 @@ public class EmailTaskScheduler implements TaskScheduler {
   private final ScheduledThreadPoolExecutor executor;
   private final EmailClient emailClient;
   private final DiscordClient discordClient;
+  private final TransactionTemplate transactionTemplate;
 
 
   @Override
@@ -40,17 +42,21 @@ public class EmailTaskScheduler implements TaskScheduler {
 
     Runnable sendEmailTask =
         () -> {
-          try {
-            EmailTask sendingTask = emailService.getTaskDetails(id);
-            emailClient.sendEmailToReceivers(sendingTask);
-            emailService.markAsCompleted(id);
-          } catch (Exception e) {
-            log.error("[ERROR] : 이메일 전송과정에서 에러가 발생했습니다.", e);
-            discordClient.sendErrorMessage(e);
-          } finally {
-            taskInMemoryRepository.removeTask(String.valueOf(id));
-          }
-    };
+          transactionTemplate.execute(status -> {
+            try {
+              EmailTask sendingTask = emailService.getTaskDetails(id);
+              emailClient.sendEmailToReceivers(sendingTask);
+              emailService.markAsCompleted(id);
+            } catch (Exception e) {
+              log.error("[ERROR] : 이메일 전송과정에서 에러가 발생했습니다.", e);
+              discordClient.sendErrorMessage(e);
+              status.setRollbackOnly();
+            } finally {
+              taskInMemoryRepository.removeTask(String.valueOf(id));
+            }
+            return null;
+          });
+        };
     ScheduledFuture<?> future = executor.schedule(sendEmailTask, delay, SECONDS);
     taskInMemoryRepository.addTask(String.valueOf(email.getId()), future);
   }
