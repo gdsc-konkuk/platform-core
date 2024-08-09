@@ -3,13 +3,13 @@ package gdsc.konkuk.platformcore.domain.email.entity;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
 import jakarta.persistence.Embeddable;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,12 +20,9 @@ import lombok.NoArgsConstructor;
 public class EmailReceivers {
 
   @ElementCollection
-  @CollectionTable(
-      name = "email_receivers",
-      joinColumns = @JoinColumn(name = "task_id")
-  )
+  @CollectionTable(name = "email_receivers", joinColumns = @JoinColumn(name = "task_id"))
   @Column(name = "receiver_email")
-  List<String> receivers = new ArrayList<>();
+  Set<String> receivers = new HashSet<>();
 
   public EmailReceivers(List<String> receivers) {
     this.receivers.addAll(receivers);
