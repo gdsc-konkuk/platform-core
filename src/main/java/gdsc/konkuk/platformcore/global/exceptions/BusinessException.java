@@ -7,6 +7,10 @@ public class BusinessException extends RuntimeException {
 
   private final String logMessage;
 
+  public String getName(){
+    return this.getClass().getSimpleName();
+  }
+
   protected BusinessException(CustomErrorCode errorCode, String logMessage) {
     super(errorCode.getMessage());
     this.logMessage = logMessage;
@@ -15,5 +19,4 @@ public class BusinessException extends RuntimeException {
   public static BusinessException of(CustomErrorCode errorCode) {
     return new BusinessException(errorCode, errorCode.getLogMessage());
   }
-
 }
