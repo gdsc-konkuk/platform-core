@@ -14,6 +14,7 @@ import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,7 @@ class EmailServiceTest {
       EmailTask.builder()
           .id(1L)
           .emailDetails(new EmailDetails("subject", "content"))
-          .receivers(new EmailReceivers(List.of("example1.com", "example2.com")))
+          .receivers(new EmailReceivers(Set.of("example1.com", "example2.com")))
           .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
           .build();
 
@@ -37,7 +38,7 @@ class EmailServiceTest {
       EmailTask.builder()
           .id(2L)
           .emailDetails(new EmailDetails("subject2", "content2"))
-          .receivers(new EmailReceivers(List.of("example1.com", "example2.com")))
+          .receivers(new EmailReceivers(Set.of("example1.com", "example2.com")))
           .sendAt(LocalDateTime.now())
           .build();
   List<EmailTask> mockEmailTaskList = List.of(mock1, mock2);
@@ -45,7 +46,7 @@ class EmailServiceTest {
       EmailTask.builder()
           .id(3L)
           .emailDetails(new EmailDetails("subject3", "content3"))
-          .receivers(new EmailReceivers(List.of("example1.com", "example2.com")))
+          .receivers(new EmailReceivers(Set.of("example1.com", "example2.com")))
           .sendAt(LocalDateTime.now())
           .build();
 
@@ -93,7 +94,7 @@ class EmailServiceTest {
         EmailSendRequest.builder()
             .subject("subject")
             .content("content")
-            .receivers(List.of("example1.com", "example2.com"))
+            .receivers(Set.of("example1.com", "example2.com"))
             .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
             .build();
     given(emailTaskRepository.save(any(EmailTask.class))).willReturn(mock1);
@@ -114,7 +115,7 @@ class EmailServiceTest {
         EmailSendRequest.builder()
             .subject("subject2")
             .content("content2")
-            .receivers(List.of("example2.com", "example4.com"))
+            .receivers(Set.of("example2.com", "example4.com"))
             .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
             .build();
     given(emailTaskRepository.findById(1L)).willReturn(java.util.Optional.of(mock1));
@@ -134,7 +135,7 @@ class EmailServiceTest {
         EmailSendRequest.builder()
             .subject("subject2")
             .content("content2")
-            .receivers(List.of("example2.com", "example4.com"))
+            .receivers(Set.of("example2.com", "example4.com"))
             .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
             .build();
     // when
@@ -151,7 +152,7 @@ class EmailServiceTest {
         EmailSendRequest.builder()
             .subject("subject2")
             .content("content2")
-            .receivers(List.of("example2.com", "example4.com"))
+            .receivers(Set.of("example2.com", "example4.com"))
             .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
             .build();
     // when

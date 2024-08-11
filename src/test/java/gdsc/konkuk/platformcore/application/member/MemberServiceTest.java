@@ -3,10 +3,15 @@ package gdsc.konkuk.platformcore.application.member;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
-import java.util.Optional;
-
+import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyDeletedException;
+import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistException;
+import gdsc.konkuk.platformcore.application.member.exceptions.UserNotFoundException;
+import gdsc.konkuk.platformcore.controller.member.MemberRegisterRequest;
 import gdsc.konkuk.platformcore.domain.attendance.repository.AttendanceRepository;
 import gdsc.konkuk.platformcore.domain.attendance.repository.ParticipantRepository;
+import gdsc.konkuk.platformcore.domain.member.entity.Member;
+import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,13 +19,6 @@ import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyDeletedException;
-import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistException;
-import gdsc.konkuk.platformcore.application.member.exceptions.UserNotFoundException;
-import gdsc.konkuk.platformcore.controller.member.MemberRegisterRequest;
-import gdsc.konkuk.platformcore.domain.member.entity.Member;
-import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
 
 class MemberServiceTest {
 
