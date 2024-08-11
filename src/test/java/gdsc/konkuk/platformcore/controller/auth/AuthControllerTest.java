@@ -3,7 +3,7 @@ package gdsc.konkuk.platformcore.controller.auth;
 import static com.epages.restdocs.apispec.ResourceDocumentation.*;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.*;
+
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
@@ -103,7 +103,13 @@ class AuthControllerTest {
 
     // when
     ResultActions result =
-      mockMvc.perform(formLogin("/login").user("202011288").password("gdscgdsc1"));
+      mockMvc.perform(
+        RestDocumentationRequestBuilders.multipart("/login")
+          .formField("id", "202011288")
+          .formField("password", "wrongpassword")
+          .contentType("application/x-www-form-urlencoded")
+          .characterEncoding("UTF-8")
+          .with(csrf()));
 
     // then
     result.andDo(print()).andExpect(status().isBadRequest());
