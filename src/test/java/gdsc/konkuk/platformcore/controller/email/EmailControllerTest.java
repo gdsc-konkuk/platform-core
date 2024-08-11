@@ -11,10 +11,19 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import com.epages.restdocs.apispec.ResourceSnippetParameters;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import gdsc.konkuk.platformcore.annotation.CustomMockUser;
+import gdsc.konkuk.platformcore.annotation.RestDocsTest;
+import gdsc.konkuk.platformcore.application.email.EmailService;
 import gdsc.konkuk.platformcore.application.email.EmailTaskFacade;
+import gdsc.konkuk.platformcore.controller.email.dto.EmailSendRequest;
+import gdsc.konkuk.platformcore.domain.email.entity.EmailDetails;
+import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
+import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import java.time.LocalDateTime;
 import java.util.List;
-
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,17 +38,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import com.epages.restdocs.apispec.ResourceSnippetParameters;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import gdsc.konkuk.platformcore.annotation.CustomMockUser;
-import gdsc.konkuk.platformcore.annotation.RestDocsTest;
-import gdsc.konkuk.platformcore.application.email.EmailService;
-import gdsc.konkuk.platformcore.controller.email.dto.EmailSendRequest;
-import gdsc.konkuk.platformcore.domain.email.entity.EmailDetails;
-import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
-import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 
 @RestDocsTest
 @SpringBootTest
@@ -74,7 +72,7 @@ class EmailControllerTest {
     EmailSendRequest request = EmailSendRequest.builder()
       .subject("예시 이메일 제목")
       .content("Html 문자열")
-      .receivers(List.of("ex1@gmail.com", "ex2@naver.com"))
+      .receivers(Set.of("ex1@gmail.com", "ex2@naver.com"))
       .sendAt(LocalDateTime.of(2024, 7, 20, 12, 30))
       .build();
     EmailDetails emailDetails = request.toEmailDetails();
@@ -120,7 +118,7 @@ class EmailControllerTest {
     EmailSendRequest request = EmailSendRequest.builder()
       .subject("예시 이메일 제목 수정")
       .content("Html 문자열")
-      .receivers(List.of("update@gmail.com", "update2@gmail.com", "update3@gmail.com"))
+      .receivers(Set.of("update@gmail.com", "update2@gmail.com", "update3@gmail.com"))
       .sendAt(LocalDateTime.of(2024,7,20,12,30))
       .build();
 
@@ -156,7 +154,7 @@ class EmailControllerTest {
   void should_success_when_get_all_task() throws Exception {
     //given
     EmailDetails emailDetails = new EmailDetails("예시 이메일 제목", "Html 문자열");
-    EmailReceivers emailReceivers = new EmailReceivers(List.of("example1@gmail.com", "example2@gmail.com", "example3@gmail.com"));
+    EmailReceivers emailReceivers = new EmailReceivers(Set.of("example1@gmail.com", "example2@gmail.com", "example3@gmail.com"));
     EmailTask emailTask = new EmailTask(1L, emailDetails, emailReceivers, LocalDateTime.of(2024, 7, 20, 12, 30));
 
     //when
@@ -196,7 +194,7 @@ class EmailControllerTest {
   void should_success_when_get_specific_task() throws Exception {
     //given
     EmailDetails emailDetails = new EmailDetails("예시 이메일 제목", "Html 문자열");
-    EmailReceivers emailReceivers = new EmailReceivers(List.of("example@gmail.com", "example@naver.com"));
+    EmailReceivers emailReceivers = new EmailReceivers(Set.of("example@gmail.com", "example@naver.com"));
     EmailTask emailTask = new EmailTask(1L, emailDetails, emailReceivers, LocalDateTime.of(2024, 7, 20, 12, 30));
 
     //when

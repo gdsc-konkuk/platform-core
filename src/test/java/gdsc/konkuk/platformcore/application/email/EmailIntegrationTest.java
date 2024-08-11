@@ -20,7 +20,7 @@ import gdsc.konkuk.platformcore.global.exceptions.GlobalErrorCode;
 import gdsc.konkuk.platformcore.global.exceptions.TaskNotFoundException;
 import gdsc.konkuk.platformcore.global.scheduler.TaskInMemoryRepository;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -72,7 +72,7 @@ class EmailIntegrationTest {
         EmailSendRequest.builder()
             .subject("subject")
             .content("content")
-            .receivers(List.of("example1.com", "example2.com"))
+            .receivers(Set.of("example1.com", "example2.com"))
             .sendAt(LocalDateTime.now().plusHours(1))
             .build();
     // when
@@ -92,7 +92,7 @@ class EmailIntegrationTest {
         EmailSendRequest.builder()
             .subject("subject")
             .content("content")
-            .receivers(List.of("example1@gmail.com", "example2@gmail.com"))
+            .receivers(Set.of("example1@gmail.com", "example2@gmail.com"))
             .sendAt(LocalDateTime.now().plusSeconds(5L))
             .build();
     // when
@@ -120,7 +120,7 @@ class EmailIntegrationTest {
         EmailSendRequest.builder()
             .subject("subject")
             .content("content")
-            .receivers(List.of("example1.com", "example2.com"))
+            .receivers(Set.of("example1.com", "example2.com"))
             .sendAt(LocalDateTime.now().plusHours(1))
             .build();
     EmailTask emailTask = emailTaskFacade.register(emailRequest);
@@ -130,7 +130,7 @@ class EmailIntegrationTest {
         EmailSendRequest.builder()
             .subject("subject")
             .content("content")
-            .receivers(List.of("example1.com", "example2.com"))
+            .receivers(Set.of("example1.com", "example2.com"))
             .sendAt(LocalDateTime.now().plusHours(2))
             .build();
     // when
@@ -156,7 +156,7 @@ class EmailIntegrationTest {
         EmailSendRequest.builder()
             .subject("subject")
             .content("content")
-            .receivers(List.of("example1.com", "example2.com"))
+            .receivers(Set.of("example1.com", "example2.com"))
             .sendAt(LocalDateTime.now().plusHours(1))
             .build();
     EmailTask emailTask = emailTaskFacade.register(emailRequest);
@@ -182,7 +182,7 @@ class EmailIntegrationTest {
         EmailSendRequest.builder()
             .subject("subject")
             .content("content")
-            .receivers(List.of("example1.com", "example2.com"))
+            .receivers(Set.of("example1.com", "example2.com"))
             .sendAt(LocalDateTime.now().plusSeconds(1L))
             .build();
     //when
@@ -202,7 +202,7 @@ class EmailIntegrationTest {
         EmailSendRequest.builder()
             .subject("subject")
             .content("content")
-            .receivers(List.of("example1.com", "example2.com"))
+            .receivers(Set.of("example1.com", "example2.com"))
             .sendAt(LocalDateTime.now().plusSeconds(1L))
             .build();
     doThrow(EmailSendingException.of(GlobalErrorCode.INTERNAL_SERVER_ERROR))

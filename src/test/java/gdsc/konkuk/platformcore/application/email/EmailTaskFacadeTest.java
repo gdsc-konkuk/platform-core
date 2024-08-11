@@ -10,7 +10,7 @@ import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.global.scheduler.TaskScheduler;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ class EmailTaskFacadeTest {
       EmailTask.builder()
           .id(1L)
           .emailDetails(new EmailDetails("subject", "content"))
-          .receivers(new EmailReceivers(List.of("example1.com", "example2.com")))
+          .receivers(new EmailReceivers(Set.of("example1.com", "example2.com")))
           .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
           .build();
 
@@ -49,7 +49,7 @@ class EmailTaskFacadeTest {
         EmailSendRequest.builder()
             .subject("subject")
             .content("content")
-            .receivers(List.of("example1.com", "example2.com"))
+            .receivers(Set.of("example1.com", "example2.com"))
             .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
             .build();
     //when
