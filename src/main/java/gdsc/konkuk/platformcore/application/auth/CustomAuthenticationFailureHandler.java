@@ -1,5 +1,9 @@
 package gdsc.konkuk.platformcore.application.auth;
 
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
+
+import gdsc.konkuk.platformcore.global.exceptions.CustomErrorCode;
+import gdsc.konkuk.platformcore.global.exceptions.GlobalErrorCode;
 import java.io.IOException;
 
 import org.springframework.security.core.AuthenticationException;
@@ -25,7 +29,9 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
     AuthenticationException exception) throws
     IOException {
 
-    ErrorResponse errorResponse = ErrorResponse.of(MemberErrorCode.INVALID_USER_INFO);
+    CustomErrorCode errorCode = request.getContentType().startsWith(APPLICATION_FORM_URLENCODED_VALUE)
+        ? MemberErrorCode.INVALID_USER_INFO: GlobalErrorCode.ARGUMENT_NOT_VALID;
+    ErrorResponse errorResponse = ErrorResponse.of(errorCode);
     response.setContentType("application/json");
     response.setCharacterEncoding("UTF-8");
     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
