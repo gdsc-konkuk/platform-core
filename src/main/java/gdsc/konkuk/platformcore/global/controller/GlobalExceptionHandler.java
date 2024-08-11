@@ -16,6 +16,7 @@ import gdsc.konkuk.platformcore.global.responses.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
 @RestControllerAdvice
@@ -75,6 +76,13 @@ public class GlobalExceptionHandler {
     log.error("HttpMediaTypeNotSupportedException Caught!", e);
     final ErrorResponse response = ErrorResponse.of(GlobalErrorCode.ARGUMENT_NOT_VALID);
     return new ResponseEntity<>(response, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+  }
+
+  @ExceptionHandler(NoResourceFoundException.class)
+  protected ResponseEntity<ErrorResponse> handleNoResourceFoundException(NoResourceFoundException e) {
+    log.error("NoResourceFoundException Caught!", e);
+    final ErrorResponse response = ErrorResponse.of(GlobalErrorCode.NOT_FOUND);
+    return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
   }
 
   @ExceptionHandler(Exception.class)
