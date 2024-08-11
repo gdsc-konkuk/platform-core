@@ -10,6 +10,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.util.List;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -48,8 +50,9 @@ public class EmailTask {
     emailDetails = newEmailDetails;
   }
 
-  public void changeEmailReceivers(final EmailReceivers newEmailReceivers) {
-    emailReceivers = newEmailReceivers;
+  public void changeEmailReceivers(final Set<String> set) {
+    emailReceivers.removeAll();
+    emailReceivers.insertAll(set);
   }
 
   public void changeSendAt(final LocalDateTime newSendAt) {
@@ -58,5 +61,19 @@ public class EmailTask {
 
   public void markAsSent() {
     isSent = true;
+  }
+
+  public List<String> filterReceiversInPrevSet(Set<String> set) {
+    return this.getEmailReceivers().getReceivers()
+        .stream()
+        .filter(set::contains)
+        .toList();
+  }
+
+  public List<String> filterReceiversNotInPrevSet(Set<String> set) {
+    return set
+        .stream()
+        .filter((e) -> !emailReceivers.getReceivers().contains(e))
+        .toList();
   }
 }

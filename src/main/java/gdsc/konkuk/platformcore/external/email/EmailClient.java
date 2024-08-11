@@ -1,7 +1,6 @@
 package gdsc.konkuk.platformcore.external.email;
 
-import java.util.List;
-
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -27,7 +26,7 @@ public class EmailClient {
 
   public void sendEmailToReceivers(EmailTask email) {
     EmailDetails emailDetails = email.getEmailDetails();
-    List<String> receivers = email.getEmailReceivers().getReceivers();
+    Set<String> receivers = email.getEmailReceivers().getReceivers();
     receivers.forEach(receiver -> sendEmail(receiver, emailDetails));
   }
 

@@ -4,7 +4,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.openMocks;
 
-
 import gdsc.konkuk.platformcore.external.email.exceptions.EmailClientErrorCode;
 import gdsc.konkuk.platformcore.external.email.exceptions.EmailSendingException;
 import java.net.URI;
@@ -17,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
-
 
 @ExtendWith(MockitoExtension.class)
 class DiscordClientTest {

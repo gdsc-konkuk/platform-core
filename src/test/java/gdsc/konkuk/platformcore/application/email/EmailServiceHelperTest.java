@@ -10,8 +10,8 @@ import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -25,7 +25,7 @@ class EmailServiceHelperTest {
       EmailTask.builder()
           .id(1L)
           .emailDetails(new EmailDetails("subject", "content"))
-          .receivers(new EmailReceivers(List.of("example1.com", "example2.com")))
+          .receivers(new EmailReceivers(Set.of("example1.com", "example2.com")))
           .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
           .build();
 
