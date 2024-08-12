@@ -37,8 +37,9 @@ public class SecurityConfig {
   @Order(2)
   public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
-        // TODO: csrf, dev에서만 disable
+        // TODO: csrf 및 cors, dev에서만 disable
         .csrf(AbstractHttpConfigurer::disable)
+        .cors(AbstractHttpConfigurer::disable)
         .securityMatcher(
             apiPath("/members/**"),
             apiPath("/events/**"),
@@ -73,8 +74,9 @@ public class SecurityConfig {
   @Order(1)
   public SecurityFilterChain googleOidcFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
-        // TODO: dev에서만 disable
+        // TODO: csrf 및 cors, dev에서만 disable
         .csrf(AbstractHttpConfigurer::disable)
+        .cors(AbstractHttpConfigurer::disable)
         .securityMatcher(
             apiPath("/attendances/attend/**"),
             "/oauth2/authorization/google",
