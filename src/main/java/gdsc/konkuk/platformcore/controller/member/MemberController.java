@@ -31,6 +31,11 @@ public class MemberController {
 
   private final MemberService memberService;
 
+  @PostMapping("check-login")
+  public ResponseEntity<SuccessResponse> checkLogin() {
+    return ResponseEntity.ok(SuccessResponse.messageOnly());
+  }
+
   @PostMapping()
   public ResponseEntity<SuccessResponse> signup(
       @RequestBody @Valid MemberRegisterRequest registerRequest) {
