@@ -33,6 +33,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -59,6 +60,36 @@ class MemberControllerTest {
             .apply(springSecurity())
             .apply(documentationConfiguration(restDocumentation))
             .build();
+  }
+
+  @Test
+  @DisplayName("멤버 로그인 여부 확인")
+  @WithMockUser
+  void should_success_when_check_login() throws Exception {
+    // when
+    ResultActions result =
+        mockMvc.perform(
+            RestDocumentationRequestBuilders.post("/api/v1/members/check-login")
+                .with(csrf()));
+
+    // then
+    result
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andDo(
+            document(
+                "member/check-login",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                resource(
+                    ResourceSnippetParameters.builder()
+                        .description("멤버 로그인 여부 확인")
+                        .tag("member")
+                        .responseFields(
+                            fieldWithPath("success").description(true),
+                            fieldWithPath("message").description("멤버 로그인 여부 확인 성공"),
+                            fieldWithPath("data").description("멤버 로그인 여부"))
+                        .build())));
   }
 
   @Test
