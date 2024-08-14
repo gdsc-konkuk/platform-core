@@ -3,6 +3,7 @@ package gdsc.konkuk.platformcore.global.configs;
 import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.*;
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -60,6 +61,11 @@ public class SecurityConfig {
                     .hasRole("ADMIN")
                     .anyRequest()
                     .authenticated())
+        .exceptionHandling(
+            exception ->
+                exception.authenticationEntryPoint(
+                    (request, response, authException) ->
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED)))
         .formLogin(
             login ->
                 login
