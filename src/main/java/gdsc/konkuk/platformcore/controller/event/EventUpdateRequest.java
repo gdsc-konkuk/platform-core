@@ -13,6 +13,7 @@ import lombok.Setter;
 public class EventUpdateRequest {
   private String title;
   private String content;
+  private String location;
   private LocalDateTime startAt;
   private LocalDateTime endAt;
   private List<URL> eventImagesToDelete;
