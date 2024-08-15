@@ -15,6 +15,7 @@ public class EventDetailResponse {
   private Long id;
   private String title;
   private String content;
+  private String location;
   private LocalDateTime startAt;
   private LocalDateTime endAt;
   private List<URL> images;
@@ -24,12 +25,14 @@ public class EventDetailResponse {
       Long id,
       String title,
       String content,
+      String location,
       LocalDateTime startAt,
       LocalDateTime endAt,
       List<URL> images) {
     this.id = id;
     this.title = title;
     this.content = content;
+    this.location = location;
     this.startAt = startAt;
     this.endAt = endAt;
     this.images = images;
@@ -40,6 +43,7 @@ public class EventDetailResponse {
         .id(event.getId())
         .title(event.getTitle())
         .content(event.getContent())
+        .location(event.getLocation())
         .startAt(event.getStartAt())
         .endAt(event.getEndAt())
         .images(event.getEventImageUrls())
