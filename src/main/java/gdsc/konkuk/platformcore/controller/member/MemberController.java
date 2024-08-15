@@ -1,10 +1,10 @@
 package gdsc.konkuk.platformcore.controller.member;
 
+import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendances;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 
-import gdsc.konkuk.platformcore.application.member.MemberAttendanceInfo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,8 +54,8 @@ public class MemberController {
   @GetMapping("/{batch}/attendances")
   public ResponseEntity<SuccessResponse> getAttendances(
       @PathVariable String batch, @RequestParam Integer year, @RequestParam Integer month) {
-    List<MemberAttendanceInfo> memberAttendanceInfoList =
-        memberService.getMemberAttendanceInfo(batch, LocalDate.of(year, month, 1));
+    List<MemberAttendances> memberAttendanceInfoList =
+        memberService.getMemberAttendanceWithBatchAndPeriod(batch, LocalDate.of(year, month, 1));
     return ResponseEntity.ok(SuccessResponse.of(memberAttendanceInfoList));
   }
 
