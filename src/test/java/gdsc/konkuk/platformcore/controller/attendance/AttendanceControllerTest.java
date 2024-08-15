@@ -1,5 +1,32 @@
 package gdsc.konkuk.platformcore.controller.attendance;
 
+import com.epages.restdocs.apispec.ResourceSnippetParameters;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
+import gdsc.konkuk.platformcore.application.event.EventService;
+import gdsc.konkuk.platformcore.application.event.EventWithAttendance;
+import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
+import gdsc.konkuk.platformcore.domain.attendance.entity.Participant;
+
+import java.time.LocalDate;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.restdocs.RestDocumentationContextProvider;
+import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
 import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
@@ -19,33 +46,9 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.epages.restdocs.apispec.ResourceSnippetParameters;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
-import gdsc.konkuk.platformcore.application.event.EventService;
-import gdsc.konkuk.platformcore.application.event.EventWithAttendance;
-import gdsc.konkuk.platformcore.domain.attendance.entity.Participant;
-import java.time.LocalDate;
-import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.restdocs.RestDocumentationContextProvider;
-import org.springframework.restdocs.RestDocumentationExtension;
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
 @SpringBootTest
 @ExtendWith({RestDocumentationExtension.class})
-public class AttendanceControllerTest {
+class AttendanceControllerTest {
 
   private MockMvc mockMvc;
 
@@ -115,8 +118,12 @@ public class AttendanceControllerTest {
   @WithMockUser
   void should_attend_when_pass_event_id_and_member_id() throws Exception {
     // given
+    Attendance attendance = Attendance.builder()
+        .id(1L)
+        .eventId(1L)
+        .build();
     given(attendanceService.attend(any(), any(), any()))
-        .willReturn(new Participant(1L, 1L, 1L, true));
+        .willReturn(new Participant(1L, attendance, true));
 
     // when
     ResultActions result =
@@ -146,7 +153,7 @@ public class AttendanceControllerTest {
                             fieldWithPath("data.id").description("참여자 ID"),
                             fieldWithPath("data.attendanceId").description("출석 ID"),
                             fieldWithPath("data.memberId").description("멤버 ID"),
-                            fieldWithPath("data.attendance").description("출석 여부"))
+                            fieldWithPath("data.attended").description("출석 여부"))
                         .build())));
   }
 
