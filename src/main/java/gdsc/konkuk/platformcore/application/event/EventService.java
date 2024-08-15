@@ -74,7 +74,7 @@ public class EventService {
       throws IOException {
     Event event = findById(eventId);
     event.update(
-        request.getTitle(), request.getContent(), request.getStartAt(), request.getEndAt());
+        request.getTitle(), request.getContent(), request.getLocation(), request.getStartAt(), request.getEndAt());
 
     // upload new images
     if (newImageFiles != null) {

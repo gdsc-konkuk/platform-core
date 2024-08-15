@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 public class EventRegisterRequest {
   @NotEmpty private String title;
   @NotNull private String content;
+  @NotNull private String location;
   @NotNull private LocalDateTime startAt;
   @NotNull private LocalDateTime endAt;
 
@@ -22,6 +23,7 @@ public class EventRegisterRequest {
     return Event.builder()
         .title(request.getTitle())
         .content(request.getContent())
+        .location(request.getLocation())
         .startAt(request.getStartAt())
         .endAt(request.getEndAt())
         .retrospectContent("내용이 없습니다.")

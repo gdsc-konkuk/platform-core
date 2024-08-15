@@ -35,6 +35,9 @@ public class Event {
   @Column(name = "content", columnDefinition = "TEXT")
   private String content;
 
+  @Column(name = "location")
+  private String location;
+
   @Column(name = "start_at")
   private LocalDateTime startAt;
 
@@ -51,6 +54,7 @@ public class Event {
       Long id,
       String title,
       String content,
+      String location,
       LocalDateTime startAt,
       LocalDateTime endAt,
       List<EventImage> eventImageList,
@@ -58,6 +62,7 @@ public class Event {
     this.id = id;
     this.title = validateNotNull(title, "title");
     this.content = validateNotNull(content, "content");
+    this.location = validateNotNull(location, "location");
     this.startAt = validateNotNull(startAt, "startAt");
     this.endAt = validateNotNull(endAt, "endAt");
     this.eventImageList = eventImageList == null ? new ArrayList<>() : eventImageList;
@@ -90,9 +95,10 @@ public class Event {
     this.retrospect.updateContent(content);
   }
 
-  public void update(String title, String description, LocalDateTime startAt, LocalDateTime endAt) {
+  public void update(String title, String content, String location, LocalDateTime startAt, LocalDateTime endAt) {
     if (title != null) this.title = title;
-    if (description != null) this.content = description;
+    if (content != null) this.content = content;
+    if (location != null) this.location = location;
     if (startAt != null) this.startAt = startAt;
     if (endAt != null) this.endAt = endAt;
   }

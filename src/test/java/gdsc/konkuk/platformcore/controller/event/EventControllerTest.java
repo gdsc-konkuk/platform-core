@@ -145,6 +145,7 @@ public class EventControllerTest {
                 .id(1L)
                 .title("test title")
                 .content("test content")
+                .location("test location")
                 .startAt(LocalDateTime.now())
                 .endAt(LocalDateTime.now().plusHours(2))
                 .images(
@@ -179,6 +180,7 @@ public class EventControllerTest {
                             fieldWithPath("data.id").description("이벤트 ID"),
                             fieldWithPath("data.title").description("이벤트 제목"),
                             fieldWithPath("data.content").description("이벤트 내용"),
+                            fieldWithPath("data.location").description("이벤트 장소"),
                             fieldWithPath("data.startAt").description("이벤트 시작 시간"),
                             fieldWithPath("data.endAt").description("이벤트 종료 시간"),
                             fieldWithPath("data.images[]").description("이미지 URL"))
@@ -194,6 +196,7 @@ public class EventControllerTest {
         EventRegisterRequest.builder()
             .title("test title")
             .content("test description")
+            .location("test location")
             .startAt(LocalDateTime.now())
             .endAt(LocalDateTime.now().plusHours(2))
             .build();
@@ -242,11 +245,13 @@ public class EventControllerTest {
                                     이벤트 정보
                                     - title(String): 이벤트 제목
                                     - content(String): 이벤트 내용
+                                    - location(String): 이벤트 장소
                                     - startAt(DateTime): 이벤트 시작 시간
                                     - endAt(DateTime): 이벤트 종료 시간
                                     """),
                             fieldWithPath("detail.title").description("이벤트 제목"),
                             fieldWithPath("detail.content").description("이벤트 내용"),
+                            fieldWithPath("detail.location").description("이벤트 장소"),
                             fieldWithPath("detail.startAt").description("이벤트 시작 시간"),
                             fieldWithPath("detail.endAt").description("이벤트 종료 시간"),
                             fieldWithPath("images[]").description("이미지 파일 목록 (여러개)").optional())
@@ -330,16 +335,18 @@ public class EventControllerTest {
                                     이벤트 정보
                                     - title(String?): 이벤트 제목
                                     - content(String?): 이벤트 내용
+                                    - location(String?): 이벤트 장소
                                     - startAt(DateTime?): 이벤트 시작 시간
                                     - endAt(DateTime?): 이벤트 종료 시간
-                                    - eventImageKeysToDelete(String[]?): 삭제할 이미지 Key 목록
+                                    - eventImageKeysToDelete(String[]?): 삭제할 이미지 URL 목록
                                     """),
-                            fieldWithPath("detail.title").description("이벤트 제목"),
-                            fieldWithPath("detail.content").description("이벤트 내용"),
-                            fieldWithPath("detail.startAt").description("이벤트 시작 시간"),
-                            fieldWithPath("detail.endAt").description("이벤트 종료 시간"),
+                            fieldWithPath("detail.title").description("이벤트 제목").optional(),
+                            fieldWithPath("detail.content").description("이벤트 내용").optional(),
+                            fieldWithPath("detail.location").description("이벤트 장소").optional(),
+                            fieldWithPath("detail.startAt").description("이벤트 시작 시간").optional(),
+                            fieldWithPath("detail.endAt").description("이벤트 종료 시간").optional(),
                             fieldWithPath("detail.eventImagesToDelete[]")
-                                .description("삭제할 이미지 Key 목록"))
+                                .description("삭제할 이미지 Key 목록").optional())
                         .responseFields(
                             fieldWithPath("success").description("성공 여부"),
                             fieldWithPath("message").description("메시지"),
