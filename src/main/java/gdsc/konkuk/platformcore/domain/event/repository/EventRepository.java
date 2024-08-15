@@ -26,7 +26,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
       """
       SELECT e
       FROM Event e
-      JOIN FETCH e.eventImageList
+      LEFT JOIN FETCH e.eventImageList
       """)
   List<Event> findAll();
 }
