@@ -16,9 +16,9 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
   @Query("SELECT new gdsc.konkuk.platformcore.application.attendance.dtos.MemberAttendanceQueryDto(" +
       "e.id, m.id, m.name, m.role, m.department, p.id, a.id, e.startAt, p.isAttended) " +
       "FROM Attendance a " +
-      "left JOIN Participant p ON p.attendance.id = a.id " +
-      "left JOIN Event e ON p.attendance.eventId = e.id " +
-      "left JOIN Member m ON m.id = p.memberId " +
+      "LEFT JOIN Participant p ON p.attendance.id = a.id " +
+      "LEFT JOIN Event e ON p.attendance.eventId = e.id " +
+      "LEFT JOIN Member m ON m.id = p.memberId " +
       "WHERE m.batch = :batch " +
       "AND e.startAt BETWEEN :st AND :en")
   List<MemberAttendanceQueryDto> findAllAttendanceInfoByBatchAndPeriod(String batch, LocalDateTime st, LocalDateTime en);
