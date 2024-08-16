@@ -16,8 +16,6 @@ import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendances;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gdsc.konkuk.platformcore.annotation.CustomMockUser;
-import gdsc.konkuk.platformcore.application.attendance.AttendanceInfo;
-import gdsc.konkuk.platformcore.application.member.MemberAttendanceInfo;
 import gdsc.konkuk.platformcore.application.member.MemberService;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistException;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
@@ -40,17 +38,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import com.epages.restdocs.apispec.ResourceSnippetParameters;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import gdsc.konkuk.platformcore.annotation.CustomMockUser;
-import gdsc.konkuk.platformcore.application.member.MemberService;
-import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistException;
-import gdsc.konkuk.platformcore.domain.member.entity.Member;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @SpringBootTest
 @ExtendWith({RestDocumentationExtension.class})
