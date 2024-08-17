@@ -1,8 +1,9 @@
 package gdsc.konkuk.platformcore.domain.attendance.repository;
 
-import gdsc.konkuk.platformcore.application.attendance.AttendanceInfo;
+import gdsc.konkuk.platformcore.application.attendance.dtos.MemberAttendanceQueryDto;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
 import java.time.LocalDateTime;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -11,16 +12,14 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
   Optional<Attendance> findByEventId(Long aLong);
-
-  @Query(
-      """
-      SELECT new gdsc.konkuk.platformcore.application.attendance.AttendanceInfo(
-        a.id, a.eventId, p.memberId, p.id, e.startAt, p.attendance
-      )
-      FROM Attendance a
-      LEFT JOIN Event e ON a.eventId = e.id
-      LEFT JOIN Participant p ON a.id = p.attendanceId
-      WHERE e.startAt BETWEEN :st AND :en
-      """)
-  List<AttendanceInfo> findAllAttendanceInfoByStartAtBetween(LocalDateTime st, LocalDateTime en);
+  
+  @Query("SELECT new gdsc.konkuk.platformcore.application.attendance.dtos.MemberAttendanceQueryDto(" +
+      "e.id, m.id, m.name, m.role, m.department, p.id, a.id, e.startAt, p.isAttended) " +
+      "FROM Attendance a " +
+      "LEFT JOIN Participant p ON p.attendance.id = a.id " +
+      "LEFT JOIN Event e ON p.attendance.eventId = e.id " +
+      "LEFT JOIN Member m ON m.id = p.memberId " +
+      "WHERE m.batch = :batch " +
+      "AND e.startAt BETWEEN :st AND :en")
+  List<MemberAttendanceQueryDto> findAllAttendanceInfoByBatchAndPeriod(String batch, LocalDateTime st, LocalDateTime en);
 }
