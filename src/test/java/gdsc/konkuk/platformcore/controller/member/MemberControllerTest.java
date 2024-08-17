@@ -11,11 +11,11 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import gdsc.konkuk.platformcore.application.attendance.dtos.MemberAttendanceInfo;
+import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendances;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gdsc.konkuk.platformcore.annotation.CustomMockUser;
-import gdsc.konkuk.platformcore.application.attendance.AttendanceInfo;
-import gdsc.konkuk.platformcore.application.member.MemberAttendanceInfo;
 import gdsc.konkuk.platformcore.application.member.MemberService;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistException;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
@@ -203,103 +203,109 @@ class MemberControllerTest {
   void should_success_when_get_attendances_by_batch() throws Exception {
     // given
     // TODO: fixture로 변경
-    given(memberService.getMemberAttendanceInfo(anyString(), any()))
+    given(memberService.getMemberAttendanceWithBatchAndPeriod(anyString(), any()))
         .willReturn(
             List.of(
-                MemberAttendanceInfo.builder()
+                MemberAttendances.builder()
                     .memberId(0L)
                     .memberName("홍길동")
                     .department("컴퓨터공학과")
                     .memberRole(MemberRole.MEMBER)
+                    .totalAttendances(3L)
+                    .actualAttendances(2L)
                     .attendanceInfoList(
                         List.of(
-                            AttendanceInfo.builder()
+                            MemberAttendanceInfo.builder()
                                 .attendanceId(1L)
                                 .memberId(0L)
                                 .eventId(1L)
                                 .participantId(1L)
                                 .attendanceDate(LocalDateTime.of(2024, 7, 3, 0, 0))
-                                .attendance(true)
+                                .isAttended(true)
                                 .build(),
-                            AttendanceInfo.builder()
+                            MemberAttendanceInfo.builder()
                                 .attendanceId(2L)
                                 .memberId(0L)
                                 .eventId(2L)
                                 .participantId(2L)
                                 .attendanceDate(LocalDateTime.of(2024, 7, 5, 0, 0))
-                                .attendance(false)
+                                .isAttended(false)
                                 .build(),
-                            AttendanceInfo.builder()
+                            MemberAttendanceInfo.builder()
                                 .attendanceId(3L)
                                 .memberId(0L)
                                 .eventId(3L)
                                 .participantId(3L)
                                 .attendanceDate(LocalDateTime.of(2024, 7, 8, 0, 0))
-                                .attendance(true)
+                                .isAttended(true)
                                 .build()))
                     .build(),
-                MemberAttendanceInfo.builder()
+                MemberAttendances.builder()
                     .memberId(1L)
                     .memberName("전우치")
                     .department("기술경영학과")
                     .memberRole(MemberRole.MEMBER)
+                    .totalAttendances(3L)
+                    .actualAttendances(1L)
                     .attendanceInfoList(
                         List.of(
-                            AttendanceInfo.builder()
+                            MemberAttendanceInfo.builder()
                                 .attendanceId(1L)
                                 .memberId(1L)
                                 .eventId(1L)
                                 .participantId(4L)
                                 .attendanceDate(LocalDateTime.of(2024, 7, 3, 0, 0))
-                                .attendance(true)
+                                .isAttended(true)
                                 .build(),
-                            AttendanceInfo.builder()
+                            MemberAttendanceInfo.builder()
                                 .attendanceId(2L)
                                 .memberId(1L)
                                 .eventId(2L)
                                 .participantId(5L)
                                 .attendanceDate(LocalDateTime.of(2024, 7, 5, 0, 0))
-                                .attendance(false)
+                                .isAttended(false)
                                 .build(),
-                            AttendanceInfo.builder()
+                            MemberAttendanceInfo.builder()
                                 .attendanceId(3L)
                                 .memberId(1L)
                                 .eventId(3L)
                                 .participantId(6L)
                                 .attendanceDate(LocalDateTime.of(2024, 7, 8, 0, 0))
-                                .attendance(false)
+                                .isAttended(false)
                                 .build()))
                     .build(),
-                MemberAttendanceInfo.builder()
+                MemberAttendances.builder()
                     .memberId(2L)
                     .memberName("이순신")
                     .department("컴퓨터공학과")
                     .memberRole(MemberRole.MEMBER)
+                    .totalAttendances(3L)
+                    .actualAttendances(2L)
                     .attendanceInfoList(
                         List.of(
-                            AttendanceInfo.builder()
+                            MemberAttendanceInfo.builder()
                                 .attendanceId(1L)
                                 .memberId(2L)
                                 .eventId(1L)
                                 .participantId(7L)
                                 .attendanceDate(LocalDateTime.of(2024, 7, 3, 0, 0))
-                                .attendance(true)
+                                .isAttended(true)
                                 .build(),
-                            AttendanceInfo.builder()
+                            MemberAttendanceInfo.builder()
                                 .attendanceId(2L)
                                 .memberId(2L)
                                 .eventId(2L)
                                 .participantId(8L)
                                 .attendanceDate(LocalDateTime.of(2024, 7, 5, 0, 0))
-                                .attendance(false)
+                                .isAttended(false)
                                 .build(),
-                            AttendanceInfo.builder()
+                            MemberAttendanceInfo.builder()
                                 .attendanceId(3L)
                                 .memberId(2L)
                                 .eventId(3L)
                                 .participantId(9L)
                                 .attendanceDate(LocalDateTime.of(2024, 7, 8, 0, 0))
-                                .attendance(true)
+                                .isAttended(true)
                                 .build()))
                     .build()));
 
@@ -339,6 +345,8 @@ class MemberControllerTest {
                             fieldWithPath("data[].memberRole").description("멤버 역할"),
                             // fieldWithPath("data[].profileImageUrl").description("멤버 프로필 이미지"),
                             fieldWithPath("data[].department").description("멤버 학과"),
+                            fieldWithPath("data[].totalAttendances").description("전체 등록 횟수"),
+                            fieldWithPath("data[].actualAttendances").description("실제 출석 횟수"),
                             fieldWithPath("data[].attendanceInfoList").description("멤버 출석 정보 리스트"),
                             fieldWithPath("data[].attendanceInfoList[].attendanceId")
                                 .description("출석 아이디"),
@@ -350,7 +358,7 @@ class MemberControllerTest {
                                 .description("참가자 아이디"),
                             fieldWithPath("data[].attendanceInfoList[].attendanceDate")
                                 .description("출석 날짜"),
-                            fieldWithPath("data[].attendanceInfoList[].attendance")
+                            fieldWithPath("data[].attendanceInfoList[].attended")
                                 .description("출석 여부"))
                         .build())));
   }
@@ -362,9 +370,9 @@ class MemberControllerTest {
     // given
     List<AttendanceUpdateInfo> attendanceUpdateInfoList =
         List.of(
-            AttendanceUpdateInfo.builder().participantId(1L).attendance(true).build(),
-            AttendanceUpdateInfo.builder().participantId(2L).attendance(false).build(),
-            AttendanceUpdateInfo.builder().participantId(3L).attendance(true).build());
+            AttendanceUpdateInfo.builder().participantId(1L).isAttended(true).build(),
+            AttendanceUpdateInfo.builder().participantId(2L).isAttended(false).build(),
+            AttendanceUpdateInfo.builder().participantId(3L).isAttended(true).build());
     AttendanceUpdateRequest attendanceUpdateRequest =
         AttendanceUpdateRequest.builder()
             .attendanceUpdateInfoList(attendanceUpdateInfoList)
@@ -403,7 +411,7 @@ class MemberControllerTest {
                             fieldWithPath("attendanceUpdateInfoList[]").description("출석 정보 수정 리스트"),
                             fieldWithPath("attendanceUpdateInfoList[].participantId")
                                 .description("참가자 아이디"),
-                            fieldWithPath("attendanceUpdateInfoList[].attendance")
+                            fieldWithPath("attendanceUpdateInfoList[].attended")
                                 .description("출석 여부"))
                         .responseFields(
                             fieldWithPath("success").description(true),

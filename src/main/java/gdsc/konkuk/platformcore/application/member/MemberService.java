@@ -1,12 +1,13 @@
 package gdsc.konkuk.platformcore.application.member;
 
+import gdsc.konkuk.platformcore.application.attendance.dtos.MemberAttendanceQueryDto;
+import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendances;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import gdsc.konkuk.platformcore.application.attendance.AttendanceInfo;
 import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceErrorCode;
 import gdsc.konkuk.platformcore.application.attendance.exceptions.ParticipantNotFoundException;
 import gdsc.konkuk.platformcore.controller.member.AttendanceUpdateInfo;
@@ -60,35 +61,40 @@ public class MemberService {
     member.withdraw();
   }
 
-  public List<MemberAttendanceInfo> getMemberAttendanceInfo(String batch, LocalDate month) {
-    List<Member> batchMemberList = memberRepository.findAllByBatch(batch);
-    List<AttendanceInfo> attendanceInfoList =
-        attendanceRepository.findAllAttendanceInfoByStartAtBetween(
+  public List<MemberAttendances> getMemberAttendanceWithBatchAndPeriod(String batch, LocalDate month) {
+    List<MemberAttendanceQueryDto> attendanceInfoList =
+        attendanceRepository.findAllAttendanceInfoByBatchAndPeriod(
+            batch,
             month.withDayOfMonth(1).atStartOfDay(),
             month.withDayOfMonth(month.lengthOfMonth()).atTime(LocalTime.MAX));
-    return MemberAttendanceInfo.from(batchMemberList, attendanceInfoList);
+    return MemberAttendances.from(attendanceInfoList);
   }
 
   @Transactional
   public void updateAttendances(
       String batch, LocalDate month, List<AttendanceUpdateInfo> attendanceUpdateInfoList) {
-    Map<Long, Participant> participantMap =
-        participantRepository
-            .findAllByBatchAndStartAtBetween(
-                batch,
-                month.withDayOfMonth(1).atStartOfDay(),
-                month.withDayOfMonth(month.lengthOfMonth()).atTime(LocalTime.MAX))
-            .stream()
-            .collect(toMap(Participant::getId, identity()));
+    Map<Long, Participant> participantMap = fetchParticipants(batch, month);
+    updateAttendanceStatuses(participantMap, attendanceUpdateInfoList);
+  }
 
-    for (AttendanceUpdateInfo attendanceUpdateInfo : attendanceUpdateInfoList) {
-      if (!participantMap.containsKey(attendanceUpdateInfo.getParticipantId())) {
+  private void updateAttendanceStatuses(Map<Long, Participant> participants, List<AttendanceUpdateInfo> updateInfos) {
+    for (AttendanceUpdateInfo attendanceUpdateInfo : updateInfos) {
+      if (!participants.containsKey(attendanceUpdateInfo.getParticipantId())) {
         throw ParticipantNotFoundException.of(AttendanceErrorCode.PARTICIPANT_NOT_FOUND);
       }
-
-      Participant participant = participantMap.get(attendanceUpdateInfo.getParticipantId());
-      participant.updateAttendance(attendanceUpdateInfo.isAttendance());
+      Participant participant = participants.get(attendanceUpdateInfo.getParticipantId());
+      participant.updateAttendanceStatus(attendanceUpdateInfo.isAttended());
     }
+  }
+
+  private Map<Long, Participant> fetchParticipants(String batch, LocalDate month) {
+    return participantRepository
+        .findAllByBatchAndStartAtBetween(
+            batch,
+            month.withDayOfMonth(1).atStartOfDay(),
+            month.withDayOfMonth(month.lengthOfMonth()).atTime(LocalTime.MAX))
+        .stream()
+        .collect(toMap(Participant::getId, identity()));
   }
 
   private boolean checkMemberExistWithMemberId(String memberId) {

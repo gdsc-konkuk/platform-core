@@ -10,5 +10,5 @@ import lombok.Setter;
 @Builder
 public class AttendanceUpdateInfo {
   @NotNull private Long participantId;
-  @NotNull private boolean attendance;
+  @NotNull private boolean isAttended;
 }

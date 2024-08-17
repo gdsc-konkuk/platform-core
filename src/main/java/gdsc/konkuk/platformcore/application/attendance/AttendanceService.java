@@ -1,9 +1,9 @@
 package gdsc.konkuk.platformcore.application.attendance;
 
+import static gdsc.konkuk.platformcore.application.attendance.AttendanceServiceHelper.findAttendanceById;
+
 import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceAlreadyExistException;
 import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceErrorCode;
-import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceNotFoundException;
-import gdsc.konkuk.platformcore.application.attendance.exceptions.QrInvalidException;
 import gdsc.konkuk.platformcore.application.event.exceptions.EventErrorCode;
 import gdsc.konkuk.platformcore.application.event.exceptions.EventNotFoundException;
 import gdsc.konkuk.platformcore.application.member.exceptions.MemberErrorCode;
@@ -17,12 +17,11 @@ import gdsc.konkuk.platformcore.domain.event.entity.Event;
 import gdsc.konkuk.platformcore.domain.event.repository.EventRepository;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -40,15 +39,8 @@ public class AttendanceService {
         memberRepository
             .findByEmail(memberEmail)
             .orElseThrow(() -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));
-    Attendance attendance =
-        attendanceRepository
-            .findById(attendanceId)
-            .orElseThrow(
-                () -> AttendanceNotFoundException.of(AttendanceErrorCode.ATTENDANCE_NOT_FOUND));
-    if (!attendance.isActiveQr(qrUuid)) {
-      throw QrInvalidException.of(AttendanceErrorCode.INVALID_QR_UUID);
-    }
-
+    Attendance attendance = findAttendanceById(attendanceRepository, attendanceId);
+    attendance.validateActiveQr(qrUuid);
     return participantService.attend(member.getId(), attendanceId);
   }
 
@@ -64,10 +56,7 @@ public class AttendanceService {
     attendanceRepository.saveAndFlush(newAttendance);
 
     List<Member> members = memberRepository.findAllByBatch(registerRequest.getBatch());
-    List<Participant> participants =
-        ParticipantMapper.mapMemberListToAbsentParticipantList(members, newAttendance.getId());
-    participantRepository.saveAll(participants);
-
+    registerParticipants(newAttendance, members);
     return newAttendance.getId();
   }
 
@@ -79,25 +68,14 @@ public class AttendanceService {
 
   @Transactional
   public String generateQr(Long attendanceId) {
-    Attendance attendance =
-        attendanceRepository
-            .findById(attendanceId)
-            .orElseThrow(
-                () -> AttendanceNotFoundException.of(AttendanceErrorCode.ATTENDANCE_NOT_FOUND));
+    Attendance attendance = findAttendanceById(attendanceRepository, attendanceId);
     return attendance.generateQr();
   }
 
   @Transactional
   public void expireQr(Long attendanceId, String qrUuid) {
-    Attendance attendance =
-        attendanceRepository
-            .findById(attendanceId)
-            .orElseThrow(
-                () -> AttendanceNotFoundException.of(AttendanceErrorCode.ATTENDANCE_NOT_FOUND));
-    if (!attendance.isActiveQr(qrUuid)) {
-      throw QrInvalidException.of(AttendanceErrorCode.INVALID_QR_UUID);
-    }
-
+    Attendance attendance = findAttendanceById(attendanceRepository, attendanceId);
+    attendance.validateActiveQr(qrUuid);
     attendance.expireQr();
   }
 
@@ -109,5 +87,17 @@ public class AttendanceService {
               throw AttendanceAlreadyExistException.of(
                   AttendanceErrorCode.ATTENDANCE_ALREADY_EXIST);
             });
+  }
+  private void registerParticipants(Attendance attendance, List<Member> members){
+    List<Participant> participants = new ArrayList<>();
+    for(Member member : members) {
+      Participant participant = Participant.builder()
+          .memberId(member.getId())
+          .isAttended(false)
+          .build();
+      participant.register(attendance);
+      participants.add(participant);
+    }
+    participantRepository.saveAll(participants);
   }
 }

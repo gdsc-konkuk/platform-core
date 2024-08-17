@@ -1,5 +1,7 @@
 package gdsc.konkuk.platformcore.domain.attendance.entity;
 
+import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceErrorCode;
+import gdsc.konkuk.platformcore.application.attendance.exceptions.QrInvalidException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -33,10 +35,9 @@ public class Attendance {
     this.activeQrUuid = activeQrUuid;
   }
 
-  public boolean isActiveQr(String qrUuid) {
-    if (this.activeQrUuid == null)
-      return false;
-    return this.activeQrUuid.equals(qrUuid);
+  public void validateActiveQr(String qrUuid) {
+    if (this.activeQrUuid == null || !this.activeQrUuid.equals(qrUuid))
+      throw QrInvalidException.of(AttendanceErrorCode.INVALID_QR_UUID);
   }
 
   public String generateQr() {
