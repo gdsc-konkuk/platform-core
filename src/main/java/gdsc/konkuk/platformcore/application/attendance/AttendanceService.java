@@ -8,7 +8,7 @@ import gdsc.konkuk.platformcore.application.event.exceptions.EventErrorCode;
 import gdsc.konkuk.platformcore.application.event.exceptions.EventNotFoundException;
 import gdsc.konkuk.platformcore.application.member.exceptions.MemberErrorCode;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserNotFoundException;
-import gdsc.konkuk.platformcore.controller.attendance.AttendanceRegisterRequest;
+import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceRegisterRequest;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Participant;
 import gdsc.konkuk.platformcore.domain.attendance.repository.AttendanceRepository;

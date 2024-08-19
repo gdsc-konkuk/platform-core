@@ -5,7 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
 import gdsc.konkuk.platformcore.application.event.EventService;
-import gdsc.konkuk.platformcore.application.event.EventWithAttendance;
+import gdsc.konkuk.platformcore.application.event.dtos.EventWithAttendance;
+import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceRegisterRequest;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Participant;
 

@@ -1,5 +1,6 @@
 package gdsc.konkuk.platformcore.application.event;
 
+import gdsc.konkuk.platformcore.application.event.dtos.EventBrief;
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
 import gdsc.konkuk.platformcore.external.s3.StorageClient;
 import java.util.List;

@@ -1,4 +1,4 @@
-package gdsc.konkuk.platformcore.controller.email.dto;
+package gdsc.konkuk.platformcore.controller.email.dtos;
 
 import java.util.List;
 import lombok.Getter;

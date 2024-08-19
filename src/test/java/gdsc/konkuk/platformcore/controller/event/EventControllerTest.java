@@ -21,8 +21,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gdsc.konkuk.platformcore.application.event.EventBrief;
+import gdsc.konkuk.platformcore.application.event.dtos.EventBrief;
 import gdsc.konkuk.platformcore.application.event.EventService;
+import gdsc.konkuk.platformcore.controller.event.dtos.EventBriefResponse;
+import gdsc.konkuk.platformcore.controller.event.dtos.EventDetailResponse;
+import gdsc.konkuk.platformcore.controller.event.dtos.EventRegisterRequest;
+import gdsc.konkuk.platformcore.controller.event.dtos.EventUpdateRequest;
+import gdsc.konkuk.platformcore.controller.event.dtos.RetrospectUpdateRequest;
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
 import gdsc.konkuk.platformcore.domain.event.entity.Retrospect;
 import java.net.URL;
@@ -183,7 +188,8 @@ public class EventControllerTest {
                             fieldWithPath("data.location").description("이벤트 장소"),
                             fieldWithPath("data.startAt").description("이벤트 시작 시간"),
                             fieldWithPath("data.endAt").description("이벤트 종료 시간"),
-                            fieldWithPath("data.images[]").description("이미지 URL"))
+                            fieldWithPath("data.images[]").description("이미지 URL"),
+                            fieldWithPath("data.retrospect").description("회고 내용"))
                         .build())));
   }
 
@@ -351,42 +357,6 @@ public class EventControllerTest {
                             fieldWithPath("success").description("성공 여부"),
                             fieldWithPath("message").description("메시지"),
                             fieldWithPath("data").description("null"))
-                        .build())));
-  }
-
-  @Test
-  @DisplayName("이벤트 회고를 조회할 수 있다")
-  @WithMockUser
-  void should_get_retrospect_when_pass_event_id() throws Exception {
-    // given
-    given(eventService.getRetrospect(any(Long.class))).willReturn(retrospect);
-    given(retrospect.getContent()).willReturn("test contents");
-
-    // when
-    ResultActions result =
-        mockMvc.perform(
-            RestDocumentationRequestBuilders.get("/api/v1/events/{eventId}/retrospect", 1L)
-                .with(csrf()));
-
-    // then
-    result
-        .andDo(print())
-        .andExpect(status().isOk())
-        .andDo(
-            document(
-                "getRetrospect",
-                preprocessRequest(prettyPrint()),
-                preprocessResponse(prettyPrint()),
-                resource(
-                    ResourceSnippetParameters.builder()
-                        .description("이벤트 회고를 조회할 수 있다")
-                        .tag("events")
-                        .pathParameters(parameterWithName("eventId").description("이벤트 ID"))
-                        .responseFields(
-                            fieldWithPath("success").description("성공 여부"),
-                            fieldWithPath("message").description("메시지"),
-                            fieldWithPath("data").description("이벤트 회고"),
-                            fieldWithPath("data.content").description("회고 내용"))
                         .build())));
   }
 

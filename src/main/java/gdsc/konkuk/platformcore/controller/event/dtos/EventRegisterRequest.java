@@ -1,4 +1,4 @@
-package gdsc.konkuk.platformcore.controller.event;
+package gdsc.konkuk.platformcore.controller.event.dtos;
 
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
 import jakarta.validation.constraints.NotEmpty;

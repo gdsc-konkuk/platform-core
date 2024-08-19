@@ -1,8 +1,12 @@
 package gdsc.konkuk.platformcore.controller.event;
 
 import gdsc.konkuk.platformcore.application.event.EventService;
+import gdsc.konkuk.platformcore.controller.event.dtos.EventBriefResponse;
+import gdsc.konkuk.platformcore.controller.event.dtos.EventDetailResponse;
+import gdsc.konkuk.platformcore.controller.event.dtos.EventRegisterRequest;
+import gdsc.konkuk.platformcore.controller.event.dtos.EventUpdateRequest;
+import gdsc.konkuk.platformcore.controller.event.dtos.RetrospectUpdateRequest;
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
-import gdsc.konkuk.platformcore.domain.event.entity.Retrospect;
 import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
 import jakarta.validation.Valid;
 import java.io.IOException;
@@ -49,12 +53,6 @@ public class EventController {
     Event newEvent = eventService.register(registerRequest, imageFiles);
     return ResponseEntity.created(getCreatedURI(newEvent.getId()))
         .body(SuccessResponse.messageOnly());
-  }
-
-  @GetMapping("/{eventId}/retrospect")
-  public ResponseEntity<SuccessResponse> getRetrospect(@PathVariable Long eventId) {
-    Retrospect retrospect = eventService.getRetrospect(eventId);
-    return ResponseEntity.ok(SuccessResponse.of(retrospect));
   }
 
   @PatchMapping("/{eventId}")
