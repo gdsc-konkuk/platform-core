@@ -398,4 +398,33 @@ public class EventControllerTest {
                             fieldWithPath("data").description("null"))
                         .build())));
   }
+
+  @Test
+  @WithMockUser
+  @DisplayName("이벤트 삭제 성공")
+  void should_delete_event_when_pass_event_id() throws Exception {
+    // given
+    doNothing().when(eventService).delete(any(Long.class));
+
+    // when
+    ResultActions result =
+        mockMvc.perform(
+            RestDocumentationRequestBuilders.delete("/api/v1/events/{eventId}", 1L).with(csrf()));
+
+    // then
+    result
+        .andDo(print())
+        .andExpect(status().isNoContent())
+        .andDo(
+            document(
+                "deleteEvent",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                resource(
+                    ResourceSnippetParameters.builder()
+                        .description("이벤트를 삭제할 수 있다")
+                        .tag("events")
+                        .pathParameters(parameterWithName("eventId").description("이벤트 ID"))
+                        .build())));
+  }
 }
