@@ -1,5 +1,6 @@
 package gdsc.konkuk.platformcore.application.event;
 
+import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
 import gdsc.konkuk.platformcore.application.event.dtos.EventBrief;
 import gdsc.konkuk.platformcore.application.event.dtos.EventWithAttendance;
 import gdsc.konkuk.platformcore.application.event.exceptions.EventErrorCode;
@@ -8,7 +9,9 @@ import gdsc.konkuk.platformcore.controller.event.dtos.EventBriefResponse;
 import gdsc.konkuk.platformcore.controller.event.dtos.EventDetailResponse;
 import gdsc.konkuk.platformcore.controller.event.dtos.EventRegisterRequest;
 import gdsc.konkuk.platformcore.controller.event.dtos.EventUpdateRequest;
+import gdsc.konkuk.platformcore.domain.attendance.repository.AttendanceRepository;
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
+import gdsc.konkuk.platformcore.domain.event.entity.EventImage;
 import gdsc.konkuk.platformcore.domain.event.repository.EventRepository;
 import gdsc.konkuk.platformcore.external.s3.StorageClient;
 import gdsc.konkuk.platformcore.global.utils.FileValidator;
@@ -30,6 +33,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class EventService {
   private final EventRepository eventRepository;
   private final StorageClient storageClient;
+  private final AttendanceRepository attendanceRepository;
+  private final AttendanceService attendanceService;
 
   public EventDetailResponse getEvent(Long eventId) {
     Event event = findById(eventId);
@@ -38,7 +43,7 @@ public class EventService {
 
   public EventBriefResponse getAllBriefs() {
     List<Event> events = eventRepository.findAll();
-    List<EventBrief> eventBriefs = EventMapper.mapEventListToEventBriefList(events, storageClient);
+    List<EventBrief> eventBriefs = EventMapper.mapEventListToEventBriefList(events);
     return EventBriefResponse.builder().eventBriefs(eventBriefs).build();
   }
 
@@ -94,6 +99,18 @@ public class EventService {
   public void updateRetrospect(Long eventId, String content) {
     Event event = findById(eventId);
     event.updateRetrospectContent(content);
+  }
+
+  @Transactional
+  public void delete(Long eventId) {
+    Event event = findById(eventId);
+    attendanceRepository.findByEventId(eventId)
+        .ifPresent(attendance -> attendanceService.deleteAttendance(attendance.getId()));
+    eventRepository.delete(event);
+
+    List<EventImage> eventImages = event.getEventImageList();
+    List<URL> imageUrls = eventImages.stream().map(EventImage::getUrl).toList();
+    storageClient.deleteFiles(imageUrls);
   }
 
   private Event findById(Long eventId) {
