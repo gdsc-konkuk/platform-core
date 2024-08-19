@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.*;
 
 import gdsc.konkuk.platformcore.domain.email.entity.EmailDetails;
+import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.external.email.exceptions.EmailSendingException;
@@ -38,9 +39,11 @@ class EmailClientTest {
     EmailTask emailTask =
         EmailTask.builder()
             .emailDetails(EmailDetails.builder().subject("예시 이메일 제목").content("Html 문자열").build())
-            .receivers(new EmailReceivers(Set.of("aaa@gmail.com")))
+            .receivers(new EmailReceivers(
+                Set.of(EmailReceiver.builder().email("aaa@gmail.com").name("guest1").build())))
             .sendAt(LocalDateTime.of(2021, 10, 10, 10, 10))
             .build();
+
     //when
     when(javaMailSender.createMimeMessage()).thenThrow(new MailParseException("error"));
     Executable result = () -> emailClient.sendEmailToReceivers(emailTask);

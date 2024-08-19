@@ -12,6 +12,7 @@ import static org.springframework.test.util.AssertionErrors.assertNotNull;
 import static org.springframework.test.util.AssertionErrors.fail;
 
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailAlreadyProcessedException;
+import gdsc.konkuk.platformcore.controller.email.dtos.EmailReceiverInfo;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
@@ -74,11 +75,15 @@ class EmailIntegrationTest {
         EmailSendRequest.builder()
             .subject("subject")
             .content("content")
-            .receivers(Set.of("example1.com", "example2.com"))
+            .receiverInfos(Set.of(
+                EmailReceiverInfo.builder().email("example1.com").name("guest1").build(),
+                EmailReceiverInfo.builder().email("example2.com").name("guest2").build()))
             .sendAt(LocalDateTime.now().plusHours(1))
             .build();
+
     // when
     EmailTask emailTask = emailTaskFacade.register(emailRequest);
+
     // then
     assertNotNull("Task should not be null", emailTask);
     assertNotNull(
@@ -94,15 +99,18 @@ class EmailIntegrationTest {
         EmailSendRequest.builder()
             .subject("subject")
             .content("content")
-            .receivers(Set.of("example1@gmail.com", "example2@gmail.com"))
+            .receiverInfos(Set.of(
+                EmailReceiverInfo.builder().email("example1@gmail.com").name("guest1").build(),
+                EmailReceiverInfo.builder().email("example2@gmail.com").name("guest2").build()))
             .sendAt(LocalDateTime.now().plusSeconds(5L))
             .build();
+
     // when
     emailTaskFacade.register(emailRequest);
     sleep(10000);
+
     // then
     verify(emailClient).sendEmailToReceivers(any(EmailTask.class));
-
     assertEquals(0, executor.getQueue().size());
     assertEquals(0, taskInMemoryRepository.size());
   }
@@ -113,7 +121,6 @@ class EmailIntegrationTest {
   * 2. 작업 수정 요청
   * 3. 기존의 작업 취소, 새로운 작업 예약
   * */
-
   @Test
   @DisplayName("작업 수정 시 스케줄된 작업 취소 후 다시 스케줄")
   void should_cancel_and_schedule_new_when_update() {
@@ -122,21 +129,29 @@ class EmailIntegrationTest {
         EmailSendRequest.builder()
             .subject("subject")
             .content("content")
-            .receivers(Set.of("example1.com", "example2.com"))
+            .receiverInfos(Set.of(
+                EmailReceiverInfo.builder().email("example1.com").name("guest1").build(),
+                EmailReceiverInfo.builder().email("example2.com").name("guest2").build()))
             .sendAt(LocalDateTime.now().plusHours(1))
             .build();
     EmailTask emailTask = emailTaskFacade.register(emailRequest);
+
     assertEquals(1, executor.getQueue().size());
     assertEquals(1, taskInMemoryRepository.size());
+
     EmailSendRequest updatedRequest =
         EmailSendRequest.builder()
             .subject("subject")
             .content("content")
-            .receivers(Set.of("example1.com", "example2.com"))
+            .receiverInfos(Set.of(
+                EmailReceiverInfo.builder().email("example1.com").name("guest1").build(),
+                EmailReceiverInfo.builder().email("example2.com").name("guest2").build()))
             .sendAt(LocalDateTime.now().plusHours(2))
             .build();
+
     // when
     emailTaskFacade.update(emailTask.getId(), updatedRequest);
+
     // then
     assertEquals(1, executor.getQueue().size());
     assertNotNull(
@@ -158,7 +173,9 @@ class EmailIntegrationTest {
         EmailSendRequest.builder()
             .subject("subject")
             .content("content")
-            .receivers(Set.of("example1.com", "example2.com"))
+            .receiverInfos(Set.of(
+                EmailReceiverInfo.builder().email("example1.com").name("guest1").build(),
+                EmailReceiverInfo.builder().email("example2.com").name("guest2").build()))
             .sendAt(LocalDateTime.now().plusHours(1))
             .build();
     EmailTask emailTask = emailTaskFacade.register(emailRequest);
@@ -166,7 +183,6 @@ class EmailIntegrationTest {
 
     // when
     emailTaskFacade.cancel(emailTask.getId());
-
 
     // then
     assertEquals(0, executor.getQueue().size());
@@ -184,7 +200,9 @@ class EmailIntegrationTest {
         EmailSendRequest.builder()
             .subject("subject")
             .content("content")
-            .receivers(Set.of("example1.com", "example2.com"))
+            .receiverInfos(Set.of(
+                EmailReceiverInfo.builder().email("example1.com").name("guest1").build(),
+                EmailReceiverInfo.builder().email("example2.com").name("guest2").build()))
             .sendAt(LocalDateTime.now().plusSeconds(1L))
             .build();
 
@@ -208,11 +226,14 @@ class EmailIntegrationTest {
         EmailSendRequest.builder()
             .subject("subject")
             .content("content")
-            .receivers(Set.of("example1.com", "example2.com"))
+            .receiverInfos(Set.of(
+                EmailReceiverInfo.builder().email("example1.com").name("guest1").build(),
+                EmailReceiverInfo.builder().email("example2.com").name("guest2").build()))
             .sendAt(LocalDateTime.now().plusSeconds(1L))
             .build();
     doThrow(EmailSendingException.of(GlobalErrorCode.INTERNAL_SERVER_ERROR))
         .when(emailClient).sendEmailToReceivers(any());
+
     //when
     EmailTask scheduledTask = emailTaskFacade.register(emailRequest);
     sleep(2000);

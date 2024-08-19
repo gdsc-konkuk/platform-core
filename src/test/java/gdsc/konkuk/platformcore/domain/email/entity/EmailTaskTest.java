@@ -20,13 +20,19 @@ class EmailTaskTest {
               .subject("예시 이메일 제목")
               .content("Html 문자열")
               .build())
-          .receivers(new EmailReceivers(Set.of("example@gmail.com", "example3@gmail.com")))
+          .receivers(new EmailReceivers(
+              Set.of(
+                  EmailReceiver.builder().email("example@gmail.com").name("guest1").build(),
+                  EmailReceiver.builder().email("example3@gmail.com").name("guest2").build())))
           .sendAt(LocalDateTime.of(2021, 10, 10, 10, 10))
           .build();
       EmailReceivers newReceivers = new EmailReceivers(
-          Set.of("aaa@gmail.com", "bbb@gmail.com", "ccc@gmail.com"));
-      //when
+          Set.of(
+              EmailReceiver.builder().email("aaa@gmail.com").name("guest a").build(),
+              EmailReceiver.builder().email("bbb@gmail.com").name("guest b").build(),
+              EmailReceiver.builder().email("ccc@gmail.com").name("guest c").build()));
 
+      //when
       emailTask.changeEmailReceivers(newReceivers.getReceivers());
 
       //then
@@ -79,13 +85,20 @@ class EmailTaskTest {
     EmailTask emailTask =
         EmailTask.builder()
             .emailDetails(EmailDetails.builder().subject("예시 이메일 제목").content("Html 문자열").build())
-            .receivers(new EmailReceivers(Set.of("example1.com", "example2.com")))
+            .receivers(new EmailReceivers(
+                Set.of(
+                    EmailReceiver.builder().email("example1.com").name("guest1").build(),
+                    EmailReceiver.builder().email("example2.com").name("guest2").build())))
             .sendAt(LocalDateTime.of(2021, 10, 10, 10, 10))
             .build();
-    Set<String> newEmailReceivers = Set.of("example2.com", "example3.com");
+    Set<EmailReceiver> newEmailReceivers = Set.of(
+        EmailReceiver.builder().email("example2.com").name("guest2").build(),
+        EmailReceiver.builder().email("example3.com").name("guest3").build());
+
     // when
-    List<String> expected = List.of("example2.com");
-    List<String> actual = emailTask.filterReceiversInPrevSet(newEmailReceivers);
+    List<EmailReceiver> expected = List.of(EmailReceiver.builder().email("example2.com").name("guest2").build());
+    List<EmailReceiver> actual = emailTask.filterReceiversInPrevSet(newEmailReceivers);
+
     // then
     assertEquals(actual, expected);
   }
@@ -97,13 +110,21 @@ class EmailTaskTest {
     EmailTask emailTask =
         EmailTask.builder()
             .emailDetails(EmailDetails.builder().subject("예시 이메일 제목").content("Html 문자열").build())
-            .receivers(new EmailReceivers(Set.of("example1.com", "example2.com")))
+            .receivers(new EmailReceivers(
+                Set.of(
+                  EmailReceiver.builder().email("example1.com").name("guest1").build(),
+                  EmailReceiver.builder().email("example2.com").name("guest2").build())))
             .sendAt(LocalDateTime.of(2021, 10, 10, 10, 10))
             .build();
-    Set<String> newEmailReceivers = Set.of("example2.com", "example3.com");
+    Set<EmailReceiver> newEmailReceivers = Set.of(
+        EmailReceiver.builder().email("example2.com").name("guest2").build(),
+        EmailReceiver.builder().email("example3.com").name("guest3").build());
+
     // when
-    List<String> expected = List.of("example3.com");
-    List<String> actual = emailTask.filterReceiversNotInPrevSet(newEmailReceivers);
+    List<EmailReceiver> expected = List.of(
+        EmailReceiver.builder().email("example3.com").name("guest3").build());
+    List<EmailReceiver> actual = emailTask.filterReceiversNotInPrevSet(newEmailReceivers);
+
     // then
     assertEquals(actual, expected);
   }

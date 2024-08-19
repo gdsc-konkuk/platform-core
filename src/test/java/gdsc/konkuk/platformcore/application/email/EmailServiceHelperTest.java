@@ -6,6 +6,7 @@ import static org.mockito.MockitoAnnotations.*;
 
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailNotFoundException;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailDetails;
+import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
@@ -25,7 +26,10 @@ class EmailServiceHelperTest {
       EmailTask.builder()
           .id(1L)
           .emailDetails(new EmailDetails("subject", "content"))
-          .receivers(new EmailReceivers(Set.of("example1.com", "example2.com")))
+          .receivers(new EmailReceivers(
+              Set.of(
+                  EmailReceiver.builder().email("example1.com").name("guest1").build(),
+                  EmailReceiver.builder().email("example2.com").name("guest2").build())))
           .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
           .build();
 
