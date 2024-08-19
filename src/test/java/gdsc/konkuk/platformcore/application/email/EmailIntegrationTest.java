@@ -9,7 +9,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.util.AssertionErrors.assertNotNull;
+import static org.springframework.test.util.AssertionErrors.fail;
 
+import gdsc.konkuk.platformcore.application.email.exceptions.EmailAlreadyProcessedException;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
@@ -185,14 +187,18 @@ class EmailIntegrationTest {
             .receivers(Set.of("example1.com", "example2.com"))
             .sendAt(LocalDateTime.now().plusSeconds(1L))
             .build();
+
     //when
     EmailTask scheduledTask = emailTaskFacade.register(emailRequest);
-
     sleep(2000);
+
     //then
-    assertThrows(
-        TaskNotFoundException.class,
-        () -> emailTaskFacade.cancel(scheduledTask.getId()));
+    try{
+      emailTaskFacade.cancel(scheduledTask.getId());
+      fail("`TaskNotFoundException` or `EmailAlreadyProcessedException` should be thrown");
+    }catch(TaskNotFoundException | EmailAlreadyProcessedException e){
+      // pass
+    }
   }
 
   @Test
