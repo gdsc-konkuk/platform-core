@@ -2,13 +2,12 @@ package gdsc.konkuk.platformcore.application.event;
 
 import gdsc.konkuk.platformcore.application.event.dtos.EventBrief;
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
-import gdsc.konkuk.platformcore.external.s3.StorageClient;
 import java.util.List;
 
 public class EventMapper {
 
   public static List<EventBrief> mapEventListToEventBriefList(
-      List<Event> events, StorageClient storageClient) {
+      List<Event> events) {
     return events.stream()
         .map(
             event ->
