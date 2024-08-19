@@ -1,4 +1,4 @@
-package gdsc.konkuk.platformcore.controller.event;
+package gdsc.konkuk.platformcore.controller.event.dtos;
 
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
 import java.net.URL;

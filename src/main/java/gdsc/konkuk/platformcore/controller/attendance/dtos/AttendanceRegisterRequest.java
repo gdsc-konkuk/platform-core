@@ -1,4 +1,4 @@
-package gdsc.konkuk.platformcore.controller.attendance;
+package gdsc.konkuk.platformcore.controller.attendance.dtos;
 
 import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
 import jakarta.validation.constraints.NotEmpty;

@@ -1,8 +1,12 @@
 package gdsc.konkuk.platformcore.controller.event;
 
 import gdsc.konkuk.platformcore.application.event.EventService;
+import gdsc.konkuk.platformcore.controller.event.dtos.EventBriefResponse;
+import gdsc.konkuk.platformcore.controller.event.dtos.EventDetailResponse;
+import gdsc.konkuk.platformcore.controller.event.dtos.EventRegisterRequest;
+import gdsc.konkuk.platformcore.controller.event.dtos.EventUpdateRequest;
+import gdsc.konkuk.platformcore.controller.event.dtos.RetrospectUpdateRequest;
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
-import gdsc.konkuk.platformcore.domain.event.entity.Retrospect;
 import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
 import jakarta.validation.Valid;
 import java.io.IOException;

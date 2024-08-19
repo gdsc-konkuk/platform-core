@@ -1,4 +1,4 @@
-package gdsc.konkuk.platformcore.controller.member;
+package gdsc.konkuk.platformcore.controller.member.dtos;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;

@@ -10,7 +10,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.util.AssertionErrors.assertNotNull;
 
-import gdsc.konkuk.platformcore.controller.email.dto.EmailSendRequest;
+import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
 import gdsc.konkuk.platformcore.external.discord.DiscordClient;

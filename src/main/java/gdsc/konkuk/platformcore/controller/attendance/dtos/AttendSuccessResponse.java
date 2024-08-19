@@ -8,22 +8,22 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AttendSuccessDto {
+public class AttendSuccessResponse {
   private Long id;
   private Long memberId;
   private Long attendanceId;
   private boolean isAttended;
 
   @Builder
-  private AttendSuccessDto(Long id, Long memberId, Long attendanceId, boolean isAttended) {
+  private AttendSuccessResponse(Long id, Long memberId, Long attendanceId, boolean isAttended) {
     this.id = id;
     this.memberId =memberId;
     this.attendanceId =attendanceId;
     this.isAttended = isAttended;
   }
 
-  public static AttendSuccessDto from(Participant participant, Long attendanceId) {
-    return AttendSuccessDto.builder()
+  public static AttendSuccessResponse from(Participant participant, Long attendanceId) {
+    return AttendSuccessResponse.builder()
         .id(participant.getId())
         .memberId(participant.getMemberId())
         .attendanceId(attendanceId)

@@ -1,4 +1,4 @@
-package gdsc.konkuk.platformcore.controller.email.dto;
+package gdsc.konkuk.platformcore.controller.email.dtos;
 
 import gdsc.konkuk.platformcore.domain.email.entity.EmailDetails;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;

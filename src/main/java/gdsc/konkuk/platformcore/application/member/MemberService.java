@@ -10,7 +10,7 @@ import java.util.Optional;
 
 import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceErrorCode;
 import gdsc.konkuk.platformcore.application.attendance.exceptions.ParticipantNotFoundException;
-import gdsc.konkuk.platformcore.controller.member.AttendanceUpdateInfo;
+import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateInfo;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Participant;
 import gdsc.konkuk.platformcore.domain.attendance.repository.AttendanceRepository;
 import gdsc.konkuk.platformcore.domain.attendance.repository.ParticipantRepository;
@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import gdsc.konkuk.platformcore.application.member.exceptions.MemberErrorCode;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistException;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserNotFoundException;
-import gdsc.konkuk.platformcore.controller.member.MemberRegisterRequest;
+import gdsc.konkuk.platformcore.controller.member.dtos.MemberRegisterRequest;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;

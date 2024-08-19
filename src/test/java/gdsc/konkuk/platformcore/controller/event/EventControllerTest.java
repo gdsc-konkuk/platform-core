@@ -21,8 +21,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gdsc.konkuk.platformcore.application.event.EventBrief;
+import gdsc.konkuk.platformcore.application.event.dtos.EventBrief;
 import gdsc.konkuk.platformcore.application.event.EventService;
+import gdsc.konkuk.platformcore.controller.event.dtos.EventBriefResponse;
+import gdsc.konkuk.platformcore.controller.event.dtos.EventDetailResponse;
+import gdsc.konkuk.platformcore.controller.event.dtos.EventRegisterRequest;
+import gdsc.konkuk.platformcore.controller.event.dtos.EventUpdateRequest;
+import gdsc.konkuk.platformcore.controller.event.dtos.RetrospectUpdateRequest;
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
 import gdsc.konkuk.platformcore.domain.event.entity.Retrospect;
 import java.net.URL;
