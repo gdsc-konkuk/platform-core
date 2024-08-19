@@ -51,12 +51,6 @@ public class EventController {
         .body(SuccessResponse.messageOnly());
   }
 
-  @GetMapping("/{eventId}/retrospect")
-  public ResponseEntity<SuccessResponse> getRetrospect(@PathVariable Long eventId) {
-    Retrospect retrospect = eventService.getRetrospect(eventId);
-    return ResponseEntity.ok(SuccessResponse.of(retrospect));
-  }
-
   @PatchMapping("/{eventId}")
   public ResponseEntity<SuccessResponse> update(
       @PathVariable Long eventId,

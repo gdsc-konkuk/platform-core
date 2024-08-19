@@ -183,7 +183,8 @@ public class EventControllerTest {
                             fieldWithPath("data.location").description("이벤트 장소"),
                             fieldWithPath("data.startAt").description("이벤트 시작 시간"),
                             fieldWithPath("data.endAt").description("이벤트 종료 시간"),
-                            fieldWithPath("data.images[]").description("이미지 URL"))
+                            fieldWithPath("data.images[]").description("이미지 URL"),
+                            fieldWithPath("data.retrospect").description("회고 내용"))
                         .build())));
   }
 
@@ -351,42 +352,6 @@ public class EventControllerTest {
                             fieldWithPath("success").description("성공 여부"),
                             fieldWithPath("message").description("메시지"),
                             fieldWithPath("data").description("null"))
-                        .build())));
-  }
-
-  @Test
-  @DisplayName("이벤트 회고를 조회할 수 있다")
-  @WithMockUser
-  void should_get_retrospect_when_pass_event_id() throws Exception {
-    // given
-    given(eventService.getRetrospect(any(Long.class))).willReturn(retrospect);
-    given(retrospect.getContent()).willReturn("test contents");
-
-    // when
-    ResultActions result =
-        mockMvc.perform(
-            RestDocumentationRequestBuilders.get("/api/v1/events/{eventId}/retrospect", 1L)
-                .with(csrf()));
-
-    // then
-    result
-        .andDo(print())
-        .andExpect(status().isOk())
-        .andDo(
-            document(
-                "getRetrospect",
-                preprocessRequest(prettyPrint()),
-                preprocessResponse(prettyPrint()),
-                resource(
-                    ResourceSnippetParameters.builder()
-                        .description("이벤트 회고를 조회할 수 있다")
-                        .tag("events")
-                        .pathParameters(parameterWithName("eventId").description("이벤트 ID"))
-                        .responseFields(
-                            fieldWithPath("success").description("성공 여부"),
-                            fieldWithPath("message").description("메시지"),
-                            fieldWithPath("data").description("이벤트 회고"),
-                            fieldWithPath("data.content").description("회고 내용"))
                         .build())));
   }
 

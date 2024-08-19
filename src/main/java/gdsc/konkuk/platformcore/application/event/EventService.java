@@ -64,11 +64,6 @@ public class EventService {
         month.withDayOfMonth(month.lengthOfMonth()).atTime(LocalTime.MAX));
   }
 
-  public Retrospect getRetrospect(Long eventId) {
-    Event event = findById(eventId);
-    return event.getRetrospect();
-  }
-
   @Transactional
   public void update(Long eventId, EventUpdateRequest request, List<MultipartFile> newImageFiles)
       throws IOException {
