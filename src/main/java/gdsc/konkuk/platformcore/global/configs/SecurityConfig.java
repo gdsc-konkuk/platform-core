@@ -3,6 +3,7 @@ package gdsc.konkuk.platformcore.global.configs;
 import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.*;
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import gdsc.konkuk.platformcore.global.filters.CorsFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +24,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import gdsc.konkuk.platformcore.application.auth.CustomAuthenticationFailureHandler;
 import gdsc.konkuk.platformcore.application.auth.CustomAuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -38,9 +40,9 @@ public class SecurityConfig {
   @Order(2)
   public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
-        // TODO: csrf 및 cors, dev에서만 disable
+        // TODO: csrf, dev에서만 disable
         .csrf(AbstractHttpConfigurer::disable)
-        .cors(AbstractHttpConfigurer::disable)
+        .addFilterBefore(new CorsFilter(), UsernamePasswordAuthenticationFilter.class)
         .securityMatcher(
             apiPath("/members/**"),
             apiPath("/events/**"),
@@ -80,9 +82,8 @@ public class SecurityConfig {
   @Order(1)
   public SecurityFilterChain googleOidcFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
-        // TODO: csrf 및 cors, dev에서만 disable
+        // TODO: csrf, dev에서만 disable
         .csrf(AbstractHttpConfigurer::disable)
-        .cors(AbstractHttpConfigurer::disable)
         .securityMatcher(
             apiPath("/attendances/attend/**"),
             "/oauth2/authorization/google",
