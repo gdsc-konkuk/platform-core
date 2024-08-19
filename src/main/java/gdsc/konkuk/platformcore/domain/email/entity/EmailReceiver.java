@@ -22,4 +22,17 @@ public class EmailReceiver {
     this.email = email;
     this.name = name;
   }
+
+  @Override
+  public int hashCode() {
+    return (this.email + this.name).hashCode();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    EmailReceiver that = (EmailReceiver) o;
+    return email.equals(that.email) && name.equals(that.name);
+  }
 }

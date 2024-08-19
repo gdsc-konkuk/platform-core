@@ -34,9 +34,9 @@ public class EmailClient {
   private void sendEmail(EmailReceiver to, EmailDetails emailDetails) {
     try {
       log.info("Sending email to {}", to);
-      // TODO: message 내용에 receiver 이름 반영
+      String emailContent = emailDetails.getContent().replaceAll("\\{이름}", to.getName());
       MimeMessage message =
-          convertToHTMLMimeMessage(to.getEmail(), emailDetails.getSubject(), emailDetails.getContent());
+          convertToHTMLMimeMessage(to.getEmail(), emailDetails.getSubject(), emailContent);
       javaMailSender.send(message);
     } catch (MailParseException | MessagingException e) {
       throw EmailSendingException.of(EmailClientErrorCode.MAIL_PARSING_ERROR, e.getMessage());
