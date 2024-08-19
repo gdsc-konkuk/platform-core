@@ -1,14 +1,15 @@
 package gdsc.konkuk.platformcore.application.event;
 
+import gdsc.konkuk.platformcore.application.event.dtos.EventBrief;
+import gdsc.konkuk.platformcore.application.event.dtos.EventWithAttendance;
 import gdsc.konkuk.platformcore.application.event.exceptions.EventErrorCode;
 import gdsc.konkuk.platformcore.application.event.exceptions.EventNotFoundException;
-import gdsc.konkuk.platformcore.controller.event.EventBriefResponse;
-import gdsc.konkuk.platformcore.controller.event.EventDetailResponse;
-import gdsc.konkuk.platformcore.controller.event.EventRegisterRequest;
-import gdsc.konkuk.platformcore.controller.event.EventUpdateRequest;
+import gdsc.konkuk.platformcore.controller.event.dtos.EventBriefResponse;
+import gdsc.konkuk.platformcore.controller.event.dtos.EventDetailResponse;
+import gdsc.konkuk.platformcore.controller.event.dtos.EventRegisterRequest;
+import gdsc.konkuk.platformcore.controller.event.dtos.EventUpdateRequest;
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
 import gdsc.konkuk.platformcore.domain.event.repository.EventRepository;
-import gdsc.konkuk.platformcore.domain.event.entity.Retrospect;
 import gdsc.konkuk.platformcore.external.s3.StorageClient;
 import gdsc.konkuk.platformcore.global.utils.FileValidator;
 import java.io.IOException;
@@ -62,11 +63,6 @@ public class EventService {
     return eventRepository.findAllWithAttendanceByStartAtBetween(
         month.withDayOfMonth(1).atStartOfDay(),
         month.withDayOfMonth(month.lengthOfMonth()).atTime(LocalTime.MAX));
-  }
-
-  public Retrospect getRetrospect(Long eventId) {
-    Event event = findById(eventId);
-    return event.getRetrospect();
   }
 
   @Transactional

@@ -1,4 +1,4 @@
-package gdsc.konkuk.platformcore.controller.event;
+package gdsc.konkuk.platformcore.controller.event.dtos;
 
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
 import java.net.URL;
@@ -19,6 +19,7 @@ public class EventDetailResponse {
   private LocalDateTime startAt;
   private LocalDateTime endAt;
   private List<URL> images;
+  private String retrospect;
 
   @Builder
   public EventDetailResponse(
@@ -28,7 +29,8 @@ public class EventDetailResponse {
       String location,
       LocalDateTime startAt,
       LocalDateTime endAt,
-      List<URL> images) {
+      List<URL> images,
+      String retrospect) {
     this.id = id;
     this.title = title;
     this.content = content;
@@ -36,6 +38,7 @@ public class EventDetailResponse {
     this.startAt = startAt;
     this.endAt = endAt;
     this.images = images;
+    this.retrospect = retrospect;
   }
 
   public static EventDetailResponse fromEntity(Event event) {
@@ -47,6 +50,7 @@ public class EventDetailResponse {
         .startAt(event.getStartAt())
         .endAt(event.getEndAt())
         .images(event.getEventImageUrls())
+        .retrospect(event.getRetrospect().getContent())
         .build();
   }
 }

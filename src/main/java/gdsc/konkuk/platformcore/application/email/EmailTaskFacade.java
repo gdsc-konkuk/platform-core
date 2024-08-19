@@ -1,6 +1,6 @@
 package gdsc.konkuk.platformcore.application.email;
 
-import gdsc.konkuk.platformcore.controller.email.dto.EmailSendRequest;
+import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.global.scheduler.TaskScheduler;
 import java.time.LocalDateTime;

@@ -6,7 +6,7 @@ import static org.mockito.BDDMockito.*;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyDeletedException;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistException;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserNotFoundException;
-import gdsc.konkuk.platformcore.controller.member.MemberRegisterRequest;
+import gdsc.konkuk.platformcore.controller.member.dtos.MemberRegisterRequest;
 import gdsc.konkuk.platformcore.domain.attendance.repository.AttendanceRepository;
 import gdsc.konkuk.platformcore.domain.attendance.repository.ParticipantRepository;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;

@@ -1,4 +1,4 @@
-package gdsc.konkuk.platformcore.controller.event;
+package gdsc.konkuk.platformcore.controller.event.dtos;
 
 import java.net.URL;
 import java.time.LocalDateTime;

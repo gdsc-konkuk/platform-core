@@ -1,6 +1,8 @@
 package gdsc.konkuk.platformcore.controller.member;
 
 import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendances;
+import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateRequest;
+import gdsc.konkuk.platformcore.controller.member.dtos.MemberRegisterRequest;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;

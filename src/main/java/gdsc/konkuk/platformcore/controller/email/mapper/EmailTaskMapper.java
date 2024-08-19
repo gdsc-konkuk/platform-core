@@ -3,9 +3,9 @@ package gdsc.konkuk.platformcore.controller.email.mapper;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import gdsc.konkuk.platformcore.controller.email.dto.EmailTaskDetailsResponse;
-import gdsc.konkuk.platformcore.controller.email.dto.EmailTaskListResponse;
-import gdsc.konkuk.platformcore.controller.email.dto.SimpleEmailTaskResponse;
+import gdsc.konkuk.platformcore.controller.email.dtos.EmailTaskDetailsResponse;
+import gdsc.konkuk.platformcore.controller.email.dtos.EmailTaskListResponse;
+import gdsc.konkuk.platformcore.controller.email.dtos.SimpleEmailTaskResponse;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

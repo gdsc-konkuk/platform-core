@@ -17,7 +17,7 @@ import gdsc.konkuk.platformcore.annotation.CustomMockUser;
 import gdsc.konkuk.platformcore.annotation.RestDocsTest;
 import gdsc.konkuk.platformcore.application.email.EmailService;
 import gdsc.konkuk.platformcore.application.email.EmailTaskFacade;
-import gdsc.konkuk.platformcore.controller.email.dto.EmailSendRequest;
+import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailDetails;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
@@ -134,7 +134,7 @@ class EmailControllerTest {
       .andDo(print());
 
     result.andDo(
-      document("emails?emialId={}",
+      document("emails",
         preprocessRequest(prettyPrint()),
         resource(ResourceSnippetParameters.builder()
           .tag("email")

@@ -1,6 +1,6 @@
-package gdsc.konkuk.platformcore.controller.event;
+package gdsc.konkuk.platformcore.controller.event.dtos;
 
-import gdsc.konkuk.platformcore.application.event.EventBrief;
+import gdsc.konkuk.platformcore.application.event.dtos.EventBrief;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;

@@ -1,6 +1,6 @@
 package gdsc.konkuk.platformcore.domain.event.repository;
 
-import gdsc.konkuk.platformcore.application.event.EventWithAttendance;
+import gdsc.konkuk.platformcore.application.event.dtos.EventWithAttendance;
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,7 +12,7 @@ import java.util.List;
 public interface EventRepository extends JpaRepository<Event, Long> {
   @Query(
       """
-      SELECT new gdsc.konkuk.platformcore.application.event.EventWithAttendance(
+      SELECT new gdsc.konkuk.platformcore.application.event.dtos.EventWithAttendance(
         e.id, a.id, e.title, e.startAt
       )
       FROM Event e

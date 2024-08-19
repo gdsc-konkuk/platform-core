@@ -2,9 +2,9 @@ package gdsc.konkuk.platformcore.controller.email;
 
 import gdsc.konkuk.platformcore.application.email.EmailTaskFacade;
 import gdsc.konkuk.platformcore.application.email.EmailService;
-import gdsc.konkuk.platformcore.controller.email.dto.EmailSendRequest;
-import gdsc.konkuk.platformcore.controller.email.dto.EmailTaskDetailsResponse;
-import gdsc.konkuk.platformcore.controller.email.dto.EmailTaskListResponse;
+import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
+import gdsc.konkuk.platformcore.controller.email.dtos.EmailTaskDetailsResponse;
+import gdsc.konkuk.platformcore.controller.email.dtos.EmailTaskListResponse;
 import gdsc.konkuk.platformcore.controller.email.mapper.EmailTaskMapper;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
