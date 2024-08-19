@@ -1,5 +1,6 @@
 package gdsc.konkuk.platformcore.external.email;
 
+import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
@@ -26,15 +27,16 @@ public class EmailClient {
 
   public void sendEmailToReceivers(EmailTask email) {
     EmailDetails emailDetails = email.getEmailDetails();
-    Set<String> receivers = email.getEmailReceivers().getReceivers();
+    Set<EmailReceiver> receivers = email.getEmailReceivers().getReceivers();
     receivers.forEach(receiver -> sendEmail(receiver, emailDetails));
   }
 
-  private void sendEmail(String to, EmailDetails emailDetails) {
+  private void sendEmail(EmailReceiver to, EmailDetails emailDetails) {
     try {
       log.info("Sending email to {}", to);
+      // TODO: message 내용에 receiver 이름 반영
       MimeMessage message =
-          convertToHTMLMimeMessage(to, emailDetails.getSubject(), emailDetails.getContent());
+          convertToHTMLMimeMessage(to.getEmail(), emailDetails.getSubject(), emailDetails.getContent());
       javaMailSender.send(message);
     } catch (MailParseException | MessagingException e) {
       throw EmailSendingException.of(EmailClientErrorCode.MAIL_PARSING_ERROR, e.getMessage());
