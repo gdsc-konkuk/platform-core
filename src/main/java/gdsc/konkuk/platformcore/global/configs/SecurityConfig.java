@@ -3,8 +3,8 @@ package gdsc.konkuk.platformcore.global.configs;
 import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.*;
 import static org.springframework.security.config.Customizer.withDefaults;
 
-import gdsc.konkuk.platformcore.global.filters.CorsFilter;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -24,7 +24,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import gdsc.konkuk.platformcore.application.auth.CustomAuthenticationFailureHandler;
 import gdsc.konkuk.platformcore.application.auth.CustomAuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -42,7 +44,7 @@ public class SecurityConfig {
     httpSecurity
         // TODO: csrf, dev에서만 disable
         .csrf(AbstractHttpConfigurer::disable)
-        .addFilterBefore(new CorsFilter(), UsernamePasswordAuthenticationFilter.class)
+        .cors(cors->cors.configurationSource(corsConfigurationSource()))
         .securityMatcher(
             apiPath("/members/**"),
             apiPath("/events/**"),
@@ -101,6 +103,21 @@ public class SecurityConfig {
   @Bean
   public ClientRegistrationRepository clientRegistrationRepository() {
     return new InMemoryClientRegistrationRepository(this.googleClientRegistration());
+  }
+
+  private CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+
+    configuration.setAllowedOriginPatterns(List.of("http://localhost:*"));
+    configuration.setAllowedMethods(
+        List.of("GET","POST", "PUT", "DELETE", "PATCH"));
+    configuration.setAllowCredentials(true);
+    configuration.setAllowedHeaders(
+        List.of("Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization", "Location", "Range", "Cache-Control", "User-Agent", "DNT"));
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
   }
 
   private ClientRegistration googleClientRegistration() {
