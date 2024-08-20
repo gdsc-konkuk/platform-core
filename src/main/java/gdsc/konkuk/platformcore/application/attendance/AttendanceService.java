@@ -70,9 +70,8 @@ public class AttendanceService {
   }
 
   @Transactional
-  public void expireQr(Long attendanceId, String qrUuid) {
+  public void expireQr(Long attendanceId) {
     Attendance attendance = findAttendanceById(attendanceRepository, attendanceId);
-    attendance.validateActiveQr(qrUuid);
     attendance.expireQr();
   }
 

@@ -80,8 +80,8 @@ public class AttendanceController {
 
   @DeleteMapping("/{attendanceId}/qr")
   public ResponseEntity<SuccessResponse> expireQr(
-    @PathVariable Long attendanceId, @RequestParam String qrUuid) {
-    attendanceService.expireQr(attendanceId, qrUuid);
+    @PathVariable Long attendanceId) {
+    attendanceService.expireQr(attendanceId);
     return ResponseEntity.noContent().build();
   }
 
