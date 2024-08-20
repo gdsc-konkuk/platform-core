@@ -1,5 +1,7 @@
 package gdsc.konkuk.platformcore.controller.attendance;
 
+import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.apiPath;
+
 import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
 import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceErrorCode;
 import gdsc.konkuk.platformcore.application.attendance.exceptions.QrInvalidException;
@@ -104,8 +106,8 @@ public class AttendanceController {
       throw QrInvalidException.of(AttendanceErrorCode.INVALID_QR_UUID);
     }
 
-    return ServletUriComponentsBuilder.fromCurrentRequest()
-      .path("/attend/{attendanceId}")
+    return ServletUriComponentsBuilder.fromCurrentServletMapping()
+      .path(apiPath("/attendances/attend/{attendanceId}"))
       .queryParam("qrUuid", attendance.getActiveQrUuid())
       .buildAndExpand(attendance.getId())
       .toUri();
