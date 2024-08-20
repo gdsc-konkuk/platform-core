@@ -51,16 +51,7 @@ public class EventService {
   public Event register(EventRegisterRequest registerRequest, List<MultipartFile> imageFiles)
       throws IOException {
     Event newEvent = eventRepository.saveAndFlush(EventRegisterRequest.toEntity(registerRequest));
-
-    // upload images
-    if (imageFiles != null) {
-      List<URL> eventImageUrls =
-          storageClient.uploadFiles(imageFiles, FileValidator::validateFileMimeTypeImage);
-      for (URL imageUrl : eventImageUrls) {
-        newEvent.addEventImageByUrl(imageUrl);
-      }
-    }
-
+    uploadImages(newEvent, imageFiles);
     return newEvent;
   }
 
@@ -77,22 +68,8 @@ public class EventService {
     event.update(
         request.getTitle(), request.getContent(), request.getLocation(), request.getStartAt(), request.getEndAt());
 
-    // upload new images
-    if (newImageFiles != null) {
-      List<URL> eventImageUrls =
-          storageClient.uploadFiles(newImageFiles, FileValidator::validateFileMimeTypeImage);
-      for (URL imageUrl : eventImageUrls) {
-        event.addEventImageByUrl(imageUrl);
-      }
-    }
-
-    // delete images
-    if (request.getEventImagesToDelete() != null) {
-      for (URL imageUrl : request.getEventImagesToDelete()) {
-        event.deleteEventImageByUrl(imageUrl);
-      }
-      storageClient.deleteFiles(request.getEventImagesToDelete());
-    }
+    uploadImages(event, newImageFiles);
+    deleteImages(event, request.getEventImagesToDelete());
   }
 
   @Transactional
@@ -104,6 +81,7 @@ public class EventService {
   @Transactional
   public void delete(Long eventId) {
     Event event = findById(eventId);
+
     attendanceRepository.findByEventId(eventId)
         .ifPresent(attendance -> attendanceService.deleteAttendance(attendance.getId()));
     eventRepository.delete(event);
@@ -117,5 +95,24 @@ public class EventService {
     return eventRepository
         .findById(eventId)
         .orElseThrow(() -> EventNotFoundException.of(EventErrorCode.EVENT_NOT_FOUND));
+  }
+
+  private void uploadImages(Event event, List<MultipartFile> imageFiles) throws IOException {
+    if (imageFiles == null) return;
+
+    List<URL> eventImageUrls =
+        storageClient.uploadFiles(imageFiles, FileValidator::validateFileMimeTypeImage);
+    for (URL imageUrl : eventImageUrls) {
+      event.addEventImageByUrl(imageUrl);
+    }
+  }
+
+  private void deleteImages(Event event, List<URL> imageUrls) {
+    if (imageUrls == null) return;
+
+    for (URL imageUrl : imageUrls) {
+      event.deleteEventImageByUrl(imageUrl);
+    }
+    storageClient.deleteFiles(imageUrls);
   }
 }
