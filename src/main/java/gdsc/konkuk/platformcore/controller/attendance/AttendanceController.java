@@ -1,10 +1,16 @@
 package gdsc.konkuk.platformcore.controller.attendance;
 
+import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.apiPath;
+
 import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
+import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceErrorCode;
+import gdsc.konkuk.platformcore.application.attendance.exceptions.QrInvalidException;
 import gdsc.konkuk.platformcore.application.event.EventService;
 import gdsc.konkuk.platformcore.application.event.dtos.EventWithAttendance;
 import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendSuccessResponse;
 import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceRegisterRequest;
+import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceResponse;
+import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Participant;
 import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
 import jakarta.validation.Valid;
@@ -54,9 +60,10 @@ public class AttendanceController {
   @PostMapping()
   public ResponseEntity<SuccessResponse> registerAttendance(
     @RequestBody @Valid AttendanceRegisterRequest registerRequest) {
-    Long attendanceId = attendanceService.registerAttendance(registerRequest);
-    return ResponseEntity.created(generateAttendanceUri(attendanceId))
-      .body(SuccessResponse.messageOnly());
+    Attendance attendance = attendanceService.registerAttendance(registerRequest);
+    AttendanceResponse response = AttendanceResponse.from(attendance, generateAttendUri(attendance));
+    return ResponseEntity.created(generateAttendanceUri(attendance))
+      .body(SuccessResponse.of(response));
   }
 
   @DeleteMapping("/{attendanceId}")
@@ -67,30 +74,42 @@ public class AttendanceController {
 
   @PostMapping("/{attendanceId}/qr")
   public ResponseEntity<SuccessResponse> generateQr(@PathVariable Long attendanceId) {
-    String qrUuid = attendanceService.generateQr(attendanceId);
-    return ResponseEntity.created(generateQrUri(attendanceId, qrUuid))
-      .body(SuccessResponse.messageOnly());
+    Attendance attendance = attendanceService.generateQr(attendanceId);
+    AttendanceResponse response = AttendanceResponse.from(attendance, generateAttendUri(attendance));
+    return ResponseEntity.created(generateQrUri(attendance))
+      .body(SuccessResponse.of(response));
   }
 
   @DeleteMapping("/{attendanceId}/qr")
   public ResponseEntity<SuccessResponse> expireQr(
-    @PathVariable Long attendanceId, @RequestParam String qrUuid) {
-    attendanceService.expireQr(attendanceId, qrUuid);
+    @PathVariable Long attendanceId) {
+    attendanceService.expireQr(attendanceId);
     return ResponseEntity.noContent().build();
   }
 
-  private URI generateAttendanceUri(Long attendanceId) {
+  private URI generateAttendanceUri(Attendance attendance) {
     return ServletUriComponentsBuilder.fromCurrentRequest()
-      .path("/{id}")
-      .buildAndExpand(attendanceId)
+      .path("/{attendanceId}")
+      .buildAndExpand(attendance.getId())
       .toUri();
   }
 
-  private URI generateQrUri(Long attendanceId, String qrUuid) {
+  private URI generateQrUri(Attendance attendance) {
     return ServletUriComponentsBuilder.fromCurrentRequest()
-      .path("/{id}/qr")
-      .queryParam("qrUuid", qrUuid)
-      .buildAndExpand(attendanceId)
+      .path("/{attendanceId}/qr")
+      .buildAndExpand(attendance.getId())
+      .toUri();
+  }
+
+  private URI generateAttendUri(Attendance attendance) {
+    if(attendance.getActiveQrUuid() == null) {
+      throw QrInvalidException.of(AttendanceErrorCode.INVALID_QR_UUID);
+    }
+
+    return ServletUriComponentsBuilder.fromCurrentServletMapping()
+      .path(apiPath("/attendances/attend/{attendanceId}"))
+      .queryParam("qrUuid", attendance.getActiveQrUuid())
+      .buildAndExpand(attendance.getId())
       .toUri();
   }
 }
