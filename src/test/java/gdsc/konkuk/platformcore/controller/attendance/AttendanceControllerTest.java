@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -52,6 +53,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AttendanceControllerTest {
 
   private MockMvc mockMvc;
+
+  @Mock
+  Attendance mockAttendance;
 
   @Autowired private ObjectMapper objectMapper;
 
@@ -165,7 +169,9 @@ class AttendanceControllerTest {
     // given
     AttendanceRegisterRequest registerRequest =
         AttendanceRegisterRequest.builder().eventId(1L).batch("24-25").build();
-    given(attendanceService.registerAttendance(any())).willReturn(1L);
+    given(attendanceService.registerAttendance(any())).willReturn(mockAttendance);
+    given(mockAttendance.getActiveQrUuid()).willReturn("uuid");
+    given(mockAttendance.getId()).willReturn(1L);
 
     // when
     ResultActions result =
@@ -192,7 +198,8 @@ class AttendanceControllerTest {
                         .responseFields(
                             fieldWithPath("success").description("성공 여부"),
                             fieldWithPath("message").description("메시지"),
-                            fieldWithPath("data").description("null"))
+                            fieldWithPath("data.attendanceId").description("출석 ID"),
+                            fieldWithPath("data.attendUrl").description("출석 URL"))
                         .build())));
   }
 
@@ -231,7 +238,10 @@ class AttendanceControllerTest {
   @WithMockUser
   void should_generate_qr_when_pass_attendance_id() throws Exception {
     // given
-    given(attendanceService.generateQr(any(Long.class))).willReturn("uuid");
+    given(attendanceService.generateQr(any(Long.class))).willReturn(mockAttendance);
+    given(attendanceService.registerAttendance(any())).willReturn(mockAttendance);
+    given(mockAttendance.getActiveQrUuid()).willReturn("uuid");
+    given(mockAttendance.getId()).willReturn(1L);
 
     // when
     ResultActions result =
@@ -253,11 +263,12 @@ class AttendanceControllerTest {
                         .description("QR 코드를 생성할 수 있다")
                         .tag("attendance")
                         .pathParameters(parameterWithName("attendanceId").description("출석 ID"))
-                        .responseHeaders(headerWithName("Location").description("QR 코드 URL"))
+                        .responseHeaders(headerWithName("Location").description("출석 URL"))
                         .responseFields(
                             fieldWithPath("success").description("성공 여부"),
                             fieldWithPath("message").description("메시지"),
-                            fieldWithPath("data").description("null"))
+                            fieldWithPath("data.attendanceId").description("출석 ID"),
+                            fieldWithPath("data.attendUrl").description("출석 URL"))
                         .build())));
   }
 
@@ -266,13 +277,13 @@ class AttendanceControllerTest {
   @WithMockUser
   void should_expire_qr_when_pass_attendance_id_and_qr_uuid() throws Exception {
     // given
-    doNothing().when(attendanceService).expireQr(any(Long.class), any(String.class));
+    doNothing().when(attendanceService).expireQr(any(Long.class));
 
     // when
     ResultActions result =
         mockMvc.perform(
             RestDocumentationRequestBuilders.delete(
-                    "/api/v1/attendances/{attendanceId}/qr?qrUuid={uuid}", 1, "uuid")
+                    "/api/v1/attendances/{attendanceId}/qr", 1)
                 .with(csrf()));
 
     // then
@@ -288,7 +299,6 @@ class AttendanceControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("QR 코드를 만료시킬 수 있다")
                         .tag("attendance")
-                        .queryParameters(parameterWithName("qrUuid").description("QR 코드 UUID"))
                         .pathParameters(parameterWithName("attendanceId").description("출석 ID"))
                         .build())));
   }
