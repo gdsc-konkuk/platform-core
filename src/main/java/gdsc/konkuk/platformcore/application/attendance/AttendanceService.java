@@ -45,19 +45,15 @@ public class AttendanceService {
   }
 
   @Transactional
-  public Long registerAttendance(AttendanceRegisterRequest registerRequest) {
-    Event event =
-        eventRepository
-            .findById(registerRequest.getEventId())
-            .orElseThrow(() -> EventNotFoundException.of(EventErrorCode.EVENT_NOT_FOUND));
-    checkAttendanceAlreadyExist(event);
-
+  public Attendance registerAttendance(AttendanceRegisterRequest registerRequest) {
+    checkAttendanceAlreadyExist(registerRequest.getEventId());
     Attendance newAttendance = AttendanceRegisterRequest.toEntity(registerRequest);
+    newAttendance.generateQr();
     attendanceRepository.saveAndFlush(newAttendance);
 
     List<Member> members = memberRepository.findAllByBatch(registerRequest.getBatch());
     registerParticipants(newAttendance, members);
-    return newAttendance.getId();
+    return newAttendance;
   }
 
   @Transactional
@@ -67,19 +63,24 @@ public class AttendanceService {
   }
 
   @Transactional
-  public String generateQr(Long attendanceId) {
+  public Attendance generateQr(Long attendanceId) {
     Attendance attendance = findAttendanceById(attendanceRepository, attendanceId);
-    return attendance.generateQr();
+    attendance.generateQr();
+    return attendance;
   }
 
   @Transactional
-  public void expireQr(Long attendanceId, String qrUuid) {
+  public void expireQr(Long attendanceId) {
     Attendance attendance = findAttendanceById(attendanceRepository, attendanceId);
-    attendance.validateActiveQr(qrUuid);
     attendance.expireQr();
   }
 
-  private void checkAttendanceAlreadyExist(Event event) {
+  private void checkAttendanceAlreadyExist(Long eventId) {
+    Event event =
+        eventRepository
+            .findById(eventId)
+            .orElseThrow(() -> EventNotFoundException.of(EventErrorCode.EVENT_NOT_FOUND));
+
     attendanceRepository
         .findByEventId(event.getId())
         .ifPresent(
@@ -88,6 +89,7 @@ public class AttendanceService {
                   AttendanceErrorCode.ATTENDANCE_ALREADY_EXIST);
             });
   }
+
   private void registerParticipants(Attendance attendance, List<Member> members){
     List<Participant> participants = new ArrayList<>();
     for(Member member : members) {
