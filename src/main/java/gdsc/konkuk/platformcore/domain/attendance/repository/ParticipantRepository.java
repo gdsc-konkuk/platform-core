@@ -25,4 +25,6 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
       """)
   List<Participant> findAllByBatchAndStartAtBetween(
       String batch, LocalDateTime st, LocalDateTime en);
+
+  List<Participant> findAllByAttendanceId(Long attendanceId);
 }
