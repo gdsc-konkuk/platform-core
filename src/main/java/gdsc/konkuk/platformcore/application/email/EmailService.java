@@ -5,11 +5,13 @@ import static gdsc.konkuk.platformcore.application.email.EmailServiceHelper.find
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailAlreadyProcessedException;
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailErrorCode;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
+import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -48,7 +50,8 @@ public class EmailService {
     task.changeEmailDetails(request.toEmailDetails());
     task.changeSendAt(request.getSendAt());
 
-    Set<String> updatedReceivers = mergeReceivers(task, request.getReceivers());
+    Set<EmailReceiver> newReceivers = request.toEmailReceivers();
+    Set<EmailReceiver> updatedReceivers = mergeReceivers(task, newReceivers);
     task.changeEmailReceivers(updatedReceivers);
     return task;
   }
@@ -71,10 +74,10 @@ public class EmailService {
     }
   }
 
-  private Set<String> mergeReceivers(EmailTask emailTask, Set<String> updatedReceivers) {
-    List<String> receiversInPrevSet = emailTask.filterReceiversInPrevSet(updatedReceivers);
-    List<String> receiversInNewSet = emailTask.filterReceiversNotInPrevSet(updatedReceivers);
-    Set<String> mergedReceiver = new HashSet<>(receiversInPrevSet);
+  private Set<EmailReceiver> mergeReceivers(EmailTask emailTask, Set<EmailReceiver> updatedReceivers) {
+    List<EmailReceiver> receiversInPrevSet = emailTask.filterReceiversInPrevSet(updatedReceivers);
+    List<EmailReceiver> receiversInNewSet = emailTask.filterReceiversNotInPrevSet(updatedReceivers);
+    Set<EmailReceiver> mergedReceiver = new HashSet<>(receiversInPrevSet);
     mergedReceiver.addAll(receiversInNewSet);
     return mergedReceiver;
   }

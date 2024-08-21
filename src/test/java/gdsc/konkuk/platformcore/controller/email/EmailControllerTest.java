@@ -17,8 +17,10 @@ import gdsc.konkuk.platformcore.annotation.CustomMockUser;
 import gdsc.konkuk.platformcore.annotation.RestDocsTest;
 import gdsc.konkuk.platformcore.application.email.EmailService;
 import gdsc.konkuk.platformcore.application.email.EmailTaskFacade;
+import gdsc.konkuk.platformcore.controller.email.dtos.EmailReceiverInfo;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailDetails;
+import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import java.time.LocalDateTime;
@@ -72,11 +74,13 @@ class EmailControllerTest {
     EmailSendRequest request = EmailSendRequest.builder()
       .subject("예시 이메일 제목")
       .content("Html 문자열")
-      .receivers(Set.of("ex1@gmail.com", "ex2@naver.com"))
+      .receiverInfos(Set.of(
+          EmailReceiverInfo.builder().email("ex1@gmail.com").name("guest1").build(),
+          EmailReceiverInfo.builder().email("ex2@naver.com").name("guest2").build()))
       .sendAt(LocalDateTime.of(2024, 7, 20, 12, 30))
       .build();
     EmailDetails emailDetails = request.toEmailDetails();
-    EmailReceivers emailReceivers = request.toEmailReceivers();
+    EmailReceivers emailReceivers = new EmailReceivers(request.toEmailReceivers());
     EmailTask mockTask = new EmailTask(1L, emailDetails, emailReceivers, request.getSendAt());
 
     //when
@@ -103,7 +107,8 @@ class EmailControllerTest {
             .requestFields(
               fieldWithPath("subject").type(JsonFieldType.STRING).description("이메일 제목"),
               fieldWithPath("content").type(JsonFieldType.STRING).description("이메일 내용"),
-              fieldWithPath("receivers").type(JsonFieldType.ARRAY).description("수신자 이메일 목록"),
+              fieldWithPath("receiverInfos[].email").type(JsonFieldType.STRING).description("수신자 email"),
+              fieldWithPath("receiverInfos[].name").type(JsonFieldType.STRING).description("수신자 이름"),
               fieldWithPath("sendAt").type(JsonFieldType.STRING).description("수정할 이메일 발송 시간")
             )
             .build()))
@@ -118,13 +123,16 @@ class EmailControllerTest {
     EmailSendRequest request = EmailSendRequest.builder()
       .subject("예시 이메일 제목 수정")
       .content("Html 문자열")
-      .receivers(Set.of("update@gmail.com", "update2@gmail.com", "update3@gmail.com"))
+      .receiverInfos(Set.of(
+          EmailReceiverInfo.builder().email("update@gmail.com").name("guest1").build(),
+          EmailReceiverInfo.builder().email("update2@gmail.com").name("guest2").build(),
+          EmailReceiverInfo.builder().email("update3@gmail.com").name("guest3").build()))
       .sendAt(LocalDateTime.of(2024,7,20,12,30))
       .build();
 
     //when
     ResultActions result = mockMvc.perform(
-      RestDocumentationRequestBuilders.patch("/api/v1/emails/1")
+      RestDocumentationRequestBuilders.patch("/api/v1/emails/{emailId}", 1L)
       .contentType(APPLICATION_JSON)
       .content(objectMapper.writeValueAsString(request))
       .with(csrf()));
@@ -134,7 +142,7 @@ class EmailControllerTest {
       .andDo(print());
 
     result.andDo(
-      document("emails",
+      document("update email task",
         preprocessRequest(prettyPrint()),
         resource(ResourceSnippetParameters.builder()
           .tag("email")
@@ -142,7 +150,8 @@ class EmailControllerTest {
           .requestFields(
             fieldWithPath("subject").type(JsonFieldType.STRING).description("수정할 이메일 제목"),
             fieldWithPath("content").type(JsonFieldType.STRING).description("수정할 이메일 내용"),
-            fieldWithPath("receivers").type(JsonFieldType.ARRAY).description("수정할 수신자 이메일 목록"),
+            fieldWithPath("receiverInfos[].email").type(JsonFieldType.STRING).description("수신자 email"),
+            fieldWithPath("receiverInfos[].name").type(JsonFieldType.STRING).description("수신자 이름"),
             fieldWithPath("sendAt").type(JsonFieldType.STRING).description("수정할 이메일 발송 시간")
           ).build()))
     );
@@ -154,7 +163,11 @@ class EmailControllerTest {
   void should_success_when_get_all_task() throws Exception {
     //given
     EmailDetails emailDetails = new EmailDetails("예시 이메일 제목", "Html 문자열");
-    EmailReceivers emailReceivers = new EmailReceivers(Set.of("example1@gmail.com", "example2@gmail.com", "example3@gmail.com"));
+    EmailReceivers emailReceivers = new EmailReceivers(
+        Set.of(
+            EmailReceiver.builder().email("example1@gmail.com").name("guest1").build(),
+            EmailReceiver.builder().email("example2@gmail.com").name("guest2").build(),
+            EmailReceiver.builder().email("example3@gmail.com").name("guest3").build()));
     EmailTask emailTask = new EmailTask(1L, emailDetails, emailReceivers, LocalDateTime.of(2024, 7, 20, 12, 30));
 
     //when
@@ -169,7 +182,7 @@ class EmailControllerTest {
       .andDo(print());
 
     result.andDo(
-      document("emails/",
+      document("get all email",
         preprocessRequest(prettyPrint()),
         resource(ResourceSnippetParameters.builder()
           .tag("email")
@@ -181,7 +194,8 @@ class EmailControllerTest {
             fieldWithPath("data.emailTasks").description("이메일 작업 목록"),
             fieldWithPath("data.emailTasks[].id").description("이메일 작업의 ID (Mock객체에 대해 null일 수 있음.)"),
             fieldWithPath("data.emailTasks[].subject").description("이메일 제목"),
-            fieldWithPath("data.emailTasks[].receiver").description("이메일 수신자"),
+            fieldWithPath("data.emailTasks[].receiverInfos.email").description("수신자 email"),
+            fieldWithPath("data.emailTasks[].receiverInfos.name").description("수신자 이름"),
             fieldWithPath("data.emailTasks[].sendAt").description("이메일 발송 예정 시간 (ISO 8601 형식)"),
             fieldWithPath("data.emailTasks[].isSent").description("이메일 발송 여부")
           ).build()))
@@ -194,7 +208,10 @@ class EmailControllerTest {
   void should_success_when_get_specific_task() throws Exception {
     //given
     EmailDetails emailDetails = new EmailDetails("예시 이메일 제목", "Html 문자열");
-    EmailReceivers emailReceivers = new EmailReceivers(Set.of("example@gmail.com", "example@naver.com"));
+    EmailReceivers emailReceivers = new EmailReceivers(
+        Set.of(
+            EmailReceiver.builder().email("example@gmail.com").name("guest1").build(),
+            EmailReceiver.builder().email("example@naver.com").name("guest2").build()));
     EmailTask emailTask = new EmailTask(1L, emailDetails, emailReceivers, LocalDateTime.of(2024, 7, 20, 12, 30));
 
     //when
@@ -209,7 +226,7 @@ class EmailControllerTest {
       .andDo(print());
 
     result.andDo(
-      document("emails/{emailId}",
+      document("get email detail",
         preprocessRequest(prettyPrint()),
         resource(ResourceSnippetParameters.builder()
           .tag("email")
@@ -220,7 +237,8 @@ class EmailControllerTest {
             fieldWithPath("data").description("이메일 전송 작업 내용"),
             fieldWithPath("data.subject").description("이메일 제목"),
             fieldWithPath("data.content").description("이메일 내용"),
-            fieldWithPath("data.receivers").description("이메일 수신자"),
+            fieldWithPath("data.receiverInfos[].email").description("수신자 email"),
+            fieldWithPath("data.receiverInfos[].name").description("수신자 이름"),
             fieldWithPath("data.sendAt").description("이메일 발송 예정 시간 (ISO 8601 형식)")
           )
           .pathParameters(

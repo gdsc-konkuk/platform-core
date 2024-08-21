@@ -4,8 +4,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
+import gdsc.konkuk.platformcore.controller.email.dtos.EmailReceiverInfo;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailDetails;
+import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.global.scheduler.TaskScheduler;
@@ -31,7 +33,10 @@ class EmailTaskFacadeTest {
       EmailTask.builder()
           .id(1L)
           .emailDetails(new EmailDetails("subject", "content"))
-          .receivers(new EmailReceivers(Set.of("example1.com", "example2.com")))
+          .receivers(new EmailReceivers(
+              Set.of(
+                  EmailReceiver.builder().email("example1.com").name("guest1").build(),
+                  EmailReceiver.builder().email("example2.com").name("guest2").build())))
           .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
           .build();
 
@@ -49,11 +54,16 @@ class EmailTaskFacadeTest {
         EmailSendRequest.builder()
             .subject("subject")
             .content("content")
-            .receivers(Set.of("example1.com", "example2.com"))
+            .receiverInfos(
+                Set.of(
+                    EmailReceiverInfo.builder().email("example1.com").name("guest1").build(),
+                    EmailReceiverInfo.builder().email("example2.com").name("guest2").build()))
             .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
             .build();
+
     //when
     when(emailService.update(1L, emailRequest)).thenReturn(mock1);
+
     //then
     subject.update(1L, emailRequest);
     verify(emailTaskScheduler).cancelTask("1");
@@ -64,6 +74,7 @@ class EmailTaskFacadeTest {
   void should_success_when_cancel_task() {
     //given
     Long emailId = 1L;
+
     //when
     subject.cancel(1L);
 

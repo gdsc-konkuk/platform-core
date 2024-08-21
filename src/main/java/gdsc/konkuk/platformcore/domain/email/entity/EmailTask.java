@@ -50,7 +50,7 @@ public class EmailTask {
     emailDetails = newEmailDetails;
   }
 
-  public void changeEmailReceivers(final Set<String> set) {
+  public void changeEmailReceivers(final Set<EmailReceiver> set) {
     emailReceivers.removeAll();
     emailReceivers.insertAll(set);
   }
@@ -63,17 +63,17 @@ public class EmailTask {
     isSent = true;
   }
 
-  public List<String> filterReceiversInPrevSet(Set<String> set) {
+  public List<EmailReceiver> filterReceiversInPrevSet(Set<EmailReceiver> set) {
     return this.getEmailReceivers().getReceivers()
         .stream()
         .filter(set::contains)
         .toList();
   }
 
-  public List<String> filterReceiversNotInPrevSet(Set<String> set) {
+  public List<EmailReceiver> filterReceiversNotInPrevSet(Set<EmailReceiver> set) {
     return set
         .stream()
-        .filter((e) -> !emailReceivers.getReceivers().contains(e))
+        .filter((e) -> !this.emailReceivers.getReceivers().contains(e))
         .toList();
   }
 }
