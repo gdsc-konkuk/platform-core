@@ -4,7 +4,7 @@ import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.*;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
+import java.util.Arrays;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -108,12 +108,10 @@ public class SecurityConfig {
   private CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
 
-    configuration.setAllowedOriginPatterns(List.of("http://localhost:*"));
-    configuration.setAllowedMethods(
-        List.of("GET","POST", "PUT", "DELETE", "PATCH"));
+    configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "https://stage.gdsc-konkuk.dev", "https://gdsc-konkuk.dev"));
+    configuration.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
     configuration.setAllowCredentials(true);
-    configuration.setAllowedHeaders(
-        List.of("Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization", "Location", "Range", "Cache-Control", "User-Agent", "DNT"));
+    configuration.setAllowedHeaders(Arrays.asList("Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization", "Location", "Range", "Cache-Control", "User-Agent", "DNT"));
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
