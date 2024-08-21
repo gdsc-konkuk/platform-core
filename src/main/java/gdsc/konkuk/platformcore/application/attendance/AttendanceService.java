@@ -2,6 +2,7 @@ package gdsc.konkuk.platformcore.application.attendance;
 
 import static gdsc.konkuk.platformcore.application.attendance.AttendanceServiceHelper.findAttendanceById;
 
+import gdsc.konkuk.platformcore.application.attendance.dtos.AttendanceStatus;
 import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceAlreadyExistException;
 import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceErrorCode;
 import gdsc.konkuk.platformcore.application.event.exceptions.EventErrorCode;
@@ -54,6 +55,12 @@ public class AttendanceService {
     List<Member> members = memberRepository.findAllByBatch(registerRequest.getBatch());
     registerParticipants(newAttendance, members);
     return newAttendance;
+  }
+
+  public AttendanceStatus getAttendanceStatus(Long attendanceId) {
+    List<Participant> totalParticipants = participantRepository.findAllByAttendanceId(attendanceId);
+    List<Participant> attendedParticipants = totalParticipants.stream().filter(Participant::isAttended).toList();
+    return AttendanceStatus.of(attendanceId, totalParticipants.size(), attendedParticipants.size());
   }
 
   @Transactional

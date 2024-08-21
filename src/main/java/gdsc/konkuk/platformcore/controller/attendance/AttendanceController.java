@@ -10,6 +10,7 @@ import gdsc.konkuk.platformcore.application.event.dtos.EventWithAttendance;
 import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendSuccessResponse;
 import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceRegisterRequest;
 import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceResponse;
+import gdsc.konkuk.platformcore.application.attendance.dtos.AttendanceStatus;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Participant;
 import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
@@ -64,6 +65,13 @@ public class AttendanceController {
     AttendanceResponse response = AttendanceResponse.from(attendance, generateAttendUri(attendance));
     return ResponseEntity.created(generateAttendanceUri(attendance))
       .body(SuccessResponse.of(response));
+  }
+
+  // TODO: 추후 WebSocket으로 변경 필요
+  @GetMapping("/{attendanceId}/status")
+  public ResponseEntity<SuccessResponse> getAttendance(@PathVariable Long attendanceId) {
+    AttendanceStatus attendanceStatus = attendanceService.getAttendanceStatus(attendanceId);
+    return ResponseEntity.ok(SuccessResponse.of(attendanceStatus));
   }
 
   @DeleteMapping("/{attendanceId}")
