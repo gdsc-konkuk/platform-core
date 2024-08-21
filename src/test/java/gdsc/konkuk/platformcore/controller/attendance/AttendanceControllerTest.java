@@ -4,6 +4,7 @@ import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
+import gdsc.konkuk.platformcore.application.attendance.dtos.AttendanceStatus;
 import gdsc.konkuk.platformcore.application.event.EventService;
 import gdsc.konkuk.platformcore.application.event.dtos.EventWithAttendance;
 import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceRegisterRequest;
@@ -200,6 +201,43 @@ class AttendanceControllerTest {
                             fieldWithPath("message").description("메시지"),
                             fieldWithPath("data.attendanceId").description("출석 ID"),
                             fieldWithPath("data.attendUrl").description("출석 URL"))
+                        .build())));
+  }
+
+  @Test
+  @DisplayName("출석 현황을 조회할 수 있다")
+  @WithMockUser
+  void should_get_attendance_status_when_pass_attendance_id() throws Exception {
+    // given
+    given(attendanceService.getAttendanceStatus(any(Long.class)))
+        .willReturn(AttendanceStatus.of(1L, 10, 6));
+
+    // when
+    ResultActions result =
+        mockMvc.perform(
+            RestDocumentationRequestBuilders.get("/api/v1/attendances/{attendanceId}/status", 1)
+                .with(csrf()));
+
+    // then
+    result
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andDo(
+            document(
+                "getAttendanceStatus",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                resource(
+                    ResourceSnippetParameters.builder()
+                        .description("출석 현황을 조회할 수 있다")
+                        .tag("attendance")
+                        .pathParameters(parameterWithName("attendanceId").description("출석 ID"))
+                        .responseFields(
+                            fieldWithPath("success").description("성공 여부"),
+                            fieldWithPath("message").description("메시지"),
+                            fieldWithPath("data.attendanceId").description("출석 ID"),
+                            fieldWithPath("data.total").description("전체 인원"),
+                            fieldWithPath("data.attended").description("출석 인원"))
                         .build())));
   }
 
