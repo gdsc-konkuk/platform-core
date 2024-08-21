@@ -1,7 +1,6 @@
 package gdsc.konkuk.platformcore.domain.email.entity;
 
 import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.JoinColumn;
 import java.util.HashSet;
@@ -20,10 +19,9 @@ public class EmailReceivers {
 
   @ElementCollection
   @CollectionTable(name = "email_receivers", joinColumns = @JoinColumn(name = "task_id"))
-  @Column(name = "receiver_email")
-  Set<String> receivers = new HashSet<>();
+  Set<EmailReceiver> receivers = new HashSet<>();
 
-  public EmailReceivers(Set<String> receivers) {
+  public EmailReceivers(Set<EmailReceiver> receivers) {
     this.receivers.addAll(receivers);
   }
 
@@ -44,7 +42,7 @@ public class EmailReceivers {
     this.receivers.clear();
   }
 
-  public void insertAll(Set<String> set) {
+  public void insertAll(Set<EmailReceiver> set) {
     this.receivers.addAll(set);
   }
 }

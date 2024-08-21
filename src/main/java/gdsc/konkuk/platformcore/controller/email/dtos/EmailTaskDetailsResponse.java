@@ -11,16 +11,17 @@ import lombok.Getter;
 public class EmailTaskDetailsResponse {
   private final String subject;
   private final String content;
-  private final List<String> receivers;
+  private final List<EmailReceiverInfo> receiverInfos;
   private final LocalDateTime sendAt;
 
   @Builder
   public EmailTaskDetailsResponse(EmailDetails emailDetails, EmailReceivers emailReceivers, LocalDateTime sendAt) {
     this.subject = emailDetails.getSubject();
     this.content = emailDetails.getContent();
-    this.receivers = emailReceivers
+    this.receiverInfos = emailReceivers
         .getReceivers()
         .stream()
+        .map(EmailReceiverInfo::fromValueObject)
         .toList();
     this.sendAt = sendAt;
   }

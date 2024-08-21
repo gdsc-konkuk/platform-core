@@ -6,8 +6,10 @@ import static org.mockito.MockitoAnnotations.*;
 
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailAlreadyProcessedException;
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailNotFoundException;
+import gdsc.konkuk.platformcore.controller.email.dtos.EmailReceiverInfo;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailDetails;
+import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
@@ -30,7 +32,10 @@ class EmailServiceTest {
       EmailTask.builder()
           .id(1L)
           .emailDetails(new EmailDetails("subject", "content"))
-          .receivers(new EmailReceivers(Set.of("example1.com", "example2.com")))
+          .receivers(new EmailReceivers(
+              Set.of(
+                  EmailReceiver.builder().email("example1.com").name("guest1").build(),
+                  EmailReceiver.builder().email("example2.com").name("guest2").build())))
           .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
           .build();
 
@@ -38,15 +43,23 @@ class EmailServiceTest {
       EmailTask.builder()
           .id(2L)
           .emailDetails(new EmailDetails("subject2", "content2"))
-          .receivers(new EmailReceivers(Set.of("example1.com", "example2.com")))
+          .receivers(new EmailReceivers(
+              Set.of(
+                  EmailReceiver.builder().email("example1.com").name("guest1").build(),
+                  EmailReceiver.builder().email("example2.com").name("guest2").build())))
           .sendAt(LocalDateTime.now())
           .build();
+
   List<EmailTask> mockEmailTaskList = List.of(mock1, mock2);
+
   private final EmailTask mockAlreadySent =
       EmailTask.builder()
           .id(3L)
           .emailDetails(new EmailDetails("subject3", "content3"))
-          .receivers(new EmailReceivers(Set.of("example1.com", "example2.com")))
+          .receivers(new EmailReceivers(
+              Set.of(
+                  EmailReceiver.builder().email("example1.com").name("guest1").build(),
+                  EmailReceiver.builder().email("example2.com").name("guest2").build())))
           .sendAt(LocalDateTime.now())
           .build();
 
@@ -65,6 +78,7 @@ class EmailServiceTest {
 
     // when
     List<EmailTask> actual = subject.getAllTaskAsList();
+
     // then
     assertEquals(mockEmailTaskList.size(), actual.size());
     assertEquals(mockEmailTaskList.get(0).getId(), actual.get(0).getId());
@@ -76,8 +90,10 @@ class EmailServiceTest {
   void should_success_when_getTaskDetails() {
     // given
     given(emailTaskRepository.findById(1L)).willReturn(java.util.Optional.of(mock1));
+
     // when
     EmailTask actual = subject.getTaskDetails(1L);
+
     // then
     assertEquals(mock1.getId(), actual.getId());
     assertEquals(mock1.getEmailDetails().getSubject(), actual.getEmailDetails().getSubject());
@@ -89,15 +105,18 @@ class EmailServiceTest {
   @DisplayName("registerTask : 이메일 전송 작업 등록 성공")
   void should_success_when_register_task() {
     // given
-
     EmailSendRequest emailRequest =
         EmailSendRequest.builder()
             .subject("subject")
             .content("content")
-            .receivers(Set.of("example1.com", "example2.com"))
+            .receiverInfos(
+                Set.of(
+                    EmailReceiverInfo.builder().email("example1.com").name("guest1").build(),
+                    EmailReceiverInfo.builder().email("example2.com").name("guest2").build()))
             .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
             .build();
     given(emailTaskRepository.save(any(EmailTask.class))).willReturn(mock1);
+
     // when
     EmailTask expected = EmailSendRequest.toEntity(emailRequest);
     EmailTask actual = subject.registerTask(EmailSendRequest.toEntity(emailRequest));
@@ -115,13 +134,18 @@ class EmailServiceTest {
         EmailSendRequest.builder()
             .subject("subject2")
             .content("content2")
-            .receivers(Set.of("example2.com", "example4.com"))
+            .receiverInfos(
+                Set.of(
+                    EmailReceiverInfo.builder().email("example2.com").name("guest2").build(),
+                    EmailReceiverInfo.builder().email("example4.com").name("guest4").build()))
             .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
             .build();
     given(emailTaskRepository.findById(1L)).willReturn(java.util.Optional.of(mock1));
+
     // when
     EmailTask expected = EmailSendRequest.toEntity(emailRequest);
     EmailTask actual = subject.update(1L, emailRequest);
+
     // then
     assertEquals(expected.getEmailDetails(), actual.getEmailDetails());
     assertEquals(expected.getEmailReceivers(), actual.getEmailReceivers());
@@ -135,11 +159,16 @@ class EmailServiceTest {
         EmailSendRequest.builder()
             .subject("subject2")
             .content("content2")
-            .receivers(Set.of("example2.com", "example4.com"))
+            .receiverInfos(
+                Set.of(
+                    EmailReceiverInfo.builder().email("example2.com").name("guest2").build(),
+                    EmailReceiverInfo.builder().email("example4.com").name("guest4").build()))
             .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
             .build();
+
     // when
     when(emailTaskRepository.findById(1L)).thenReturn(Optional.of(mockAlreadySent));
+
     // then
     assertThrows(EmailAlreadyProcessedException.class, () -> subject.update(1L, emailRequest));
   }
@@ -152,11 +181,16 @@ class EmailServiceTest {
         EmailSendRequest.builder()
             .subject("subject2")
             .content("content2")
-            .receivers(Set.of("example2.com", "example4.com"))
+            .receiverInfos(
+                Set.of(
+                    EmailReceiverInfo.builder().email("example2.com").name("guest2").build(),
+                    EmailReceiverInfo.builder().email("example4.com").name("guest4").build()))
             .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
             .build();
+
     // when
     when(emailTaskRepository.findById(1L)).thenReturn(Optional.empty());
+
     // then
     assertThrows(EmailNotFoundException.class, () -> subject.update(1L, emailRequest));
   }
@@ -166,9 +200,11 @@ class EmailServiceTest {
   void should_success_when_delete_task() {
     // given
     given(emailTaskRepository.findById(1L)).willReturn(Optional.of(mock1));
+
     // when
     doNothing().when(emailTaskRepository).delete(mock1);
     subject.delete(1L);
+
     // then
     verify(emailTaskRepository).delete(mock1);
   }

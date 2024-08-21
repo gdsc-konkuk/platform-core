@@ -1,5 +1,8 @@
 package gdsc.konkuk.platformcore.external.email;
 
+import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.EMAIL_RECEIVER_NAME_REGEXP;
+
+import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
@@ -26,15 +29,27 @@ public class EmailClient {
 
   public void sendEmailToReceivers(EmailTask email) {
     EmailDetails emailDetails = email.getEmailDetails();
-    Set<String> receivers = email.getEmailReceivers().getReceivers();
+    Set<EmailReceiver> receivers = email.getEmailReceivers().getReceivers();
     receivers.forEach(receiver -> sendEmail(receiver, emailDetails));
   }
 
-  private void sendEmail(String to, EmailDetails emailDetails) {
+  public String replaceNameToken(String content, String name) {
+    return content.replaceAll(EMAIL_RECEIVER_NAME_REGEXP, name);
+  }
+
+  private MimeMessage generateMimeMessage(EmailReceiver to, EmailDetails emailDetails)
+      throws MessagingException {
+    String emailContent = replaceNameToken(emailDetails.getContent(), to.getName());
+    String emailDestination = to.getEmail();
+    String emailSubject = emailDetails.getSubject();
+
+    return convertToHTMLMimeMessage(emailDestination, emailSubject, emailContent);
+  }
+
+  private void sendEmail(EmailReceiver to, EmailDetails emailDetails) {
     try {
       log.info("Sending email to {}", to);
-      MimeMessage message =
-          convertToHTMLMimeMessage(to, emailDetails.getSubject(), emailDetails.getContent());
+      MimeMessage message = generateMimeMessage(to, emailDetails);
       javaMailSender.send(message);
     } catch (MailParseException | MessagingException e) {
       throw EmailSendingException.of(EmailClientErrorCode.MAIL_PARSING_ERROR, e.getMessage());
@@ -47,9 +62,11 @@ public class EmailClient {
       throws MessagingException {
     MimeMessage message = javaMailSender.createMimeMessage();
     message.setSubject(subject);
+
     MimeMessageHelper helper = new MimeMessageHelper(message, true);
     helper.setTo(to);
     helper.setText(text, true);
+
     return message;
   }
 }
