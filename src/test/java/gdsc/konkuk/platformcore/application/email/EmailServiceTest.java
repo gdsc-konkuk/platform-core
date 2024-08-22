@@ -1,22 +1,23 @@
 package gdsc.konkuk.platformcore.application.email;
 
+import static gdsc.konkuk.platformcore.fixture.email.EmailSendRequestFixture.getEmailTask1SendRequestFixture;
+import static gdsc.konkuk.platformcore.fixture.email.EmailSendRequestFixture.getEmailTask2SendRequestFixture;
+import static gdsc.konkuk.platformcore.fixture.email.EmailTaskFixture.EMAIL_TASK_1_ID;
+import static gdsc.konkuk.platformcore.fixture.email.EmailTaskFixture.getEmailTaskAlreadySentFixture;
+import static gdsc.konkuk.platformcore.fixture.email.EmailTaskFixture.getEmailTaskFixture1;
+import static gdsc.konkuk.platformcore.fixture.email.EmailTaskFixture.getEmailTaskListFixture;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 import static org.mockito.MockitoAnnotations.*;
 
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailAlreadyProcessedException;
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailNotFoundException;
-import gdsc.konkuk.platformcore.controller.email.dtos.EmailReceiverInfo;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
-import gdsc.konkuk.platformcore.domain.email.entity.EmailDetails;
-import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
-import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
-import java.time.LocalDateTime;
+import gdsc.konkuk.platformcore.fixture.email.EmailTaskFixture;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,101 +29,62 @@ class EmailServiceTest {
 
   private EmailService subject;
 
-  private final EmailTask mock1 =
-      EmailTask.builder()
-          .id(1L)
-          .emailDetails(new EmailDetails("subject", "content"))
-          .receivers(new EmailReceivers(
-              Set.of(
-                  EmailReceiver.builder().email("example1.com").name("guest1").build(),
-                  EmailReceiver.builder().email("example2.com").name("guest2").build())))
-          .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
-          .build();
-
-  private final EmailTask mock2 =
-      EmailTask.builder()
-          .id(2L)
-          .emailDetails(new EmailDetails("subject2", "content2"))
-          .receivers(new EmailReceivers(
-              Set.of(
-                  EmailReceiver.builder().email("example1.com").name("guest1").build(),
-                  EmailReceiver.builder().email("example2.com").name("guest2").build())))
-          .sendAt(LocalDateTime.now())
-          .build();
-
-  List<EmailTask> mockEmailTaskList = List.of(mock1, mock2);
-
-  private final EmailTask mockAlreadySent =
-      EmailTask.builder()
-          .id(3L)
-          .emailDetails(new EmailDetails("subject3", "content3"))
-          .receivers(new EmailReceivers(
-              Set.of(
-                  EmailReceiver.builder().email("example1.com").name("guest1").build(),
-                  EmailReceiver.builder().email("example2.com").name("guest2").build())))
-          .sendAt(LocalDateTime.now())
-          .build();
-
   @BeforeEach
   void setUp() {
     openMocks(this);
     subject = new EmailService(emailTaskRepository);
-    mockAlreadySent.markAsSent();
   }
 
   @Test
   @DisplayName("getAllTaskAsList : 모든 이메일 전송 작업 목록 조회 성공")
   void should_success_when_getAllTaskAsList() {
-
-    given(emailTaskRepository.findAll()).willReturn(mockEmailTaskList);
+    // given
+    List<EmailTask> emailTaskListToFind = getEmailTaskListFixture();
+    given(emailTaskRepository.findAll()).willReturn(emailTaskListToFind);
 
     // when
     List<EmailTask> actual = subject.getAllTaskAsList();
 
     // then
-    assertEquals(mockEmailTaskList.size(), actual.size());
-    assertEquals(mockEmailTaskList.get(0).getId(), actual.get(0).getId());
-    assertEquals(mockEmailTaskList.get(1).getId(), actual.get(1).getId());
+    assertEquals(emailTaskListToFind.size(), actual.size());
+    for(int i = 0; i < actual.size(); i++) {
+      assertEquals(emailTaskListToFind.get(i).getId(), actual.get(i).getId());
+    }
   }
 
   @Test
   @DisplayName("getTaskDetails : 특정 이메일 전송 작업 조회 성공")
   void should_success_when_getTaskDetails() {
     // given
-    given(emailTaskRepository.findById(1L)).willReturn(java.util.Optional.of(mock1));
+    EmailTask emailTaskToFind = getEmailTaskFixture1();
+    given(emailTaskRepository.findById(emailTaskToFind.getId()))
+        .willReturn(java.util.Optional.of(emailTaskToFind));
 
     // when
-    EmailTask actual = subject.getTaskDetails(1L);
+    EmailTask actual = subject.getTaskDetails(emailTaskToFind.getId());
 
     // then
-    assertEquals(mock1.getId(), actual.getId());
-    assertEquals(mock1.getEmailDetails().getSubject(), actual.getEmailDetails().getSubject());
+    assertEquals(emailTaskToFind.getId(), actual.getId());
+    assertEquals(emailTaskToFind.getEmailDetail().getSubject(), actual.getEmailDetail().getSubject());
     assertEquals(
-        mock1.getEmailReceivers().getReceivers(), actual.getEmailReceivers().getReceivers());
+        emailTaskToFind.getEmailReceivers().getReceivers(),
+        actual.getEmailReceivers().getReceivers());
   }
 
   @Test
   @DisplayName("registerTask : 이메일 전송 작업 등록 성공")
   void should_success_when_register_task() {
     // given
-    EmailSendRequest emailRequest =
-        EmailSendRequest.builder()
-            .subject("subject")
-            .content("content")
-            .receiverInfos(
-                Set.of(
-                    EmailReceiverInfo.builder().email("example1.com").name("guest1").build(),
-                    EmailReceiverInfo.builder().email("example2.com").name("guest2").build()))
-            .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
-            .build();
-    given(emailTaskRepository.save(any(EmailTask.class))).willReturn(mock1);
+    EmailSendRequest emailRegisterRequest = getEmailTask1SendRequestFixture();
+    given(emailTaskRepository.save(any(EmailTask.class)))
+        .willReturn(EmailSendRequest.toEntity(emailRegisterRequest));
 
     // when
-    EmailTask expected = EmailSendRequest.toEntity(emailRequest);
-    EmailTask actual = subject.registerTask(EmailSendRequest.toEntity(emailRequest));
+    EmailTask expected = EmailSendRequest.toEntity(emailRegisterRequest);
+    EmailTask actual = subject.registerTask(EmailSendRequest.toEntity(emailRegisterRequest));
 
     // then
-    assertEquals(expected.getEmailDetails(), actual.getEmailDetails());
+    assertEquals(expected.getEmailDetail(), actual.getEmailDetail());
     assertEquals(expected.getEmailReceivers(), actual.getEmailReceivers());
   }
 
@@ -130,24 +92,17 @@ class EmailServiceTest {
   @DisplayName("update : 이메일 전송 작업 수정 성공")
   void should_success_when_update_task() {
     // given
-    EmailSendRequest emailRequest =
-        EmailSendRequest.builder()
-            .subject("subject2")
-            .content("content2")
-            .receiverInfos(
-                Set.of(
-                    EmailReceiverInfo.builder().email("example2.com").name("guest2").build(),
-                    EmailReceiverInfo.builder().email("example4.com").name("guest4").build()))
-            .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
-            .build();
-    given(emailTaskRepository.findById(1L)).willReturn(java.util.Optional.of(mock1));
+    EmailSendRequest emailUpdateRequest = getEmailTask2SendRequestFixture();
+    EmailTask emailTaskToUpdate = getEmailTaskFixture1();
+    given(emailTaskRepository.findById(EmailTaskFixture.EMAIL_TASK_1_ID))
+        .willReturn(Optional.of(emailTaskToUpdate));
 
     // when
-    EmailTask expected = EmailSendRequest.toEntity(emailRequest);
-    EmailTask actual = subject.update(1L, emailRequest);
+    EmailTask expected = emailTaskToUpdate;
+    EmailTask actual = subject.update(emailTaskToUpdate.getId(), emailUpdateRequest);
 
     // then
-    assertEquals(expected.getEmailDetails(), actual.getEmailDetails());
+    assertEquals(expected.getEmailDetail(), actual.getEmailDetail());
     assertEquals(expected.getEmailReceivers(), actual.getEmailReceivers());
   }
 
@@ -155,57 +110,48 @@ class EmailServiceTest {
   @DisplayName("update : 이미 전송된 작업 수정 시도 실패")
   void should_fail_when_update_task_already_sent() {
     // given
-    EmailSendRequest emailRequest =
-        EmailSendRequest.builder()
-            .subject("subject2")
-            .content("content2")
-            .receiverInfos(
-                Set.of(
-                    EmailReceiverInfo.builder().email("example2.com").name("guest2").build(),
-                    EmailReceiverInfo.builder().email("example4.com").name("guest4").build()))
-            .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
-            .build();
+    EmailTask emailTaskAlreadySent = getEmailTaskAlreadySentFixture();
+    EmailSendRequest emailRequest = getEmailTask1SendRequestFixture();
 
     // when
-    when(emailTaskRepository.findById(1L)).thenReturn(Optional.of(mockAlreadySent));
+    when(emailTaskRepository.findById(emailTaskAlreadySent.getId()))
+        .thenReturn(Optional.of(emailTaskAlreadySent));
 
     // then
-    assertThrows(EmailAlreadyProcessedException.class, () -> subject.update(1L, emailRequest));
+    assertThrows(
+        EmailAlreadyProcessedException.class,
+        () -> subject.update(emailTaskAlreadySent.getId(), emailRequest));
   }
 
   @Test
   @DisplayName("update : 존재하지 않는 작업 수정 시도 실패")
   void should_fail_when_update_task_not_found() {
     // given
-    EmailSendRequest emailRequest =
-        EmailSendRequest.builder()
-            .subject("subject2")
-            .content("content2")
-            .receiverInfos(
-                Set.of(
-                    EmailReceiverInfo.builder().email("example2.com").name("guest2").build(),
-                    EmailReceiverInfo.builder().email("example4.com").name("guest4").build()))
-            .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
-            .build();
+    EmailSendRequest emailRequest = getEmailTask1SendRequestFixture();
 
     // when
-    when(emailTaskRepository.findById(1L)).thenReturn(Optional.empty());
+    when(emailTaskRepository.findById(EMAIL_TASK_1_ID))
+        .thenReturn(Optional.empty());
 
     // then
-    assertThrows(EmailNotFoundException.class, () -> subject.update(1L, emailRequest));
+    assertThrows(
+        EmailNotFoundException.class,
+        () -> subject.update(EMAIL_TASK_1_ID, emailRequest));
   }
 
   @Test
   @DisplayName("delete : 이메일 전송 작업 삭제 성공")
   void should_success_when_delete_task() {
     // given
-    given(emailTaskRepository.findById(1L)).willReturn(Optional.of(mock1));
+    EmailTask emailTaskToCancel = getEmailTaskFixture1();
+    given(emailTaskRepository.findById(emailTaskToCancel.getId()))
+        .willReturn(Optional.of(emailTaskToCancel));
+    willDoNothing().given(emailTaskRepository).delete(emailTaskToCancel);
 
     // when
-    doNothing().when(emailTaskRepository).delete(mock1);
-    subject.delete(1L);
+    subject.delete(emailTaskToCancel.getId());
 
     // then
-    verify(emailTaskRepository).delete(mock1);
+    verify(emailTaskRepository).delete(emailTaskToCancel);
   }
 }

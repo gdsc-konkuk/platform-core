@@ -1,6 +1,7 @@
 package gdsc.konkuk.platformcore.controller.email;
 
 import static com.epages.restdocs.apispec.ResourceDocumentation.*;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
@@ -19,7 +20,7 @@ import gdsc.konkuk.platformcore.application.email.EmailService;
 import gdsc.konkuk.platformcore.application.email.EmailTaskFacade;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailReceiverInfo;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
-import gdsc.konkuk.platformcore.domain.email.entity.EmailDetails;
+import gdsc.konkuk.platformcore.domain.email.entity.EmailDetail;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
@@ -81,9 +82,9 @@ class EmailControllerTest {
           EmailReceiverInfo.builder().email("ex2@naver.com").name("guest2").build()))
       .sendAt(LocalDateTime.of(2024, 7, 20, 12, 30))
       .build();
-    EmailDetails emailDetails = request.toEmailDetails();
+    EmailDetail emailDetail = request.toEmailDetails();
     EmailReceivers emailReceivers = new EmailReceivers(request.toEmailReceivers());
-    EmailTask mockTask = new EmailTask(1L, emailDetails, emailReceivers, request.getSendAt());
+    EmailTask mockTask = new EmailTask(1L, emailDetail, emailReceivers, request.getSendAt());
 
     //when
     when(emailTaskFacade.register(any())).thenReturn(mockTask);
@@ -164,13 +165,14 @@ class EmailControllerTest {
   @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_success_when_get_all_task() throws Exception {
     //given
-    EmailDetails emailDetails = new EmailDetails("예시 이메일 제목", "Html 문자열");
+    EmailDetail emailDetail = new EmailDetail("예시 이메일 제목", "Html 문자열");
     EmailReceivers emailReceivers = new EmailReceivers(
         Set.of(
             EmailReceiver.builder().email("example1@gmail.com").name("guest1").build(),
             EmailReceiver.builder().email("example2@gmail.com").name("guest2").build(),
             EmailReceiver.builder().email("example3@gmail.com").name("guest3").build()));
-    EmailTask emailTask = new EmailTask(1L, emailDetails, emailReceivers, LocalDateTime.of(2024, 7, 20, 12, 30));
+    EmailTask emailTask = new EmailTask(1L,
+        emailDetail, emailReceivers, LocalDateTime.of(2024, 7, 20, 12, 30));
 
     //when
     when(emailService.getAllTaskAsList()).thenReturn(List.of(emailTask));
@@ -209,12 +211,13 @@ class EmailControllerTest {
   @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_success_when_get_specific_task() throws Exception {
     //given
-    EmailDetails emailDetails = new EmailDetails("예시 이메일 제목", "Html 문자열");
+    EmailDetail emailDetail = new EmailDetail("예시 이메일 제목", "Html 문자열");
     EmailReceivers emailReceivers = new EmailReceivers(
         Set.of(
             EmailReceiver.builder().email("example@gmail.com").name("guest1").build(),
             EmailReceiver.builder().email("example@naver.com").name("guest2").build()));
-    EmailTask emailTask = new EmailTask(1L, emailDetails, emailReceivers, LocalDateTime.of(2024, 7, 20, 12, 30));
+    EmailTask emailTask = new EmailTask(1L,
+        emailDetail, emailReceivers, LocalDateTime.of(2024, 7, 20, 12, 30));
 
     //when
     when(emailService.getTaskDetails(any())).thenReturn(emailTask);
@@ -254,7 +257,7 @@ class EmailControllerTest {
   @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_success_when_cancel_registered_task() throws Exception {
     //given
-    doNothing().when(emailTaskFacade).cancel(any());
+    willDoNothing().given(emailTaskFacade).cancel(any());
 
     //when
     ResultActions result = mockMvc.perform(

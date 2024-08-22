@@ -5,7 +5,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.*;
 
-import gdsc.konkuk.platformcore.domain.email.entity.EmailDetails;
+import gdsc.konkuk.platformcore.domain.email.entity.EmailDetail;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
@@ -40,7 +40,7 @@ class EmailClientTest {
      // given
     EmailTask emailTask =
         EmailTask.builder()
-            .emailDetails(EmailDetails.builder().subject("예시 이메일 제목").content("Html 문자열").build())
+            .emailDetail(EmailDetail.builder().subject("예시 이메일 제목").content("Html 문자열").build())
             .receivers(new EmailReceivers(
                 Set.of(EmailReceiver.builder().email("aaa@gmail.com").name("guest1").build())))
             .sendAt(LocalDateTime.of(2021, 10, 10, 10, 10))
@@ -60,7 +60,7 @@ class EmailClientTest {
     // given
     EmailTask emailTask =
         EmailTask.builder()
-            .emailDetails(EmailDetails.builder()
+            .emailDetail(EmailDetail.builder()
                 .subject("예시 이메일 제목")
                 .content("안녕하세요, {이름}님 합격을 축하드립니다!. {이름}님과 함께할 수 있어 기쁩니다.")
                 .build())

@@ -1,12 +1,15 @@
 package gdsc.konkuk.platformcore.application.email;
 
+import static gdsc.konkuk.platformcore.fixture.email.EmailSendRequestFixture.getEmailTask2SendRequestFixture;
+import static gdsc.konkuk.platformcore.fixture.email.EmailTaskFixture.getEmailTaskFixture1;
+import static gdsc.konkuk.platformcore.fixture.email.EmailTaskFixture.getEmailTaskFixture2;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
-import gdsc.konkuk.platformcore.controller.email.dtos.EmailReceiverInfo;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
-import gdsc.konkuk.platformcore.domain.email.entity.EmailDetails;
+import gdsc.konkuk.platformcore.domain.email.entity.EmailDetail;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
@@ -32,7 +35,7 @@ class EmailTaskFacadeTest {
   private final EmailTask mock1 =
       EmailTask.builder()
           .id(1L)
-          .emailDetails(new EmailDetails("subject", "content"))
+          .emailDetail(new EmailDetail("subject", "content"))
           .receivers(new EmailReceivers(
               Set.of(
                   EmailReceiver.builder().email("example1.com").name("guest1").build(),
@@ -49,37 +52,32 @@ class EmailTaskFacadeTest {
   @Test
   @DisplayName("예약 수정시 성공")
   void should_success_when_reschedule_task() {
-      //given
-    EmailSendRequest emailRequest =
-        EmailSendRequest.builder()
-            .subject("subject")
-            .content("content")
-            .receiverInfos(
-                Set.of(
-                    EmailReceiverInfo.builder().email("example1.com").name("guest1").build(),
-                    EmailReceiverInfo.builder().email("example2.com").name("guest2").build()))
-            .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
-            .build();
+    //given
+    EmailSendRequest emailUpdateRequest = getEmailTask2SendRequestFixture();
+    EmailTask emailTaskToUpdate = getEmailTaskFixture1();
+    given(emailService.update(emailTaskToUpdate.getId(), emailUpdateRequest))
+        .willReturn(getEmailTaskFixture2());
 
     //when
-    when(emailService.update(1L, emailRequest)).thenReturn(mock1);
+    subject.update(emailTaskToUpdate.getId(), emailUpdateRequest);
 
     //then
-    subject.update(1L, emailRequest);
-    verify(emailTaskScheduler).cancelTask("1");
+    verify(emailTaskScheduler).cancelTask(emailTaskToUpdate.getId().toString());
   }
 
   @Test
   @DisplayName("예약 취소시 성공")
   void should_success_when_cancel_task() {
     //given
-    Long emailId = 1L;
+    EmailTask emailTaskToCancel = getEmailTaskFixture1();
+    willDoNothing().given(emailTaskScheduler).cancelTask(emailTaskToCancel.getId().toString());
+    willDoNothing().given(emailService).delete(emailTaskToCancel.getId());
 
     //when
-    subject.cancel(1L);
+    subject.cancel(emailTaskToCancel.getId());
 
     //then
-    verify(emailTaskScheduler).cancelTask("1");
-    verify(emailService).delete(emailId);
+    verify(emailTaskScheduler).cancelTask(emailTaskToCancel.getId().toString());
+    verify(emailService).delete(emailTaskToCancel.getId());
   }
 }

@@ -1,18 +1,15 @@
 package gdsc.konkuk.platformcore.application.email;
 
+import static gdsc.konkuk.platformcore.fixture.email.EmailTaskFixture.getEmailTaskFixture1;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 import static org.mockito.MockitoAnnotations.*;
 
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailNotFoundException;
-import gdsc.konkuk.platformcore.domain.email.entity.EmailDetails;
-import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
-import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
-import java.time.LocalDateTime;
+import gdsc.konkuk.platformcore.fixture.email.EmailTaskFixture;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -22,17 +19,6 @@ class EmailServiceHelperTest {
 
   @Mock private EmailTaskRepository emailTaskRepository;
 
-  private final EmailTask mock1 =
-      EmailTask.builder()
-          .id(1L)
-          .emailDetails(new EmailDetails("subject", "content"))
-          .receivers(new EmailReceivers(
-              Set.of(
-                  EmailReceiver.builder().email("example1.com").name("guest1").build(),
-                  EmailReceiver.builder().email("example2.com").name("guest2").build())))
-          .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
-          .build();
-
   @BeforeEach
   void setUp() {
     openMocks(this);
@@ -41,23 +27,27 @@ class EmailServiceHelperTest {
   @Test
   void should_return_task_when_exists() {
     // given
-    given(emailTaskRepository.findById(any())).willReturn(Optional.of(mock1));
+    EmailTask emailTaskToRequest = getEmailTaskFixture1();
+    given(emailTaskRepository.findById(emailTaskToRequest.getId()))
+        .willReturn(Optional.of(emailTaskToRequest));
 
     // when
-    EmailTask emailTask = EmailServiceHelper.findEmailTaskById(emailTaskRepository, 1L);
+    EmailTask emailTaskFound =
+        EmailServiceHelper.findEmailTaskById(emailTaskRepository, emailTaskToRequest.getId());
 
     // then
-    assertEquals(mock1.getEmailDetails(), emailTask.getEmailDetails());
-    assertEquals(mock1.getEmailReceivers(), emailTask.getEmailReceivers());
+    assertEquals(emailTaskToRequest.getEmailDetail(), emailTaskFound.getEmailDetail());
+    assertEquals(emailTaskToRequest.getEmailReceivers(), emailTaskFound.getEmailReceivers());
   }
 
   @Test
   void should_fail_when_not_exists() {
     // given
-    given(emailTaskRepository.findById(any())).willReturn(Optional.empty());
+    given(emailTaskRepository.findById(any(Long.class))).willReturn(Optional.empty());
 
     // when
-    Executable executable = () -> EmailServiceHelper.findEmailTaskById(emailTaskRepository, 1L);
+    Executable executable =
+        () -> EmailServiceHelper.findEmailTaskById(emailTaskRepository, EmailTaskFixture.EMAIL_TASK_1_ID);
 
     // then
     assertThrows(EmailNotFoundException.class, executable);
