@@ -1,6 +1,12 @@
 package gdsc.konkuk.platformcore.controller.member;
 
 import static com.epages.restdocs.apispec.ResourceDocumentation.*;
+import static gdsc.konkuk.platformcore.fixture.member.MemberAttendancesFixture.getGeneralMember1AttendanceFixture;
+import static gdsc.konkuk.platformcore.fixture.member.MemberAttendancesFixture.getGeneralMember2AttendanceFixture;
+import static gdsc.konkuk.platformcore.fixture.member.MemberAttendancesFixture.getGeneralMember3AttendanceFixture;
+import static gdsc.konkuk.platformcore.fixture.member.MemberFixture.getGeneralMemberFixture1;
+import static gdsc.konkuk.platformcore.fixture.member.MemberRegisterRequestFixture.getGeneralMember1RegisterRequest;
+import static java.lang.Integer.parseInt;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
@@ -11,8 +17,6 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import gdsc.konkuk.platformcore.application.attendance.dtos.MemberAttendanceInfo;
-import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendances;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gdsc.konkuk.platformcore.annotation.WithCustomUser;
@@ -23,13 +27,14 @@ import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateRequest;
 import gdsc.konkuk.platformcore.controller.member.dtos.MemberRegisterRequest;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
-import java.time.LocalDateTime;
+import gdsc.konkuk.platformcore.fixture.event.EventFixture;
+import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
+import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -46,8 +51,6 @@ import org.springframework.web.context.WebApplicationContext;
 class MemberControllerTest {
 
   MockMvc mockMvc;
-
-  @Mock Member member;
 
   @MockBean private MemberService memberService;
 
@@ -99,15 +102,9 @@ class MemberControllerTest {
   @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_success_when_newMember() throws Exception {
     // given
-    MemberRegisterRequest memberRegisterRequest =
-        MemberRegisterRequest.builder()
-            .memberId("202011288")
-            .password("password")
-            .email("example@konkuk.ac.kr")
-            .name("홍길동")
-            .batch("24-25")
-            .build();
-    given(memberService.register(any(MemberRegisterRequest.class))).willReturn(member);
+    MemberRegisterRequest memberRegisterRequest = getGeneralMember1RegisterRequest();
+    Member memberToRegister = getGeneralMemberFixture1();
+    given(memberService.register(any(MemberRegisterRequest.class))).willReturn(memberToRegister);
 
     // when
     ResultActions result =
@@ -136,6 +133,7 @@ class MemberControllerTest {
                             fieldWithPath("password").description("비밀번호"),
                             fieldWithPath("email").description("이메일"),
                             fieldWithPath("name").description("이름"),
+                            fieldWithPath("department").description("학과"),
                             fieldWithPath("batch").description("배치"))
                         .responseFields(
                             fieldWithPath("success").description(true),
@@ -149,14 +147,7 @@ class MemberControllerTest {
   @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_fail_when_existingMember() throws Exception {
     // given
-    MemberRegisterRequest memberRegisterRequest =
-        MemberRegisterRequest.builder()
-            .memberId("202011288")
-            .password("password")
-            .email("example@konkuk.ac.kr")
-            .name("홍길동")
-            .batch("24-25")
-            .build();
+    MemberRegisterRequest memberRegisterRequest = getGeneralMember1RegisterRequest();
     given(memberService.register(any(MemberRegisterRequest.class)))
         .willThrow(UserAlreadyExistException.class);
 
@@ -177,6 +168,8 @@ class MemberControllerTest {
   @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_success_when_delete_member() throws Exception {
     // given
+    Member memberToWithdraw = getGeneralMemberFixture1();
+    willDoNothing().given(memberService).withdraw(memberToWithdraw.getId());
 
     // when
     ResultActions result =
@@ -206,119 +199,19 @@ class MemberControllerTest {
   @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_success_when_get_attendances_by_batch() throws Exception {
     // given
-    // TODO: fixture로 변경
     given(memberService.getMemberAttendanceWithBatchAndPeriod(anyString(), any()))
         .willReturn(
             List.of(
-                MemberAttendances.builder()
-                    .memberId(0L)
-                    .memberName("홍길동")
-                    .department("컴퓨터공학과")
-                    .memberRole(MemberRole.MEMBER)
-                    .totalAttendances(3L)
-                    .actualAttendances(2L)
-                    .attendanceInfoList(
-                        List.of(
-                            MemberAttendanceInfo.builder()
-                                .attendanceId(1L)
-                                .memberId(0L)
-                                .eventId(1L)
-                                .participantId(1L)
-                                .attendanceDate(LocalDateTime.of(2024, 7, 3, 0, 0))
-                                .isAttended(true)
-                                .build(),
-                            MemberAttendanceInfo.builder()
-                                .attendanceId(2L)
-                                .memberId(0L)
-                                .eventId(2L)
-                                .participantId(2L)
-                                .attendanceDate(LocalDateTime.of(2024, 7, 5, 0, 0))
-                                .isAttended(false)
-                                .build(),
-                            MemberAttendanceInfo.builder()
-                                .attendanceId(3L)
-                                .memberId(0L)
-                                .eventId(3L)
-                                .participantId(3L)
-                                .attendanceDate(LocalDateTime.of(2024, 7, 8, 0, 0))
-                                .isAttended(true)
-                                .build()))
-                    .build(),
-                MemberAttendances.builder()
-                    .memberId(1L)
-                    .memberName("전우치")
-                    .department("기술경영학과")
-                    .memberRole(MemberRole.MEMBER)
-                    .totalAttendances(3L)
-                    .actualAttendances(1L)
-                    .attendanceInfoList(
-                        List.of(
-                            MemberAttendanceInfo.builder()
-                                .attendanceId(1L)
-                                .memberId(1L)
-                                .eventId(1L)
-                                .participantId(4L)
-                                .attendanceDate(LocalDateTime.of(2024, 7, 3, 0, 0))
-                                .isAttended(true)
-                                .build(),
-                            MemberAttendanceInfo.builder()
-                                .attendanceId(2L)
-                                .memberId(1L)
-                                .eventId(2L)
-                                .participantId(5L)
-                                .attendanceDate(LocalDateTime.of(2024, 7, 5, 0, 0))
-                                .isAttended(false)
-                                .build(),
-                            MemberAttendanceInfo.builder()
-                                .attendanceId(3L)
-                                .memberId(1L)
-                                .eventId(3L)
-                                .participantId(6L)
-                                .attendanceDate(LocalDateTime.of(2024, 7, 8, 0, 0))
-                                .isAttended(false)
-                                .build()))
-                    .build(),
-                MemberAttendances.builder()
-                    .memberId(2L)
-                    .memberName("이순신")
-                    .department("컴퓨터공학과")
-                    .memberRole(MemberRole.MEMBER)
-                    .totalAttendances(3L)
-                    .actualAttendances(2L)
-                    .attendanceInfoList(
-                        List.of(
-                            MemberAttendanceInfo.builder()
-                                .attendanceId(1L)
-                                .memberId(2L)
-                                .eventId(1L)
-                                .participantId(7L)
-                                .attendanceDate(LocalDateTime.of(2024, 7, 3, 0, 0))
-                                .isAttended(true)
-                                .build(),
-                            MemberAttendanceInfo.builder()
-                                .attendanceId(2L)
-                                .memberId(2L)
-                                .eventId(2L)
-                                .participantId(8L)
-                                .attendanceDate(LocalDateTime.of(2024, 7, 5, 0, 0))
-                                .isAttended(false)
-                                .build(),
-                            MemberAttendanceInfo.builder()
-                                .attendanceId(3L)
-                                .memberId(2L)
-                                .eventId(3L)
-                                .participantId(9L)
-                                .attendanceDate(LocalDateTime.of(2024, 7, 8, 0, 0))
-                                .isAttended(true)
-                                .build()))
-                    .build()));
+              getGeneralMember1AttendanceFixture(),
+              getGeneralMember2AttendanceFixture(),
+              getGeneralMember3AttendanceFixture()));
 
     // when
     ResultActions result =
         mockMvc.perform(
-            RestDocumentationRequestBuilders.get("/api/v1/members/{batch}/attendances", "24-25")
-                .param("year", "2024")
-                .param("month", "7")
+            RestDocumentationRequestBuilders.get("/api/v1/members/{batch}/attendances", MemberFixture.BATCH)
+                .param("year", EventFixture.EVENT_YEAR)
+                .param("month", EventFixture.EVENT_MONTH)
                 .contentType(APPLICATION_JSON)
                 .with(csrf()));
 
@@ -372,23 +265,22 @@ class MemberControllerTest {
   @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_success_when_update_attendances_by_batch() throws Exception {
     // given
-    List<AttendanceUpdateInfo> attendanceUpdateInfoList =
-        List.of(
+    List<AttendanceUpdateInfo> attendanceUpdateInfoList = List.of(
             AttendanceUpdateInfo.builder().participantId(1L).isAttended(true).build(),
             AttendanceUpdateInfo.builder().participantId(2L).isAttended(false).build(),
             AttendanceUpdateInfo.builder().participantId(3L).isAttended(true).build());
-    AttendanceUpdateRequest attendanceUpdateRequest =
-        AttendanceUpdateRequest.builder()
-            .attendanceUpdateInfoList(attendanceUpdateInfoList)
-            .build();
-    doNothing().when(memberService).updateAttendances(anyString(), any(), any());
+    AttendanceUpdateRequest attendanceUpdateRequest = new AttendanceUpdateRequest(attendanceUpdateInfoList);
+    doNothing().when(memberService).updateAttendances(
+            MemberFixture.BATCH,
+            LocalDate.of(parseInt(EventFixture.EVENT_YEAR), parseInt(EventFixture.EVENT_MONTH), 1),
+            attendanceUpdateInfoList);
 
     // when
     ResultActions result =
         mockMvc.perform(
-            RestDocumentationRequestBuilders.patch("/api/v1/members/{batch}/attendances", "24-25")
-                .param("year", "2024")
-                .param("month", "7")
+            RestDocumentationRequestBuilders.patch("/api/v1/members/{batch}/attendances", MemberFixture.BATCH)
+                .param("year", EventFixture.EVENT_YEAR)
+                .param("month", EventFixture.EVENT_MONTH)
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(attendanceUpdateRequest))
                 .with(csrf()));

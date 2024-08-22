@@ -1,5 +1,7 @@
 package gdsc.konkuk.platformcore.application.member;
 
+import static gdsc.konkuk.platformcore.fixture.member.MemberFixture.getGeneralMemberFixture1;
+import static gdsc.konkuk.platformcore.fixture.member.MemberRegisterRequestFixture.getGeneralMember1RegisterRequest;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
@@ -11,6 +13,7 @@ import gdsc.konkuk.platformcore.domain.attendance.repository.AttendanceRepositor
 import gdsc.konkuk.platformcore.domain.attendance.repository.ParticipantRepository;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
+import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,9 +26,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 class MemberServiceTest {
 
   private MemberService subject;
-
-  @Mock
-  private Member member;
 
   @Mock
   private MemberRepository memberRepository;
@@ -42,26 +42,18 @@ class MemberServiceTest {
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    subject =
-        new MemberService(
-            passwordEncoder, memberRepository, attendanceRepository, participantRepository);
+    subject = new MemberService(passwordEncoder, memberRepository, attendanceRepository, participantRepository);
   }
 
   @Test
   @DisplayName("Register : 새로운 멤버 회원가입 성공")
   void should_success_when_newMember_register() {
     // given
-    MemberRegisterRequest memberRegisterRequest =
-      MemberRegisterRequest.builder()
-        .memberId("202011288")
-        .password("password")
-        .email("example@konkuk.ac.kr")
-        .name("홍길동")
-        .batch("24-25")
-        .build();
-    given(memberRepository.findByMemberId(any())).willReturn(Optional.empty());
-    given(memberRepository.save(any(Member.class))).willReturn(member);
-    given(passwordEncoder.encode(any())).willReturn("password");
+    MemberRegisterRequest memberRegisterRequest = getGeneralMember1RegisterRequest();
+    Member memberToRegister = getGeneralMemberFixture1();
+    given(memberRepository.findByMemberId(memberRegisterRequest.getMemberId())).willReturn(Optional.empty());
+    given(memberRepository.save(any(Member.class))).willReturn(memberToRegister);
+    given(passwordEncoder.encode(memberRegisterRequest.getPassword())).willReturn(memberToRegister.getPassword());
 
     // when
     Member actual = subject.register(memberRegisterRequest);
@@ -74,16 +66,10 @@ class MemberServiceTest {
   @DisplayName("Register : 이미 존재하는 멤버 회원가입 실패")
   void should_fail_when_already_exist_member_register() {
     // given
-    MemberRegisterRequest memberRegisterRequest =
-      MemberRegisterRequest.builder()
-        .memberId("202011288")
-        .password("password")
-        .email("example@konkuk.ac.kr")
-        .name("홍길동")
-        .batch("24-25")
-        .build();
-    given(memberRepository.findByMemberId(any()))
-      .willReturn(Optional.of(MemberRegisterRequest.toEntity(memberRegisterRequest)));
+    MemberRegisterRequest memberRegisterRequest = getGeneralMember1RegisterRequest();
+    Member alreadyRegisteredMember = getGeneralMemberFixture1();
+    given(memberRepository.findByMemberId(memberRegisterRequest.getMemberId()))
+        .willReturn(Optional.of(alreadyRegisteredMember));
 
     // when
     Executable action = () -> subject.register(memberRegisterRequest);
@@ -96,32 +82,23 @@ class MemberServiceTest {
   @DisplayName("withdraw : 존재하는 멤버 탈퇴 성공")
   void should_success_when_user_exists() {
     // given
-    Long targetId = 1L;
-    Member member =
-      Member.builder()
-        .id(1L)
-        .memberId("202011288")
-        .password("password")
-        .name("문다훈")
-        .email("example@gmail.com")
-        .batch("24-25")
-        .build();
-    given(memberRepository.findById(any(Long.class))).willReturn(Optional.of(member));
+    Member memberToDelete = getGeneralMemberFixture1();
+    given(memberRepository.findById(memberToDelete.getId())).willReturn(Optional.of(memberToDelete));
 
     // when
-    subject.withdraw(targetId);
+    subject.withdraw(memberToDelete.getId());
 
     // then
-    assertTrue(member.isMemberDeleted());
-    assertNotNull(member.getSoftDeletedAt());
+    assertTrue(memberToDelete.isMemberDeleted());
+    assertNotNull(memberToDelete.getSoftDeletedAt());
   }
 
   @Test
   @DisplayName("withdraw : 존재하지 않는 멤버 탈퇴 실패")
   void should_fail_when_user_not_exists() {
     // given
-    Long targetId = 1L;
-    given(memberRepository.findById(any(Long.class))).willReturn(Optional.empty());
+    Long targetId = MemberFixture.GENERAL_1_ID;
+    given(memberRepository.findById(targetId)).willReturn(Optional.empty());
 
     // when
     Executable action = () -> subject.withdraw(targetId);
@@ -134,21 +111,13 @@ class MemberServiceTest {
   @DisplayName("withdraw : 이미 삭제된 멤버 탈퇴 실패")
   void should_fail_when_user_already_deleted() {
     // given
-    Long targetId = 1L;
-    Member member =
-      Member.builder()
-        .id(1L)
-        .memberId("202011288")
-        .password("password")
-        .name("문다훈")
-        .email("example@gmail.com")
-        .batch("24-25")
-        .build();
-    given(memberRepository.findById(any(Long.class))).willReturn(Optional.of(member));
+    Member memberAlreadyDeleted = spy(getGeneralMemberFixture1());
+    given(memberRepository.findById(memberAlreadyDeleted.getId())).willReturn(Optional.of(memberAlreadyDeleted));
+    given(memberAlreadyDeleted.isMemberDeleted()).willReturn(true);
 
     // when `Member` soft deleted
-    subject.withdraw(targetId);
-    Executable action = () -> subject.withdraw(targetId);
+    subject.withdraw(memberAlreadyDeleted.getId());
+    Executable action = () -> subject.withdraw(memberAlreadyDeleted.getId());
 
     // then
     assertThrows(UserAlreadyDeletedException.class, action);

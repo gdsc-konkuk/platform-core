@@ -1,6 +1,7 @@
 package gdsc.konkuk.platformcore.controller.auth;
 
 import static com.epages.restdocs.apispec.ResourceDocumentation.*;
+import static gdsc.konkuk.platformcore.fixture.member.MemberFixture.getGeneralMemberFixture1;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
 
@@ -13,6 +14,7 @@ import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import gdsc.konkuk.platformcore.annotation.WithCustomUser;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
+import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -59,23 +61,16 @@ class AuthControllerTest {
   @WithCustomUser
   void loginSuccess() throws Exception {
     // given
-    given(memberRepository.findByMemberId(any()))
-      .willReturn(
-        Optional.of(
-          Member.builder()
-            .memberId("202011288")
-            .password(passwordEncoder.encode("gdscgdsc"))
-            .name("우이산")
-            .email("helloworld@gmail.com")
-            .batch("24-25")
-            .build()));
+    Member memberToLogin = getGeneralMemberFixture1();
+    given(memberRepository.findByMemberId(MemberFixture.GENERAL_1_MEMBER_ID))
+      .willReturn(Optional.of(memberToLogin));
 
     // when
     ResultActions result =
       mockMvc.perform(
         RestDocumentationRequestBuilders.multipart("/login")
-          .formField("id", "202011288")
-          .formField("password", "gdscgdsc")
+          .formField("id", MemberFixture.GENERAL_1_MEMBER_ID)
+          .formField("password", MemberFixture.GENERAL_PASSWORD)
           .contentType("application/x-www-form-urlencoded")
           .characterEncoding("UTF-8")
           .with(csrf()));
@@ -105,8 +100,8 @@ class AuthControllerTest {
     ResultActions result =
       mockMvc.perform(
         RestDocumentationRequestBuilders.multipart("/login")
-          .formField("id", "202011288")
-          .formField("password", "wrongpassword")
+          .formField("id", MemberFixture.GENERAL_1_MEMBER_ID)
+          .formField("password", MemberFixture.WRONG_PASSWORD)
           .contentType("application/x-www-form-urlencoded")
           .characterEncoding("UTF-8")
           .with(csrf()));
