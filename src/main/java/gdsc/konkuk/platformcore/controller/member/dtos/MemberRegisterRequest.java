@@ -18,6 +18,9 @@ public class MemberRegisterRequest {
   private String name;
   @NotEmpty
   private String email;
+  @NotEmpty
+  private String department;
+  @NotEmpty
   private String batch;
 
   public static Member toEntity(MemberRegisterRequest request) {
@@ -26,6 +29,7 @@ public class MemberRegisterRequest {
       .password(request.getPassword())
       .name(request.getName())
       .email(request.getEmail())
+      .department(request.getDepartment())
       .batch(request.getBatch())
       .build();
   }
