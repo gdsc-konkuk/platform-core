@@ -1,6 +1,6 @@
 package gdsc.konkuk.platformcore.controller.email.dtos;
 
-import gdsc.konkuk.platformcore.domain.email.entity.EmailDetails;
+import gdsc.konkuk.platformcore.domain.email.entity.EmailDetail;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -26,13 +26,12 @@ public class SimpleEmailTaskResponse {
   }
 
   public static SimpleEmailTaskResponse from(EmailTask emailTask) {
-    EmailDetails emailDetails = emailTask.getEmailDetails();
+    EmailDetail emailDetail = emailTask.getEmailDetail();
     Set<EmailReceiverInfo> receiverInfos =
         EmailReceiverInfo.fromValueObject(emailTask.getEmailReceivers());
-
     return SimpleEmailTaskResponse.builder()
         .id(emailTask.getId())
-        .subject(emailDetails.getSubject())
+        .subject(emailDetail.getSubject())
         .receiverInfos(receiverInfos)
         .sendAt(emailTask.getSendAt())
         .isSent(emailTask.isSent())
