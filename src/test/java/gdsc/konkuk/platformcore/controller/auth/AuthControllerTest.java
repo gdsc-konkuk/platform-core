@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
+import gdsc.konkuk.platformcore.annotation.WithCustomUser;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
 import java.util.Optional;
@@ -24,7 +25,6 @@ import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -56,7 +56,7 @@ class AuthControllerTest {
 
   @Test
   @DisplayName("사용자 로그인 성공")
-  @WithMockUser
+  @WithCustomUser
   void loginSuccess() throws Exception {
     // given
     given(memberRepository.findByMemberId(any()))
@@ -96,7 +96,7 @@ class AuthControllerTest {
 
   @Test
   @DisplayName("사용자 로그인 실패")
-  @WithMockUser
+  @WithCustomUser
   void loginFail() throws Exception {
     // given
     given(memberRepository.findByMemberId(any())).willReturn(Optional.empty());

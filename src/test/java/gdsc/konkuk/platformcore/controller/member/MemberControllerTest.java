@@ -15,7 +15,7 @@ import gdsc.konkuk.platformcore.application.attendance.dtos.MemberAttendanceInfo
 import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendances;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gdsc.konkuk.platformcore.annotation.CustomMockUser;
+import gdsc.konkuk.platformcore.annotation.WithCustomUser;
 import gdsc.konkuk.platformcore.application.member.MemberService;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistException;
 import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateInfo;
@@ -36,7 +36,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -67,7 +66,7 @@ class MemberControllerTest {
 
   @Test
   @DisplayName("멤버 로그인 여부 확인")
-  @WithMockUser
+  @WithCustomUser
   void should_success_when_check_login() throws Exception {
     // when
     ResultActions result =
@@ -97,6 +96,7 @@ class MemberControllerTest {
 
   @Test
   @DisplayName("새로운 멤버 회원 가입 성공")
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_success_when_newMember() throws Exception {
     // given
     MemberRegisterRequest memberRegisterRequest =
@@ -146,6 +146,7 @@ class MemberControllerTest {
 
   @Test
   @DisplayName("이미 존재하는 유저 회원 가입 실패")
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_fail_when_existingMember() throws Exception {
     // given
     MemberRegisterRequest memberRegisterRequest =
@@ -173,7 +174,7 @@ class MemberControllerTest {
 
   @Test
   @DisplayName("회원 탈퇴 성공")
-  @CustomMockUser
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_success_when_delete_member() throws Exception {
     // given
 
@@ -202,7 +203,7 @@ class MemberControllerTest {
 
   @Test
   @DisplayName("특정 배치의 특정 월의 멤버 출석 정보 조회 성공")
-  @CustomMockUser
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_success_when_get_attendances_by_batch() throws Exception {
     // given
     // TODO: fixture로 변경
@@ -368,7 +369,7 @@ class MemberControllerTest {
 
   @Test
   @DisplayName("특정 배치의 특정 월의 멤버 출석 정보 수정 성공")
-  @CustomMockUser
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_success_when_update_attendances_by_batch() throws Exception {
     // given
     List<AttendanceUpdateInfo> attendanceUpdateInfoList =

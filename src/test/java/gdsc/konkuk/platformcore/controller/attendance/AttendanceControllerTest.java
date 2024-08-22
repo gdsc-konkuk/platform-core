@@ -3,6 +3,7 @@ package gdsc.konkuk.platformcore.controller.attendance;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import gdsc.konkuk.platformcore.annotation.WithCustomUser;
 import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
 import gdsc.konkuk.platformcore.application.attendance.dtos.AttendanceStatus;
 import gdsc.konkuk.platformcore.application.event.EventService;
@@ -11,6 +12,8 @@ import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceRegisterReq
 import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Participant;
 
+import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
+import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +27,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -76,7 +78,7 @@ class AttendanceControllerTest {
 
   @Test
   @DisplayName("특정 달의 출석 정보를 조회할 수 있다")
-  @WithMockUser
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_get_events_of_the_month_when_pass_year_month() throws Exception {
     // given
     given(eventService.getEventsOfTheMonthWithAttendance(any(LocalDate.class)))
@@ -121,7 +123,7 @@ class AttendanceControllerTest {
 
   @Test
   @DisplayName("이벤트에 출석할 수 있다")
-  @WithMockUser
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_attend_when_pass_event_id_and_member_id() throws Exception {
     // given
     Attendance attendance = Attendance.builder()
@@ -165,11 +167,11 @@ class AttendanceControllerTest {
 
   @Test
   @DisplayName("이벤트 출석을 등록할 수 있다")
-  @WithMockUser
+  @WithCustomUser
   void should_register_attendance_when_pass_event_id() throws Exception {
     // given
     AttendanceRegisterRequest registerRequest =
-        AttendanceRegisterRequest.builder().eventId(1L).batch("24-25").build();
+        AttendanceRegisterRequest.builder().eventId(1L).batch(MemberFixture.BATCH).build();
     given(attendanceService.registerAttendance(any())).willReturn(mockAttendance);
     given(mockAttendance.getActiveQrUuid()).willReturn("uuid");
     given(mockAttendance.getId()).willReturn(1L);
@@ -206,7 +208,7 @@ class AttendanceControllerTest {
 
   @Test
   @DisplayName("출석 현황을 조회할 수 있다")
-  @WithMockUser
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_get_attendance_status_when_pass_attendance_id() throws Exception {
     // given
     given(attendanceService.getAttendanceStatus(any(Long.class)))
@@ -243,7 +245,7 @@ class AttendanceControllerTest {
 
   @Test
   @DisplayName("이벤트 출석을 삭제할 수 있다")
-  @WithMockUser
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_delete_attendance_when_pass_event_id() throws Exception {
     // given
     doNothing().when(attendanceService).deleteAttendance(any(Long.class));
@@ -273,7 +275,7 @@ class AttendanceControllerTest {
 
   @Test
   @DisplayName("QR 코드를 생성할 수 있다")
-  @WithMockUser
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_generate_qr_when_pass_attendance_id() throws Exception {
     // given
     given(attendanceService.generateQr(any(Long.class))).willReturn(mockAttendance);
@@ -312,7 +314,7 @@ class AttendanceControllerTest {
 
   @Test
   @DisplayName("QR 코드를 만료시킬 수 있다")
-  @WithMockUser
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_expire_qr_when_pass_attendance_id_and_qr_uuid() throws Exception {
     // given
     doNothing().when(attendanceService).expireQr(any(Long.class));

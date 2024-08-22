@@ -21,6 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gdsc.konkuk.platformcore.annotation.WithCustomUser;
 import gdsc.konkuk.platformcore.application.event.dtos.EventBrief;
 import gdsc.konkuk.platformcore.application.event.EventService;
 import gdsc.konkuk.platformcore.controller.event.dtos.EventBriefResponse;
@@ -30,6 +31,8 @@ import gdsc.konkuk.platformcore.controller.event.dtos.EventUpdateRequest;
 import gdsc.konkuk.platformcore.controller.event.dtos.RetrospectUpdateRequest;
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
 import gdsc.konkuk.platformcore.domain.event.entity.Retrospect;
+import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
+import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -45,7 +48,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
@@ -80,7 +82,7 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("모든 이벤트를 간략 조회할 수 있다")
-  @WithMockUser
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_get_all_events_when_request() throws Exception {
     // given
     given(eventService.getAllBriefs())
@@ -141,7 +143,7 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("특정 이벤트를 상세 조회할 수 있다")
-  @WithMockUser
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_get_event_detail_when_pass_event_id() throws Exception {
     // given
     given(eventService.getEvent(any(Long.class)))
@@ -195,7 +197,7 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("이벤트를 등록할 수 있다")
-  @WithMockUser
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_register_event_when_requested() throws Exception {
     // given
     EventRegisterRequest eventRegisterRequest =
@@ -270,7 +272,7 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("이벤트를 수정할 수 있다")
-  @WithMockUser
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_update_event_when_requested() throws Exception {
     // given
     EventUpdateRequest eventUpdateRequest =
@@ -361,8 +363,8 @@ public class EventControllerTest {
   }
 
   @Test
-  @WithMockUser
   @DisplayName("회고 수정 성공")
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_update_retrospect_when_pass_content() throws Exception {
     // given
     RetrospectUpdateRequest retrospectUpdateRequest =
@@ -400,8 +402,8 @@ public class EventControllerTest {
   }
 
   @Test
-  @WithMockUser
   @DisplayName("이벤트 삭제 성공")
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_delete_event_when_pass_event_id() throws Exception {
     // given
     doNothing().when(eventService).delete(any(Long.class));

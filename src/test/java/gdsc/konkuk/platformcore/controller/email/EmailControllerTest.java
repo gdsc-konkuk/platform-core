@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gdsc.konkuk.platformcore.annotation.CustomMockUser;
+import gdsc.konkuk.platformcore.annotation.WithCustomUser;
 import gdsc.konkuk.platformcore.annotation.RestDocsTest;
 import gdsc.konkuk.platformcore.application.email.EmailService;
 import gdsc.konkuk.platformcore.application.email.EmailTaskFacade;
@@ -23,6 +23,8 @@ import gdsc.konkuk.platformcore.domain.email.entity.EmailDetails;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
+import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
+import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -68,7 +70,7 @@ class EmailControllerTest {
 
   @Test
   @DisplayName("이메일 전송 작업 등록 성공")
-  @CustomMockUser
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_success_when_send_email() throws Exception {
     //given
     EmailSendRequest request = EmailSendRequest.builder()
@@ -117,7 +119,7 @@ class EmailControllerTest {
 
   @Test
   @DisplayName("이메일 등록 내용 수정")
-  @CustomMockUser
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_success_when_update_emailTask() throws Exception {
     //given
     EmailSendRequest request = EmailSendRequest.builder()
@@ -159,7 +161,7 @@ class EmailControllerTest {
 
   @Test
   @DisplayName("이메일 전송 조회 - 모든 이메일 전송 작업 조회")
-  @CustomMockUser
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_success_when_get_all_task() throws Exception {
     //given
     EmailDetails emailDetails = new EmailDetails("예시 이메일 제목", "Html 문자열");
@@ -204,7 +206,7 @@ class EmailControllerTest {
 
   @Test
   @DisplayName("이메일 전송 조회 - 특정 이메일 전송 작업 세부내용 조회")
-  @CustomMockUser
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_success_when_get_specific_task() throws Exception {
     //given
     EmailDetails emailDetails = new EmailDetails("예시 이메일 제목", "Html 문자열");
@@ -249,7 +251,7 @@ class EmailControllerTest {
 
   @Test
   @DisplayName("등록된 이메일 작업을 취소한다.")
-  @CustomMockUser
+  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_success_when_cancel_registered_task() throws Exception {
     //given
     doNothing().when(emailTaskFacade).cancel(any());
