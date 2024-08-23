@@ -3,9 +3,13 @@ package gdsc.konkuk.platformcore.controller.event;
 import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static gdsc.konkuk.platformcore.fixture.event.EventBriefResponseFixture.getEventBriefResponseFixture;
+import static gdsc.konkuk.platformcore.fixture.event.EventFixture.getEventFixture1;
+import static gdsc.konkuk.platformcore.fixture.event.EventRegisterRequestFixture.getEventFixture1RegisterRequest;
+import static gdsc.konkuk.platformcore.fixture.event.EventUpdateRequestFixture.getEventFixture1UpdateRequest;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.MockitoAnnotations.openMocks;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -22,25 +26,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gdsc.konkuk.platformcore.annotation.WithCustomUser;
-import gdsc.konkuk.platformcore.application.event.dtos.EventBrief;
 import gdsc.konkuk.platformcore.application.event.EventService;
-import gdsc.konkuk.platformcore.controller.event.dtos.EventBriefResponse;
 import gdsc.konkuk.platformcore.controller.event.dtos.EventDetailResponse;
 import gdsc.konkuk.platformcore.controller.event.dtos.EventRegisterRequest;
 import gdsc.konkuk.platformcore.controller.event.dtos.EventUpdateRequest;
 import gdsc.konkuk.platformcore.controller.event.dtos.RetrospectUpdateRequest;
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
-import gdsc.konkuk.platformcore.domain.event.entity.Retrospect;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
-import java.net.URL;
-import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -60,9 +58,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class EventControllerTest {
 
   private MockMvc mockMvc;
-
-  @Mock Event event;
-  @Mock Retrospect retrospect;
 
   @MockBean private EventService eventService;
 
@@ -85,37 +80,13 @@ public class EventControllerTest {
   @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_get_all_events_when_request() throws Exception {
     // given
-    given(eventService.getAllBriefs())
-        .willReturn(
-            EventBriefResponse.builder()
-                .eventBriefs(
-                    List.of(
-                        EventBrief.builder()
-                            .id(1L)
-                            .title("test event1")
-                            .content("test event content")
-                            .startAt(LocalDateTime.now())
-                            .thumbnail(new URL("https://foo.com/bar/baz.jpg"))
-                            .build(),
-                        EventBrief.builder()
-                            .id(2L)
-                            .title("test event2")
-                            .content("test event content 2")
-                            .startAt(LocalDateTime.now())
-                            .thumbnail(new URL("https://foo.com/bar/baz.jpg"))
-                            .build(),
-                        EventBrief.builder()
-                            .id(3L)
-                            .title("test event3")
-                            .content("test event content")
-                            .startAt(LocalDateTime.now())
-                            .thumbnail(new URL("https://foo.com/bar/baz.jpg"))
-                            .build()))
-                .build());
+    given(eventService.getAllBriefs()).willReturn(getEventBriefResponseFixture());
 
     // when
     ResultActions result =
-        mockMvc.perform(RestDocumentationRequestBuilders.get("/api/v1/events").with(csrf()));
+        mockMvc.perform(RestDocumentationRequestBuilders
+            .get("/api/v1/events")
+            .with(csrf()));
 
     // then
     result
@@ -137,7 +108,7 @@ public class EventControllerTest {
                             fieldWithPath("data.eventBriefs[].title").description("이벤트 제목"),
                             fieldWithPath("data.eventBriefs[].content").description("이벤트 내용"),
                             fieldWithPath("data.eventBriefs[].startAt").description("이벤트 시작 시간"),
-                            fieldWithPath("data.eventBriefs[].thumbnail").description("썸네일 URL"))
+                            fieldWithPath("data.eventBriefs[].thumbnail").description("썸네일 URL").optional())
                         .build())));
   }
 
@@ -146,26 +117,15 @@ public class EventControllerTest {
   @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_get_event_detail_when_pass_event_id() throws Exception {
     // given
-    given(eventService.getEvent(any(Long.class)))
-        .willReturn(
-            EventDetailResponse.builder()
-                .id(1L)
-                .title("test title")
-                .content("test content")
-                .location("test location")
-                .startAt(LocalDateTime.now())
-                .endAt(LocalDateTime.now().plusHours(2))
-                .images(
-                    List.of(
-                        new URL("https://foo.com/bar/baz1.jpg"),
-                        new URL("https://foo.com/bar/baz2.jpg"),
-                        new URL("https://foo.com/bar/baz3.png")))
-                .build());
+    Event eventToSee = getEventFixture1();
+    given(eventService.getEvent(eventToSee.getId())).willReturn(EventDetailResponse.fromEntity(eventToSee));
 
     // when
     ResultActions result =
         mockMvc.perform(
-            RestDocumentationRequestBuilders.get("/api/v1/events/{eventId}", 1L).with(csrf()));
+            RestDocumentationRequestBuilders
+                .get("/api/v1/events/{eventId}", eventToSee.getId())
+                .with(csrf()));
 
     // then
     result
@@ -200,14 +160,10 @@ public class EventControllerTest {
   @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_register_event_when_requested() throws Exception {
     // given
-    EventRegisterRequest eventRegisterRequest =
-        EventRegisterRequest.builder()
-            .title("test title")
-            .content("test description")
-            .location("test location")
-            .startAt(LocalDateTime.now())
-            .endAt(LocalDateTime.now().plusHours(2))
-            .build();
+    EventRegisterRequest eventRegisterRequest = getEventFixture1RegisterRequest();
+    given(eventService.register(any(EventRegisterRequest.class), any(List.class)))
+        .willReturn(getEventFixture1());
+
     MockMultipartFile mockImages =
         new MockMultipartFile("images", "test.jpg", "image/jpeg", "test".getBytes());
     MockMultipartFile mockDetail =
@@ -216,20 +172,21 @@ public class EventControllerTest {
             "",
             "application/json",
             objectMapper.writeValueAsString(eventRegisterRequest).getBytes());
-    given(eventService.register(any(), any())).willReturn(this.event);
+    String mockRequestBodyForDocument =
+        objectMapper.writeValueAsString(
+            new Object() {
+              public final Object detail = eventRegisterRequest;
+              public final List<MultipartFile> images = List.of();
+            });
 
     // when
     ResultActions result =
         mockMvc.perform(
-            RestDocumentationRequestBuilders.multipart("/api/v1/events")
+            RestDocumentationRequestBuilders
+                .multipart("/api/v1/events")
                 .file(mockImages)
                 .file(mockDetail)
-                .content(
-                    objectMapper.writeValueAsString(
-                        new Object() {
-                          public Object detail = eventRegisterRequest;
-                          public List<MultipartFile> images = List.of();
-                        }))
+                .content(mockRequestBodyForDocument)
                 .with(csrf()));
 
     // then
@@ -275,15 +232,12 @@ public class EventControllerTest {
   @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_update_event_when_requested() throws Exception {
     // given
-    EventUpdateRequest eventUpdateRequest =
-        EventUpdateRequest.builder()
-            .title("test title")
-            .content("test description")
-            .startAt(LocalDateTime.now())
-            .endAt(LocalDateTime.now().plusHours(2))
-            .eventImagesToDelete(
-                List.of(new URL("https://s3.com/key1"), new URL("https://s3.com/key2")))
-            .build();
+    EventUpdateRequest eventUpdateRequest = getEventFixture1UpdateRequest();
+    Event eventToUpdate = getEventFixture1();
+    willDoNothing().given(eventService)
+//        .update(eventToUpdate.getId(), any(EventUpdateRequest.class), any(List.class));
+        .update(any(Long.class), any(EventUpdateRequest.class), any(List.class));
+
     MockMultipartFile mockImages =
         new MockMultipartFile("new-images", "test.jpg", "image/jpeg", "test".getBytes());
     MockMultipartFile mockDetail =
@@ -292,27 +246,29 @@ public class EventControllerTest {
             "",
             "application/json",
             objectMapper.writeValueAsString(eventUpdateRequest).getBytes());
-    doNothing().when(eventService).update(any(Long.class), any(EventUpdateRequest.class), any());
+    String mockRequestBodyForDocument =
+        objectMapper.writeValueAsString(
+            new Object() {
+              public final Object detail = eventUpdateRequest;
+              public final List<MultipartFile> newImages = List.of();
+            });
 
     // when
     MockMultipartHttpServletRequestBuilder putMultipartRestDocumentationRequestBuilder =
-        RestDocumentationRequestBuilders.multipart("/api/v1/events/{eventId}", 1L);
+        RestDocumentationRequestBuilders
+            .multipart("/api/v1/events/{eventId}", eventToUpdate.getId());
     putMultipartRestDocumentationRequestBuilder.with(
         request -> {
           request.setMethod("PATCH");
           return request;
         });
+
     ResultActions result =
         mockMvc.perform(
             putMultipartRestDocumentationRequestBuilder
                 .file(mockImages)
                 .file(mockDetail)
-                .content(
-                    objectMapper.writeValueAsString(
-                        new Object() {
-                          public Object detail = eventUpdateRequest;
-                          public List<MultipartFile> newImages = List.of();
-                        }))
+                .content(mockRequestBodyForDocument)
                 .with(csrf()));
 
     // then
@@ -367,14 +323,18 @@ public class EventControllerTest {
   @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_update_retrospect_when_pass_content() throws Exception {
     // given
-    RetrospectUpdateRequest retrospectUpdateRequest =
-        RetrospectUpdateRequest.builder().content("content").build();
-    doNothing().when(eventService).updateRetrospect(any(Long.class), any(String.class));
+    Event eventToUpdateRetrospect = getEventFixture1();
+    RetrospectUpdateRequest retrospectUpdateRequest = new RetrospectUpdateRequest("content");
+    willDoNothing().given(eventService)
+        .updateRetrospect(eventToUpdateRetrospect.getId(), "content");
 
     // when
     ResultActions result =
         mockMvc.perform(
-            RestDocumentationRequestBuilders.patch("/api/v1/events/{eventId}/retrospect", 1L)
+            RestDocumentationRequestBuilders
+                .patch(
+                    "/api/v1/events/{eventId}/retrospect",
+                    eventToUpdateRetrospect.getId())
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(retrospectUpdateRequest))
                 .with(csrf()));
@@ -406,12 +366,17 @@ public class EventControllerTest {
   @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_delete_event_when_pass_event_id() throws Exception {
     // given
-    doNothing().when(eventService).delete(any(Long.class));
+    Event eventToDelete = getEventFixture1();
+    willDoNothing().given(eventService).delete(eventToDelete.getId());
 
     // when
     ResultActions result =
         mockMvc.perform(
-            RestDocumentationRequestBuilders.delete("/api/v1/events/{eventId}", 1L).with(csrf()));
+            RestDocumentationRequestBuilders
+                .delete(
+                    "/api/v1/events/{eventId}",
+                    eventToDelete.getId())
+                .with(csrf()));
 
     // then
     result
