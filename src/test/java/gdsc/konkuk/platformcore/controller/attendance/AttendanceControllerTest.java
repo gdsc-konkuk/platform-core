@@ -7,12 +7,12 @@ import gdsc.konkuk.platformcore.annotation.WithCustomUser;
 import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
 import gdsc.konkuk.platformcore.application.attendance.dtos.AttendanceStatus;
 import gdsc.konkuk.platformcore.application.event.EventService;
-import gdsc.konkuk.platformcore.application.event.dtos.EventWithAttendance;
 import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceRegisterRequest;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
-import gdsc.konkuk.platformcore.domain.attendance.entity.Participant;
 
+import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
+import gdsc.konkuk.platformcore.fixture.event.EventFixture;
 import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
 import java.time.LocalDate;
 import java.util.List;
@@ -20,7 +20,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -35,9 +34,18 @@ import org.springframework.web.context.WebApplicationContext;
 import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static gdsc.konkuk.platformcore.fixture.Attendance.AttendanceFixture.getAttendanceFixtureActive;
+import static gdsc.konkuk.platformcore.fixture.Attendance.AttendanceFixture.getAttendanceFixtureInactive;
+import static gdsc.konkuk.platformcore.fixture.Attendance.AttendanceRegisterRequestFixture.getActiveAttendanceRegisterRequestFixture;
+import static gdsc.konkuk.platformcore.fixture.Attendance.ParticipantFixture.getParticipantFixtureAttend;
+import static gdsc.konkuk.platformcore.fixture.event.EventWithAttendanceFixture.getEventWithAttendanceFixture1;
+import static gdsc.konkuk.platformcore.fixture.event.EventWithAttendanceFixture.getEventWithAttendanceFixture2;
+import static gdsc.konkuk.platformcore.fixture.event.EventWithAttendanceFixture.getEventWithAttendanceFixture3;
+import static gdsc.konkuk.platformcore.fixture.member.MemberFixture.getGeneralMemberFixture1;
+import static java.lang.Integer.parseInt;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
@@ -56,9 +64,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AttendanceControllerTest {
 
   private MockMvc mockMvc;
-
-  @Mock
-  Attendance mockAttendance;
 
   @Autowired private ObjectMapper objectMapper;
 
@@ -81,18 +86,23 @@ class AttendanceControllerTest {
   @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_get_events_of_the_month_when_pass_year_month() throws Exception {
     // given
-    given(eventService.getEventsOfTheMonthWithAttendance(any(LocalDate.class)))
-        .willReturn(
-            List.of(
-                // TODO: Fixture 정리
-                EventWithAttendance.builder().attendanceId(0L).eventId(0L).build(),
-                EventWithAttendance.builder().attendanceId(1L).eventId(1L).build(),
-                EventWithAttendance.builder().attendanceId(2L).eventId(2L).build()));
+    given(eventService.getEventsOfTheMonthWithAttendance(
+        LocalDate.of(
+            parseInt(EventFixture.EVENT_YEAR),
+            parseInt(EventFixture.EVENT_MONTH),
+            1)
+    ))
+        .willReturn(List.of(
+                getEventWithAttendanceFixture1(),
+                getEventWithAttendanceFixture2(),
+                getEventWithAttendanceFixture3()));
 
     // when
     ResultActions result =
         mockMvc.perform(
-            RestDocumentationRequestBuilders.get("/api/v1/attendances?year=2021&month=1")
+            RestDocumentationRequestBuilders.get("/api/v1/attendances")
+                .queryParam("year", EventFixture.EVENT_YEAR)
+                .queryParam("month", EventFixture.EVENT_MONTH)
                 .with(csrf()));
 
     // then
@@ -115,30 +125,32 @@ class AttendanceControllerTest {
                             fieldWithPath("success").description("성공 여부"),
                             fieldWithPath("message").description("메시지"),
                             fieldWithPath("data[].eventId").description("이벤트 ID"),
+                            fieldWithPath("data[].attendanceId").description("출석 ID").optional(),
                             fieldWithPath("data[].title").description("이벤트 제목"),
-                            fieldWithPath("data[].attendanceId").description("출석 ID"),
                             fieldWithPath("data[].startAt").description("이벤트 시작 시간"))
                         .build())));
   }
 
   @Test
   @DisplayName("이벤트에 출석할 수 있다")
-  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_attend_when_pass_event_id_and_member_id() throws Exception {
     // given
-    Attendance attendance = Attendance.builder()
-        .id(1L)
-        .eventId(1L)
-        .build();
-    given(attendanceService.attend(any(), any(), any()))
-        .willReturn(new Participant(1L, attendance, true));
+    Member memberToAttend = getGeneralMemberFixture1();
+    Attendance attendanceToAttend = getAttendanceFixtureActive();
+    given(attendanceService.attend(
+        memberToAttend.getEmail(),
+        attendanceToAttend.getId(),
+        attendanceToAttend.getActiveQrUuid()))
+        .willReturn(getParticipantFixtureAttend());
 
     // when
     ResultActions result =
         mockMvc.perform(
             RestDocumentationRequestBuilders.get(
-                    "/api/v1/attendances/attend/{attendanceId}?qrUuid={uuid}", 1, "uuid")
-                .with(oidcLogin()));
+                    "/api/v1/attendances/attend/{attendanceId}", 1)
+                .queryParam("qrUuid", attendanceToAttend.getActiveQrUuid())
+                .with(oidcLogin()
+                    .idToken(token -> token.claim("email", memberToAttend.getEmail()))));
 
     // then
     result
@@ -170,11 +182,10 @@ class AttendanceControllerTest {
   @WithCustomUser
   void should_register_attendance_when_pass_event_id() throws Exception {
     // given
-    AttendanceRegisterRequest registerRequest =
-        AttendanceRegisterRequest.builder().eventId(1L).batch(MemberFixture.BATCH).build();
-    given(attendanceService.registerAttendance(any())).willReturn(mockAttendance);
-    given(mockAttendance.getActiveQrUuid()).willReturn("uuid");
-    given(mockAttendance.getId()).willReturn(1L);
+    AttendanceRegisterRequest registerRequest = getActiveAttendanceRegisterRequestFixture();
+    Attendance attendanceToRegister = getAttendanceFixtureActive();
+    given(attendanceService.registerAttendance(any(AttendanceRegisterRequest.class)))
+        .willReturn(attendanceToRegister);
 
     // when
     ResultActions result =
@@ -211,13 +222,16 @@ class AttendanceControllerTest {
   @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_get_attendance_status_when_pass_attendance_id() throws Exception {
     // given
-    given(attendanceService.getAttendanceStatus(any(Long.class)))
-        .willReturn(AttendanceStatus.of(1L, 10, 6));
+    Attendance attendanceToGetStatus = getAttendanceFixtureActive();
+    given(attendanceService.getAttendanceStatus(attendanceToGetStatus.getId()))
+        .willReturn(AttendanceStatus.of(attendanceToGetStatus.getId(), 10, 6));
 
     // when
     ResultActions result =
         mockMvc.perform(
-            RestDocumentationRequestBuilders.get("/api/v1/attendances/{attendanceId}/status", 1)
+            RestDocumentationRequestBuilders.get(
+                    "/api/v1/attendances/{attendanceId}/status",
+                    attendanceToGetStatus.getId())
                 .with(csrf()));
 
     // then
@@ -248,12 +262,15 @@ class AttendanceControllerTest {
   @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_delete_attendance_when_pass_event_id() throws Exception {
     // given
-    doNothing().when(attendanceService).deleteAttendance(any(Long.class));
+    Attendance attendanceToDelete = getAttendanceFixtureActive();
+    willDoNothing().given(attendanceService).deleteAttendance(attendanceToDelete.getId());
 
     // when
     ResultActions result =
         mockMvc.perform(
-            RestDocumentationRequestBuilders.delete("/api/v1/attendances/{attendanceId}", 1)
+            RestDocumentationRequestBuilders.delete(
+                    "/api/v1/attendances/{attendanceId}",
+                    attendanceToDelete.getId())
                 .with(csrf()));
 
     // then
@@ -278,15 +295,19 @@ class AttendanceControllerTest {
   @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_generate_qr_when_pass_attendance_id() throws Exception {
     // given
-    given(attendanceService.generateQr(any(Long.class))).willReturn(mockAttendance);
-    given(attendanceService.registerAttendance(any())).willReturn(mockAttendance);
-    given(mockAttendance.getActiveQrUuid()).willReturn("uuid");
-    given(mockAttendance.getId()).willReturn(1L);
+    Attendance attendanceToActive = getAttendanceFixtureInactive();
+    given(attendanceService.generateQr(attendanceToActive.getId()))
+        .willAnswer(invocation -> {
+          attendanceToActive.generateQr();
+          return attendanceToActive;
+        });
 
     // when
     ResultActions result =
         mockMvc.perform(
-            RestDocumentationRequestBuilders.post("/api/v1/attendances/{attendanceId}/qr", 1)
+            RestDocumentationRequestBuilders.post(
+                    "/api/v1/attendances/{attendanceId}/qr",
+                    attendanceToActive.getId())
                 .with(csrf()));
 
     // then
@@ -317,13 +338,15 @@ class AttendanceControllerTest {
   @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
   void should_expire_qr_when_pass_attendance_id_and_qr_uuid() throws Exception {
     // given
-    doNothing().when(attendanceService).expireQr(any(Long.class));
+    Attendance attendanceToInactive = getAttendanceFixtureActive();
+    willDoNothing().given(attendanceService).expireQr(attendanceToInactive.getId());
 
     // when
     ResultActions result =
         mockMvc.perform(
             RestDocumentationRequestBuilders.delete(
-                    "/api/v1/attendances/{attendanceId}/qr", 1)
+                    "/api/v1/attendances/{attendanceId}/qr",
+                    attendanceToInactive.getId())
                 .with(csrf()));
 
     // then
