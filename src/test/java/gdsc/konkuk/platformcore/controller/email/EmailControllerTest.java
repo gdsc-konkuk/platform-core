@@ -194,8 +194,8 @@ class EmailControllerTest {
             fieldWithPath("data.emailTasks").description("이메일 작업 목록"),
             fieldWithPath("data.emailTasks[].id").description("이메일 작업의 ID (Mock객체에 대해 null일 수 있음.)"),
             fieldWithPath("data.emailTasks[].subject").description("이메일 제목"),
-            fieldWithPath("data.emailTasks[].receiverInfos.email").description("수신자 email"),
-            fieldWithPath("data.emailTasks[].receiverInfos.name").description("수신자 이름"),
+            fieldWithPath("data.emailTasks[].receiverInfos[].email").description("수신자 email"),
+            fieldWithPath("data.emailTasks[].receiverInfos[].name").description("수신자 이름"),
             fieldWithPath("data.emailTasks[].sendAt").description("이메일 발송 예정 시간 (ISO 8601 형식)"),
             fieldWithPath("data.emailTasks[].isSent").description("이메일 발송 여부")
           ).build()))
