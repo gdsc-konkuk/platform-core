@@ -1,5 +1,6 @@
 package gdsc.konkuk.platformcore.fixture.member;
 
+import static gdsc.konkuk.platformcore.fixture.Attendance.AttendanceFixture.*;
 import static gdsc.konkuk.platformcore.fixture.event.EventFixture.*;
 import static gdsc.konkuk.platformcore.fixture.member.MemberFixture.*;
 
@@ -50,7 +51,7 @@ public class MemberAttendancesFixture {
   private static List<MemberAttendanceInfo> generateMemberAttendanceInfos(Long memberId, Long participantIdOffset){
     return List.of(
       MemberAttendanceInfo.builder()
-          .attendanceId(1L)
+          .attendanceId(ATTENDANCE_ACTIVE_ID)
           .memberId(memberId)
           .eventId(EVENT_1_ID)
           .participantId(participantIdOffset + 1L)
@@ -58,7 +59,7 @@ public class MemberAttendancesFixture {
           .isAttended(true)
           .build(),
       MemberAttendanceInfo.builder()
-          .attendanceId(2L)
+          .attendanceId(ATTENDANCE_INACTIVE_ID)
           .memberId(memberId)
           .eventId(EVENT_2_ID)
           .participantId(participantIdOffset + 2L)
@@ -66,7 +67,7 @@ public class MemberAttendancesFixture {
           .isAttended(false)
           .build(),
       MemberAttendanceInfo.builder()
-          .attendanceId(3L)
+          .attendanceId(ATTENDANCE_EMPTY_ID)
           .memberId(memberId)
           .eventId(EVENT_3_ID)
           .participantId(participantIdOffset + 3L)
