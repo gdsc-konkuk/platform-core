@@ -270,7 +270,7 @@ class MemberControllerTest {
             AttendanceUpdateInfo.builder().participantId(2L).isAttended(false).build(),
             AttendanceUpdateInfo.builder().participantId(3L).isAttended(true).build());
     AttendanceUpdateRequest attendanceUpdateRequest = new AttendanceUpdateRequest(attendanceUpdateInfoList);
-    doNothing().when(memberService).updateAttendances(
+    willDoNothing().given(memberService).updateAttendances(
             MemberFixture.BATCH,
             LocalDate.of(parseInt(EventFixture.EVENT_YEAR), parseInt(EventFixture.EVENT_MONTH), 1),
             attendanceUpdateInfoList);
