@@ -42,8 +42,6 @@ public class SecurityConfig {
   @Order(2)
   public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
-        // TODO: csrf, dev에서만 disable
-        .csrf(AbstractHttpConfigurer::disable)
         .cors(cors->cors.configurationSource(corsConfigurationSource()))
         .securityMatcher(
             apiPath("/members/**"),
@@ -58,13 +56,10 @@ public class SecurityConfig {
                 authorize
                     .requestMatchers("/docs/**")
                     .permitAll()
-                    // TODO: member register, dev에서만 permitAll
-                    .requestMatchers(HttpMethod.POST, apiPath("/members"))
-                    .permitAll()
-                    .requestMatchers(apiPath("/admin/**"))
-                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, apiPath("/members/check-login"))
+                    .authenticated()
                     .anyRequest()
-                    .authenticated())
+                    .hasRole("ADMIN"))
         .exceptionHandling(
             exception ->
                 exception.authenticationEntryPoint(
@@ -84,7 +79,6 @@ public class SecurityConfig {
   @Order(1)
   public SecurityFilterChain googleOidcFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
-        // TODO: csrf, dev에서만 disable
         .csrf(AbstractHttpConfigurer::disable)
         .securityMatcher(
             apiPath("/attendances/attend/**"),
