@@ -42,6 +42,7 @@ public class SecurityConfig {
   @Order(2)
   public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
+        .csrf(csrf -> csrf.ignoringRequestMatchers("/login"))
         .cors(cors->cors.configurationSource(corsConfigurationSource()))
         .securityMatcher(
             apiPath("/members/**"),
@@ -55,6 +56,8 @@ public class SecurityConfig {
             authorize ->
                 authorize
                     .requestMatchers("/docs/**")
+                    .permitAll()
+                    .requestMatchers("/login")
                     .permitAll()
                     .requestMatchers(HttpMethod.POST, apiPath("/members/check-login"))
                     .authenticated()
