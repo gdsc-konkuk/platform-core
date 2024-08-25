@@ -42,7 +42,7 @@ public class SecurityConfig {
   @Order(2)
   public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
-        .csrf(csrf -> csrf.ignoringRequestMatchers("/login"))
+        .csrf(AbstractHttpConfigurer::disable)
         .cors(cors->cors.configurationSource(corsConfigurationSource()))
         .securityMatcher(
             apiPath("/members/**"),
