@@ -118,7 +118,7 @@ public class SecurityConfig {
       .clientSecret(googleOidcConfig.getClientSecret())
       .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
       .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-      .redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
+      .redirectUri("https://{baseHost}{basePort}{basePath}/login/oauth2/code/{registrationId}")
       .scope("openid", "profile", "email")
       .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
       .tokenUri("https://www.googleapis.com/oauth2/v4/token")
