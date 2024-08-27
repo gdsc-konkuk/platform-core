@@ -7,12 +7,10 @@ import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceErro
 import gdsc.konkuk.platformcore.application.attendance.exceptions.QrInvalidException;
 import gdsc.konkuk.platformcore.application.event.EventService;
 import gdsc.konkuk.platformcore.application.event.dtos.EventWithAttendance;
-import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendSuccessResponse;
 import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceRegisterRequest;
 import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceResponse;
 import gdsc.konkuk.platformcore.application.attendance.dtos.AttendanceStatus;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
-import gdsc.konkuk.platformcore.domain.attendance.entity.Participant;
 import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
@@ -54,8 +52,8 @@ public class AttendanceController {
     @PathVariable Long attendanceId,
     @RequestParam String qrUuid,
     @AuthenticationPrincipal OidcUser oidcUser) {
-    Participant participant = attendanceService.attend(oidcUser.getEmail(), attendanceId, qrUuid);
-    return ResponseEntity.ok(SuccessResponse.of(AttendSuccessResponse.from(participant, attendanceId)));
+    attendanceService.attend(oidcUser.getEmail(), attendanceId, qrUuid);
+    return ResponseEntity.ok(SuccessResponse.messageOnly());
   }
 
   @PostMapping()
