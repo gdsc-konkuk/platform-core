@@ -1,19 +1,24 @@
 package gdsc.konkuk.platformcore.fixture.email;
 
+import static gdsc.konkuk.platformcore.global.utils.GetDefault.getDefault;
+
 import gdsc.konkuk.platformcore.domain.email.entity.EmailDetail;
+import lombok.Builder;
+import lombok.Getter;
 
+@Getter
 public class EmailDetailFixture {
-  public static final String EMAIL_SUBJECT = "subject";
-  public static final String EMAIL_CONTENT = """
-    안녕하세요 {이름}!
-    잘 지내시나요?
-    다시 볼 날을 기대할게요 {이름}!
-    """;
+  private final EmailDetail fixture;
 
-  public static EmailDetail getEmailDetailFixture() {
-    return EmailDetail.builder()
-        .subject(EMAIL_SUBJECT)
-        .content(EMAIL_CONTENT)
-        .build();
+  @Builder
+  public EmailDetailFixture(String subject, String content) {
+    this.fixture = EmailDetail.builder()
+      .subject(getDefault(subject, "subject"))
+      .content(getDefault(content, """
+        안녕하세요 {이름}!
+        잘 지내시나요?
+        다시 볼 날을 기대할게요 {이름}!
+        """))
+      .build();
   }
 }

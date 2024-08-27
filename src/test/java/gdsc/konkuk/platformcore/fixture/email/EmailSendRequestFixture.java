@@ -1,39 +1,26 @@
 package gdsc.konkuk.platformcore.fixture.email;
 
-import static gdsc.konkuk.platformcore.fixture.email.EmailDetailFixture.*;
-import static gdsc.konkuk.platformcore.fixture.email.EmailReceiverInfosFixture.getEmailReceiverInfoFixture1;
-import static gdsc.konkuk.platformcore.fixture.email.EmailReceiverInfosFixture.getEmailReceiverInfoFixture2;
-import static gdsc.konkuk.platformcore.fixture.email.EmailTaskFixture.*;
+import static gdsc.konkuk.platformcore.global.utils.GetDefault.getDefault;
 
+import gdsc.konkuk.platformcore.controller.email.dtos.EmailReceiverInfo;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
 import java.time.LocalDateTime;
+
 import java.util.Set;
+import lombok.Builder;
+import lombok.Getter;
 
+@Getter
 public class EmailSendRequestFixture {
-  public static EmailSendRequest getEmailTask1SendRequestFixture() {
-    return EmailSendRequest.builder()
-        .subject(EMAIL_SUBJECT)
-        .content(EMAIL_CONTENT)
-        .sendAt(EMAIL_TASK_SEND_AT)
-        .receiverInfos(Set.of(getEmailReceiverInfoFixture1(), getEmailReceiverInfoFixture2()))
-        .build();
-  }
+  private final EmailSendRequest fixture;
 
-  public static EmailSendRequest getEmailTask2SendRequestFixture() {
-    return EmailSendRequest.builder()
-        .subject(EMAIL_SUBJECT)
-        .content(EMAIL_CONTENT)
-        .sendAt(EMAIL_TASK_SEND_AT)
-        .receiverInfos(Set.of(getEmailReceiverInfoFixture1(), getEmailReceiverInfoFixture2()))
-        .build();
-  }
-
-  public static EmailSendRequest getEmailSendRequestWillSendAfterXSeconds(int seconds) {
-    return EmailSendRequest.builder()
-        .subject(EMAIL_SUBJECT)
-        .content(EMAIL_CONTENT)
-        .sendAt(LocalDateTime.now().plusSeconds(seconds))
-        .receiverInfos(Set.of(getEmailReceiverInfoFixture1(), getEmailReceiverInfoFixture2()))
-        .build();
+  @Builder
+  public EmailSendRequestFixture(String subject, String content, LocalDateTime sendAt, Set<EmailReceiverInfo> receiverInfos) {
+    this.fixture = EmailSendRequest.builder()
+      .subject(getDefault(subject, "subject"))
+      .content(getDefault(content, "content"))
+      .sendAt(getDefault(sendAt, LocalDateTime.now().plusHours(1)))
+      .receiverInfos(getDefault(receiverInfos, EmailReceiverInfosFixture.builder().build().getFixture()))
+      .build();
   }
 }

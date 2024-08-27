@@ -1,17 +1,26 @@
 package gdsc.konkuk.platformcore.fixture.member;
 
-import static gdsc.konkuk.platformcore.fixture.member.MemberFixture.*;
+import static gdsc.konkuk.platformcore.global.utils.GetDefault.getDefault;
 
 import gdsc.konkuk.platformcore.controller.member.dtos.MemberRegisterRequest;
+import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
+import lombok.Builder;
+import lombok.Getter;
 
+@Getter
 public class MemberRegisterRequestFixture {
-  public static MemberRegisterRequest getGeneralMember1RegisterRequest(){
-    return MemberRegisterRequest.builder()
-      .memberId(GENERAL_1_MEMBER_ID)
-      .password(GENERAL_PASSWORD)
-      .email(GENERAL_1_EMAIL)
-      .name(GENERAL_1_NAME)
-      .department(GENERAL_1_DEPARTMENT)
-      .batch(BATCH)
+  private final MemberRegisterRequest fixture;
+
+  @Builder
+  public MemberRegisterRequestFixture(String memberId, String password, String email, String name, String department, String batch, MemberRole role) {
+    this.fixture = MemberRegisterRequest.builder()
+      .memberId(getDefault(memberId, "2024000000"))
+      .password(getDefault(password, "password"))
+      .email(getDefault(email, "ex@gmail.com"))
+      .name(getDefault(name, "name"))
+      .department(getDefault(department, "department"))
+      .batch(getDefault(batch, "24-25"))
+      .role(getDefault(role, MemberRole.MEMBER).toString())
       .build();
-  }}
+  }
+}

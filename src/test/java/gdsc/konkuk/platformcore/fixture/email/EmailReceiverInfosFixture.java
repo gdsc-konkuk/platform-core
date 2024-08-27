@@ -1,21 +1,26 @@
 package gdsc.konkuk.platformcore.fixture.email;
 
-import static gdsc.konkuk.platformcore.fixture.email.EmailReceiverFixture.*;
+import static gdsc.konkuk.platformcore.global.utils.GetDefault.getDefault;
 
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailReceiverInfo;
+import java.util.Set;
+import lombok.Builder;
+import lombok.Getter;
 
+@Getter
 public class EmailReceiverInfosFixture {
-  public static EmailReceiverInfo getEmailReceiverInfoFixture1() {
-    return EmailReceiverInfo.builder()
-        .email(EMAIL_RECEIVER_1_EMAIL)
-        .name(EMAIL_RECEIVER_1_NAME)
-        .build();
-  }
+  private final Set<EmailReceiverInfo> fixture;
 
-  public static EmailReceiverInfo getEmailReceiverInfoFixture2() {
-    return EmailReceiverInfo.builder()
-        .email(EMAIL_RECEIVER_2_EMAIL)
-        .name(EMAIL_RECEIVER_2_NAME)
-        .build();
+  @Builder
+  public EmailReceiverInfosFixture(Set<EmailReceiverInfo> emailReceiverInfos) {
+    this.fixture = getDefault(emailReceiverInfos, Set.of(
+        EmailReceiverInfo.builder()
+          .email("ex1@gmail.com")
+          .name("guest1")
+          .build(),
+        EmailReceiverInfo.builder()
+          .email("ex2@gmail.com")
+          .name("guest2")
+          .build()));
   }
 }
