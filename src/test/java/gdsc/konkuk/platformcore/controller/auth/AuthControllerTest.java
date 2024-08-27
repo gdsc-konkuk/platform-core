@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
-import gdsc.konkuk.platformcore.annotation.WithCustomUser;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
 import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
@@ -58,7 +57,6 @@ class AuthControllerTest {
 
   @Test
   @DisplayName("사용자 로그인 성공")
-  @WithCustomUser
   void loginSuccess() throws Exception {
     // given
     Member memberToLogin = getGeneralMemberFixture1();
@@ -91,7 +89,6 @@ class AuthControllerTest {
 
   @Test
   @DisplayName("사용자 로그인 실패")
-  @WithCustomUser
   void loginFail() throws Exception {
     // given
     given(memberRepository.findByMemberId(any())).willReturn(Optional.empty());
