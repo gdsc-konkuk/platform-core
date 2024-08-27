@@ -12,18 +12,17 @@ import static org.springframework.test.util.AssertionErrors.assertNotNull;
 import static org.springframework.test.util.AssertionErrors.fail;
 
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailAlreadyProcessedException;
-import gdsc.konkuk.platformcore.controller.email.dtos.EmailReceiverInfo;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
 import gdsc.konkuk.platformcore.external.discord.DiscordClient;
 import gdsc.konkuk.platformcore.external.email.EmailClient;
 import gdsc.konkuk.platformcore.external.email.exceptions.EmailSendingException;
+import gdsc.konkuk.platformcore.fixture.email.EmailSendRequestFixture;
 import gdsc.konkuk.platformcore.global.exceptions.GlobalErrorCode;
 import gdsc.konkuk.platformcore.global.exceptions.TaskNotFoundException;
 import gdsc.konkuk.platformcore.global.scheduler.TaskInMemoryRepository;
 import java.time.LocalDateTime;
-import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -71,15 +70,9 @@ class EmailIntegrationTest {
   @Transactional
   void should_save_task_at_InMemoryTaskRepository() {
     // given
-    EmailSendRequest emailRequest =
-        EmailSendRequest.builder()
-            .subject("subject")
-            .content("content")
-            .receiverInfos(Set.of(
-                EmailReceiverInfo.builder().email("example1.com").name("guest1").build(),
-                EmailReceiverInfo.builder().email("example2.com").name("guest2").build()))
-            .sendAt(LocalDateTime.now().plusHours(1))
-            .build();
+    EmailSendRequest emailRequest = EmailSendRequestFixture.builder()
+        .sendAt(LocalDateTime.now().plusHours(1)).build()
+        .getFixture();
 
     // when
     EmailTask emailTask = emailTaskFacade.register(emailRequest);
@@ -95,26 +88,19 @@ class EmailIntegrationTest {
   @DisplayName("등록된 작업 스케줄된 시간에 실행 성공")
   void should_send_task_when_time_is_up() throws InterruptedException {
     // given
-    EmailSendRequest emailRequest =
-        EmailSendRequest.builder()
-            .subject("subject")
-            .content("content")
-            .receiverInfos(Set.of(
-                EmailReceiverInfo.builder().email("example1@gmail.com").name("guest1").build(),
-                EmailReceiverInfo.builder().email("example2@gmail.com").name("guest2").build()))
-            .sendAt(LocalDateTime.now().plusSeconds(5L))
-            .build();
+    EmailSendRequest emailRequest = EmailSendRequestFixture.builder()
+            .sendAt(LocalDateTime.now().plusSeconds(5)).build()
+            .getFixture();
 
     // when
     emailTaskFacade.register(emailRequest);
-    sleep(10000);
+    sleep(10_000);
 
     // then
     verify(emailClient).sendEmailToReceivers(any(EmailTask.class));
     assertEquals(0, executor.getQueue().size());
     assertEquals(0, taskInMemoryRepository.size());
   }
-
 
   /*
   * 1. 작업 예약
@@ -125,38 +111,25 @@ class EmailIntegrationTest {
   @DisplayName("작업 수정 시 스케줄된 작업 취소 후 다시 스케줄")
   void should_cancel_and_schedule_new_when_update() {
     // given
-    EmailSendRequest emailRequest =
-        EmailSendRequest.builder()
-            .subject("subject")
-            .content("content")
-            .receiverInfos(Set.of(
-                EmailReceiverInfo.builder().email("example1.com").name("guest1").build(),
-                EmailReceiverInfo.builder().email("example2.com").name("guest2").build()))
-            .sendAt(LocalDateTime.now().plusHours(1))
-            .build();
-    EmailTask emailTask = emailTaskFacade.register(emailRequest);
-
+    EmailTask emailTaskToUpdate = emailTaskFacade.register(
+        EmailSendRequestFixture.builder()
+            .sendAt(LocalDateTime.now().plusMinutes(30)).build()
+            .getFixture());
     assertEquals(1, executor.getQueue().size());
     assertEquals(1, taskInMemoryRepository.size());
 
-    EmailSendRequest updatedRequest =
-        EmailSendRequest.builder()
-            .subject("subject")
-            .content("content")
-            .receiverInfos(Set.of(
-                EmailReceiverInfo.builder().email("example1.com").name("guest1").build(),
-                EmailReceiverInfo.builder().email("example2.com").name("guest2").build()))
-            .sendAt(LocalDateTime.now().plusHours(2))
-            .build();
+    EmailSendRequest updatedRequest = EmailSendRequestFixture.builder()
+        .sendAt(LocalDateTime.now().plusHours(1)).build()
+        .getFixture();
 
     // when
-    emailTaskFacade.update(emailTask.getId(), updatedRequest);
+    emailTaskFacade.update(emailTaskToUpdate.getId(), updatedRequest);
 
     // then
     assertEquals(1, executor.getQueue().size());
     assertNotNull(
         "Task Not Processed must remain in TaskRepository",
-        taskInMemoryRepository.getTask(String.valueOf(emailTask.getId())).getDelay(HOURS) > 1);
+        taskInMemoryRepository.getTask(String.valueOf(emailTaskToUpdate.getId())).getDelay(HOURS) > 1);
   }
 
   /*
@@ -169,15 +142,9 @@ class EmailIntegrationTest {
   @Transactional
   void should_cancel_task() {
     // given
-    EmailSendRequest emailRequest =
-        EmailSendRequest.builder()
-            .subject("subject")
-            .content("content")
-            .receiverInfos(Set.of(
-                EmailReceiverInfo.builder().email("example1.com").name("guest1").build(),
-                EmailReceiverInfo.builder().email("example2.com").name("guest2").build()))
-            .sendAt(LocalDateTime.now().plusHours(1))
-            .build();
+    EmailSendRequest emailRequest = EmailSendRequestFixture.builder()
+        .sendAt(LocalDateTime.now().plusHours(1)).build()
+        .getFixture();
     EmailTask emailTask = emailTaskFacade.register(emailRequest);
     assertEquals(1, executor.getQueue().size());
 
@@ -189,26 +156,20 @@ class EmailIntegrationTest {
     assertTrue(emailTaskRepository.findById(emailTask.getId()).isEmpty());
     assertThrows(
         TaskNotFoundException.class,
-        () -> taskInMemoryRepository.getTask("1"));
+        () -> taskInMemoryRepository.getTask(emailTask.getId().toString()));
   }
 
   @Test
   @DisplayName("이미 처리된 작업 취소 시도 시 예외 발생")
   void should_fail_when_cancel_already_processed_task() throws Exception {
     //given
-    EmailSendRequest emailRequest =
-        EmailSendRequest.builder()
-            .subject("subject")
-            .content("content")
-            .receiverInfos(Set.of(
-                EmailReceiverInfo.builder().email("example1.com").name("guest1").build(),
-                EmailReceiverInfo.builder().email("example2.com").name("guest2").build()))
-            .sendAt(LocalDateTime.now().plusSeconds(1L))
-            .build();
+    EmailSendRequest emailRequest = EmailSendRequestFixture.builder()
+        .sendAt(LocalDateTime.now().plusSeconds(1)).build()
+        .getFixture();
 
     //when
     EmailTask scheduledTask = emailTaskFacade.register(emailRequest);
-    sleep(2000);
+    sleep(2_000);
 
     //then
     try{
@@ -222,24 +183,19 @@ class EmailIntegrationTest {
   @Test
   void should_send_discord_message_when_email_sending_error() throws InterruptedException {
     //given
-    EmailSendRequest emailRequest =
-        EmailSendRequest.builder()
-            .subject("subject")
-            .content("content")
-            .receiverInfos(Set.of(
-                EmailReceiverInfo.builder().email("example1.com").name("guest1").build(),
-                EmailReceiverInfo.builder().email("example2.com").name("guest2").build()))
-            .sendAt(LocalDateTime.now().plusSeconds(1L))
-            .build();
+    EmailSendRequest emailRequest = EmailSendRequestFixture.builder()
+        .sendAt(LocalDateTime.now().plusSeconds(1)).build()
+        .getFixture();
+
     doThrow(EmailSendingException.of(GlobalErrorCode.INTERNAL_SERVER_ERROR))
-        .when(emailClient).sendEmailToReceivers(any());
+        .when(emailClient).sendEmailToReceivers(any(EmailTask.class));
 
     //when
-    EmailTask scheduledTask = emailTaskFacade.register(emailRequest);
+    emailTaskFacade.register(emailRequest);
     sleep(2000);
 
     //then
-    verify(emailClient).sendEmailToReceivers(any());
+    verify(emailClient).sendEmailToReceivers(any(EmailTask.class));
     verify(discordClient).sendErrorMessage(any());
   }
 }

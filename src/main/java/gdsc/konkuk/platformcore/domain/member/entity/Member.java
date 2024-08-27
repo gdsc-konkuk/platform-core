@@ -61,7 +61,7 @@ public class Member {
 
   @Enumerated(EnumType.STRING)
   @Column(name = "member_role")
-  private MemberRole role = MemberRole.MEMBER;
+  private MemberRole role;
 
   @Column(name = "batch")
   private String batch;
@@ -91,6 +91,7 @@ public class Member {
       String email,
       //      String profileImageUrl,
       String department,
+      String role,
       String batch) {
     this.id = id;
     this.memberId = validateNotNull(memberId, "memberId");
@@ -98,7 +99,8 @@ public class Member {
     this.name = validateNotNull(name, "name");
     this.email = validateNotNull(email, "email");
     //    this.profileImageUrl = profileImageUrl;
-    this.department = department;
-    this.batch = batch;
+    this.department = validateNotNull(department, "department");
+    this.role = (role != null) ? MemberRole.from(role) : MemberRole.MEMBER;
+    this.batch = validateNotNull(batch, "batch");
   }
 }

@@ -27,7 +27,7 @@ public class EmailTask {
   @Column(name = "task_id")
   private Long id;
 
-  @Embedded private EmailDetails emailDetails;
+  @Embedded private EmailDetail emailDetail;
 
   @Embedded private EmailReceivers emailReceivers;
 
@@ -39,15 +39,15 @@ public class EmailTask {
 
   @Builder
   public EmailTask(
-      Long id, EmailDetails emailDetails, EmailReceivers receivers, LocalDateTime sendAt) {
+      Long id, EmailDetail emailDetail, EmailReceivers receivers, LocalDateTime sendAt) {
     this.id = id;
-    this.emailDetails = validateNotNull(emailDetails, "emailDetails");
+    this.emailDetail = validateNotNull(emailDetail, "emailDetails");
     this.emailReceivers = validateNotNull(receivers, "emailReceivers");
     this.sendAt = validateNotNull(sendAt, "sendAt");
   }
 
-  public void changeEmailDetails(final EmailDetails newEmailDetails) {
-    emailDetails = newEmailDetails;
+  public void changeEmailDetails(final EmailDetail newEmailDetail) {
+    emailDetail = newEmailDetail;
   }
 
   public void changeEmailReceivers(final Set<EmailReceiver> set) {
