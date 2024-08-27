@@ -24,10 +24,7 @@ GDSC Konkuk이 매 기수 성장하며 건국대학교의 활발한 학생 개�
 
 ### Architecture
 
-**이 부분을 Diagram Image로!**
-
-AWS EC2 + S3 / Nginx / Docker /
-Github Actions / Sonar Cloud / Discord
+![image](https://github.com/user-attachments/assets/2fab3b13-1aec-4c2f-ad23-3892be3d617d)
 
 ### 기술 스택
 
