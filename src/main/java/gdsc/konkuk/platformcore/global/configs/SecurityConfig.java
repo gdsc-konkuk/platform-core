@@ -42,7 +42,6 @@ public class SecurityConfig {
   @Order(2)
   public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
-        // TODO: csrf, dev에서만 disable
         .csrf(AbstractHttpConfigurer::disable)
         .cors(cors->cors.configurationSource(corsConfigurationSource()))
         .securityMatcher(
@@ -58,13 +57,12 @@ public class SecurityConfig {
                 authorize
                     .requestMatchers("/docs/**")
                     .permitAll()
-                    // TODO: member register, dev에서만 permitAll
-                    .requestMatchers(HttpMethod.POST, apiPath("/members"))
+                    .requestMatchers("/login")
                     .permitAll()
-                    .requestMatchers(apiPath("/admin/**"))
-                    .hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, apiPath("/members/check-login"))
+                    .authenticated()
                     .anyRequest()
-                    .authenticated())
+                    .hasRole("ADMIN"))
         .exceptionHandling(
             exception ->
                 exception.authenticationEntryPoint(
@@ -84,7 +82,6 @@ public class SecurityConfig {
   @Order(1)
   public SecurityFilterChain googleOidcFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
-        // TODO: csrf, dev에서만 disable
         .csrf(AbstractHttpConfigurer::disable)
         .securityMatcher(
             apiPath("/attendances/attend/**"),
@@ -124,7 +121,7 @@ public class SecurityConfig {
       .clientSecret(googleOidcConfig.getClientSecret())
       .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
       .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-      .redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
+      .redirectUri("https://{baseHost}{basePort}{basePath}/login/oauth2/code/{registrationId}")
       .scope("openid", "profile", "email")
       .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
       .tokenUri("https://www.googleapis.com/oauth2/v4/token")

@@ -5,7 +5,7 @@ FROM openjdk:17-jdk-alpine
 WORKDIR /app
 
 # Copy the executable jar file to the working directory
-COPY build/libs/platform-core-0.0.1-SNAPSHOT.jar app.jar
+COPY build/libs/platform-core-*.jar app.jar
 
 # Expose the port the application runs on
 EXPOSE 8080
