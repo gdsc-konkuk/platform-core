@@ -16,7 +16,7 @@ class EmailTaskTest {
   void should_success_when_change_email_receivers() {
       //given
       EmailTask emailTask = EmailTask.builder()
-          .emailDetails(EmailDetails.builder()
+          .emailDetail(EmailDetail.builder()
               .subject("예시 이메일 제목")
               .content("Html 문자열")
               .build())
@@ -45,19 +45,19 @@ class EmailTaskTest {
     // given
     EmailTask emailTask =
         EmailTask.builder()
-            .emailDetails(EmailDetails.builder().subject("예시 이메일 제목").content("Html 문자열").build())
+            .emailDetail(EmailDetail.builder().subject("예시 이메일 제목").content("Html 문자열").build())
             .receivers(new EmailReceivers(Set.of()))
             .sendAt(LocalDateTime.of(2021, 10, 10, 10, 10))
             .build();
 
-    EmailDetails newEmailDetails =
-        EmailDetails.builder().subject("newSubject").content("newContent").build();
+    EmailDetail newEmailDetail =
+        EmailDetail.builder().subject("newSubject").content("newContent").build();
 
     // when
-    emailTask.changeEmailDetails(newEmailDetails);
+    emailTask.changeEmailDetails(newEmailDetail);
 
     // then
-    assertEquals(newEmailDetails, emailTask.getEmailDetails());
+    assertEquals(newEmailDetail, emailTask.getEmailDetail());
   }
 
   @Test
@@ -66,7 +66,7 @@ class EmailTaskTest {
     // given
     EmailTask emailTask =
         EmailTask.builder()
-            .emailDetails(EmailDetails.builder().subject("예시 이메일 제목").content("Html 문자열").build())
+            .emailDetail(EmailDetail.builder().subject("예시 이메일 제목").content("Html 문자열").build())
             .receivers(new EmailReceivers(Set.of()))
             .sendAt(LocalDateTime.of(2021, 10, 10, 10, 10))
             .build();
@@ -84,7 +84,7 @@ class EmailTaskTest {
     // given
     EmailTask emailTask =
         EmailTask.builder()
-            .emailDetails(EmailDetails.builder().subject("예시 이메일 제목").content("Html 문자열").build())
+            .emailDetail(EmailDetail.builder().subject("예시 이메일 제목").content("Html 문자열").build())
             .receivers(new EmailReceivers(
                 Set.of(
                     EmailReceiver.builder().email("example1.com").name("guest1").build(),
@@ -109,7 +109,7 @@ class EmailTaskTest {
     // given
     EmailTask emailTask =
         EmailTask.builder()
-            .emailDetails(EmailDetails.builder().subject("예시 이메일 제목").content("Html 문자열").build())
+            .emailDetail(EmailDetail.builder().subject("예시 이메일 제목").content("Html 문자열").build())
             .receivers(new EmailReceivers(
                 Set.of(
                   EmailReceiver.builder().email("example1.com").name("guest1").build(),

@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Embeddable
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class EmailDetails {
+public class EmailDetail {
 
   @Column(name = "email_subject")
   private String subject;
@@ -21,7 +21,7 @@ public class EmailDetails {
   private String content;
 
   @Builder
-  public EmailDetails(String subject, String content) {
+  public EmailDetail(String subject, String content) {
     this.subject = validateNotNull(subject, "subject");
     this.content = validateNotNull(content, "content");
   }
@@ -32,7 +32,7 @@ public class EmailDetails {
       return true;
     if (o == null || getClass() != o.getClass())
       return false;
-    EmailDetails that = (EmailDetails)o;
+    EmailDetail that = (EmailDetail)o;
     return Objects.equals(subject, that.subject) && Objects.equals(content, that.content);
   }
 

@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
+import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,7 +25,6 @@ import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -56,26 +56,19 @@ class AuthControllerTest {
 
   @Test
   @DisplayName("사용자 로그인 성공")
-  @WithMockUser
   void loginSuccess() throws Exception {
     // given
-    given(memberRepository.findByMemberId(any()))
-      .willReturn(
-        Optional.of(
-          Member.builder()
-            .memberId("202011288")
-            .password(passwordEncoder.encode("gdscgdsc"))
-            .name("우이산")
-            .email("helloworld@gmail.com")
-            .batch("24-25")
-            .build()));
+    Member memberToLogin = MemberFixture.builder()
+        .memberId("202400000").password("$2a$10$d7DjseDroHsRGVGR1zDUL.q7uwAQ2aH4nHM1JiQ1OFV.D0qUTl7w.").build().getFixture();
+    given(memberRepository.findByMemberId(memberToLogin.getMemberId()))
+      .willReturn(Optional.of(memberToLogin));
 
     // when
     ResultActions result =
       mockMvc.perform(
         RestDocumentationRequestBuilders.multipart("/login")
-          .formField("id", "202011288")
-          .formField("password", "gdscgdsc")
+          .formField("id", memberToLogin.getMemberId())
+          .formField("password", "password")
           .contentType("application/x-www-form-urlencoded")
           .characterEncoding("UTF-8")
           .with(csrf()));
@@ -95,8 +88,7 @@ class AuthControllerTest {
   }
 
   @Test
-  @DisplayName("사용자 로그인 실패")
-  @WithMockUser
+  @DisplayName("존재하지 않는 사용자 로그인 실패")
   void loginFail() throws Exception {
     // given
     given(memberRepository.findByMemberId(any())).willReturn(Optional.empty());
@@ -105,8 +97,8 @@ class AuthControllerTest {
     ResultActions result =
       mockMvc.perform(
         RestDocumentationRequestBuilders.multipart("/login")
-          .formField("id", "202011288")
-          .formField("password", "wrongpassword")
+          .formField("id", "2024000000")
+          .formField("password", "password")
           .contentType("application/x-www-form-urlencoded")
           .characterEncoding("UTF-8")
           .with(csrf()));

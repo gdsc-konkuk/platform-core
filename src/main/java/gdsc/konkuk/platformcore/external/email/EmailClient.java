@@ -12,7 +12,7 @@ import org.springframework.mail.MailParseException;
 
 import org.springframework.stereotype.Component;
 
-import gdsc.konkuk.platformcore.domain.email.entity.EmailDetails;
+import gdsc.konkuk.platformcore.domain.email.entity.EmailDetail;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.external.email.exceptions.EmailClientErrorCode;
 import gdsc.konkuk.platformcore.external.email.exceptions.EmailSendingException;
@@ -28,28 +28,28 @@ public class EmailClient {
   private final JavaMailSender javaMailSender;
 
   public void sendEmailToReceivers(EmailTask email) {
-    EmailDetails emailDetails = email.getEmailDetails();
+    EmailDetail emailDetail = email.getEmailDetail();
     Set<EmailReceiver> receivers = email.getEmailReceivers().getReceivers();
-    receivers.forEach(receiver -> sendEmail(receiver, emailDetails));
+    receivers.forEach(receiver -> sendEmail(receiver, emailDetail));
   }
 
   public String replaceNameToken(String content, String name) {
     return content.replaceAll(EMAIL_RECEIVER_NAME_REGEXP, name);
   }
 
-  private MimeMessage generateMimeMessage(EmailReceiver to, EmailDetails emailDetails)
+  private MimeMessage generateMimeMessage(EmailReceiver to, EmailDetail emailDetail)
       throws MessagingException {
-    String emailContent = replaceNameToken(emailDetails.getContent(), to.getName());
+    String emailContent = replaceNameToken(emailDetail.getContent(), to.getName());
     String emailDestination = to.getEmail();
-    String emailSubject = emailDetails.getSubject();
+    String emailSubject = emailDetail.getSubject();
 
     return convertToHTMLMimeMessage(emailDestination, emailSubject, emailContent);
   }
 
-  private void sendEmail(EmailReceiver to, EmailDetails emailDetails) {
+  private void sendEmail(EmailReceiver to, EmailDetail emailDetail) {
     try {
       log.info("Sending email to {}", to);
-      MimeMessage message = generateMimeMessage(to, emailDetails);
+      MimeMessage message = generateMimeMessage(to, emailDetail);
       javaMailSender.send(message);
     } catch (MailParseException | MessagingException e) {
       throw EmailSendingException.of(EmailClientErrorCode.MAIL_PARSING_ERROR, e.getMessage());

@@ -2,7 +2,7 @@ package gdsc.konkuk.platformcore.controller.email.mapper;
 
 import java.util.List;
 
-import gdsc.konkuk.platformcore.controller.email.dtos.EmailTaskDetailsResponse;
+import gdsc.konkuk.platformcore.controller.email.dtos.EmailTaskDetailResponse;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailTaskListResponse;
 import gdsc.konkuk.platformcore.controller.email.dtos.SimpleEmailTaskResponse;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
@@ -20,8 +20,8 @@ public class EmailTaskMapper {
     return new EmailTaskListResponse(simpleEmailTaskResponses);
   }
 
-  public static EmailTaskDetailsResponse mapToEmailTaskDetailsResponse(EmailTask emailTask) {
-    return new EmailTaskDetailsResponse(
-        emailTask.getEmailDetails(), emailTask.getEmailReceivers(), emailTask.getSendAt());
+  public static EmailTaskDetailResponse mapToEmailTaskDetailsResponse(EmailTask emailTask) {
+    return new EmailTaskDetailResponse(
+        emailTask.getEmailDetail(), emailTask.getEmailReceivers(), emailTask.getSendAt());
   }
 }

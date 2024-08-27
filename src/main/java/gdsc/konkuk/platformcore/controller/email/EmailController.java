@@ -3,7 +3,7 @@ package gdsc.konkuk.platformcore.controller.email;
 import gdsc.konkuk.platformcore.application.email.EmailTaskFacade;
 import gdsc.konkuk.platformcore.application.email.EmailService;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
-import gdsc.konkuk.platformcore.controller.email.dtos.EmailTaskDetailsResponse;
+import gdsc.konkuk.platformcore.controller.email.dtos.EmailTaskDetailResponse;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailTaskListResponse;
 import gdsc.konkuk.platformcore.controller.email.mapper.EmailTaskMapper;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
@@ -37,7 +37,7 @@ public class EmailController {
 
   @GetMapping("/{taskId}")
   public ResponseEntity<SuccessResponse> getEmailTask(@PathVariable Long taskId) {
-    EmailTaskDetailsResponse emailTask = EmailTaskMapper.mapToEmailTaskDetailsResponse(emailService.getTaskDetails(taskId));
+    EmailTaskDetailResponse emailTask = EmailTaskMapper.mapToEmailTaskDetailsResponse(emailService.getTaskDetails(taskId));
     return ResponseEntity.ok(SuccessResponse.of(emailTask));
   }
 

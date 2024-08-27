@@ -10,9 +10,9 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithSecurityContextFactory;
 
-public class WithMyCustomUserSecurityContextFactory implements WithSecurityContextFactory<CustomMockUser> {
+public class WithCustomUserSecurityContextFactory implements WithSecurityContextFactory<WithCustomUser> {
   @Override
-  public SecurityContext createSecurityContext(CustomMockUser annotation) {
+  public SecurityContext createSecurityContext(WithCustomUser annotation) {
     String memberId = annotation.memberId();
     MemberRole role = annotation.role();
 

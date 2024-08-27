@@ -1,6 +1,6 @@
 package gdsc.konkuk.platformcore.controller.email.dtos;
 
-import gdsc.konkuk.platformcore.domain.email.entity.EmailDetails;
+import gdsc.konkuk.platformcore.domain.email.entity.EmailDetail;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
@@ -34,17 +34,17 @@ public class EmailSendRequest {
   }
 
   public static EmailTask toEntity(EmailSendRequest request) {
-    EmailDetails details = new EmailDetails(request.getSubject(), request.getContent());
+    EmailDetail details = new EmailDetail(request.getSubject(), request.getContent());
     EmailReceivers receivers = new EmailReceivers(request.toEmailReceivers());
     return EmailTask.builder()
-      .emailDetails(details)
+      .emailDetail(details)
       .receivers(receivers)
       .sendAt(request.getSendAt())
       .build();
   }
 
-  public EmailDetails toEmailDetails() {
-    return new EmailDetails(subject, content);
+  public EmailDetail toEmailDetails() {
+    return new EmailDetail(subject, content);
   }
 
   public Set<EmailReceiver> toEmailReceivers() {
