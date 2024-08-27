@@ -1,12 +1,6 @@
 package gdsc.konkuk.platformcore.controller.member;
 
 import static com.epages.restdocs.apispec.ResourceDocumentation.*;
-import static gdsc.konkuk.platformcore.fixture.member.MemberAttendancesFixture.getGeneralMember1AttendanceFixture;
-import static gdsc.konkuk.platformcore.fixture.member.MemberAttendancesFixture.getGeneralMember2AttendanceFixture;
-import static gdsc.konkuk.platformcore.fixture.member.MemberAttendancesFixture.getGeneralMember3AttendanceFixture;
-import static gdsc.konkuk.platformcore.fixture.member.MemberFixture.getGeneralMemberFixture1;
-import static gdsc.konkuk.platformcore.fixture.member.MemberRegisterRequestFixture.getGeneralMember1RegisterRequest;
-import static java.lang.Integer.parseInt;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 import static org.springframework.http.MediaType.*;
@@ -29,8 +23,9 @@ import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateRequest;
 import gdsc.konkuk.platformcore.controller.member.dtos.MemberRegisterRequest;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
-import gdsc.konkuk.platformcore.fixture.event.EventFixture;
+import gdsc.konkuk.platformcore.fixture.member.MemberAttendancesFixture;
 import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
+import gdsc.konkuk.platformcore.fixture.member.MemberRegisterRequestFixture;
 import gdsc.konkuk.platformcore.global.configs.SecurityConfig;
 import java.time.LocalDate;
 import java.util.List;
@@ -79,6 +74,7 @@ class MemberControllerTest {
     ResultActions result =
         mockMvc.perform(
             RestDocumentationRequestBuilders.post("/api/v1/members/check-login")
+                .contentType(APPLICATION_JSON)
                 .with(csrf()));
 
     // then
@@ -103,11 +99,13 @@ class MemberControllerTest {
 
   @Test
   @DisplayName("새로운 멤버 회원 가입 성공")
-  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.ADMIN)
   void should_success_when_newMember() throws Exception {
     // given
-    MemberRegisterRequest memberRegisterRequest = getGeneralMember1RegisterRequest();
-    Member memberToRegister = getGeneralMemberFixture1();
+    MemberRegisterRequest memberRegisterRequest = MemberRegisterRequestFixture.builder()
+        .memberId("202400000").password("password").build().getFixture();
+    Member memberToRegister = MemberFixture.builder()
+        .memberId("202400000").password("$2a$10$d7DjseDroHsRGVGR1zDUL").build().getFixture();
     given(memberService.register(any(MemberRegisterRequest.class))).willReturn(memberToRegister);
 
     // when
@@ -138,7 +136,8 @@ class MemberControllerTest {
                             fieldWithPath("email").description("이메일"),
                             fieldWithPath("name").description("이름"),
                             fieldWithPath("department").description("학과"),
-                            fieldWithPath("batch").description("배치"))
+                            fieldWithPath("batch").description("배치"),
+                            fieldWithPath("role").description("역할"))
                         .responseFields(
                             fieldWithPath("success").description(true),
                             fieldWithPath("message").description("회원 가입 성공"),
@@ -148,10 +147,10 @@ class MemberControllerTest {
 
   @Test
   @DisplayName("이미 존재하는 유저 회원 가입 실패")
-  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.ADMIN)
   void should_fail_when_existingMember() throws Exception {
     // given
-    MemberRegisterRequest memberRegisterRequest = getGeneralMember1RegisterRequest();
+    MemberRegisterRequest memberRegisterRequest = MemberRegisterRequestFixture.builder().build().getFixture();
     given(memberService.register(any(MemberRegisterRequest.class)))
         .willThrow(UserAlreadyExistException.class);
 
@@ -169,10 +168,10 @@ class MemberControllerTest {
 
   @Test
   @DisplayName("회원 탈퇴 성공")
-  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.ADMIN)
   void should_success_when_delete_member() throws Exception {
     // given
-    Member memberToWithdraw = getGeneralMemberFixture1();
+    Member memberToWithdraw = MemberFixture.builder().build().getFixture();
     willDoNothing().given(memberService).withdraw(memberToWithdraw.getId());
 
     // when
@@ -200,22 +199,23 @@ class MemberControllerTest {
 
   @Test
   @DisplayName("특정 배치의 특정 월의 멤버 출석 정보 조회 성공")
-  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.ADMIN)
   void should_success_when_get_attendances_by_batch() throws Exception {
     // given
+    // TODO: 좀 더 상세하고 정확한 Fixture 필요 (`batch`, `eventId`, `participantId` 등)
     given(memberService.getMemberAttendanceWithBatchAndPeriod(anyString(), any()))
         .willReturn(
             List.of(
-              getGeneralMember1AttendanceFixture(),
-              getGeneralMember2AttendanceFixture(),
-              getGeneralMember3AttendanceFixture()));
+                MemberAttendancesFixture.builder().memberId(1L).memberName("member1").build().getFixture(),
+                MemberAttendancesFixture.builder().memberId(2L).memberName("member2").build().getFixture(),
+                MemberAttendancesFixture.builder().memberId(3L).memberName("member3").build().getFixture()));
 
     // when
     ResultActions result =
         mockMvc.perform(
-            RestDocumentationRequestBuilders.get("/api/v1/members/{batch}/attendances", MemberFixture.BATCH)
-                .param("year", EventFixture.EVENT_YEAR)
-                .param("month", EventFixture.EVENT_MONTH)
+            RestDocumentationRequestBuilders.get("/api/v1/members/{batch}/attendances", "24-25")
+                .param("year", "2024")
+                .param("month", "07")
                 .contentType(APPLICATION_JSON)
                 .with(csrf()));
 
@@ -266,7 +266,7 @@ class MemberControllerTest {
 
   @Test
   @DisplayName("특정 배치의 특정 월의 멤버 출석 정보 수정 성공")
-  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.ADMIN)
   void should_success_when_update_attendances_by_batch() throws Exception {
     // given
     List<AttendanceUpdateInfo> attendanceUpdateInfoList = List.of(
@@ -275,16 +275,16 @@ class MemberControllerTest {
             AttendanceUpdateInfo.builder().participantId(3L).isAttended(true).build());
     AttendanceUpdateRequest attendanceUpdateRequest = new AttendanceUpdateRequest(attendanceUpdateInfoList);
     willDoNothing().given(memberService).updateAttendances(
-            MemberFixture.BATCH,
-            LocalDate.of(parseInt(EventFixture.EVENT_YEAR), parseInt(EventFixture.EVENT_MONTH), 1),
+            "24-25",
+            LocalDate.of(2024, 7, 1),
             attendanceUpdateInfoList);
 
     // when
     ResultActions result =
         mockMvc.perform(
-            RestDocumentationRequestBuilders.patch("/api/v1/members/{batch}/attendances", MemberFixture.BATCH)
-                .param("year", EventFixture.EVENT_YEAR)
-                .param("month", EventFixture.EVENT_MONTH)
+            RestDocumentationRequestBuilders.patch("/api/v1/members/{batch}/attendances", "24-25")
+                .param("year", "2024")
+                .param("month", "07")
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(attendanceUpdateRequest))
                 .with(csrf()));

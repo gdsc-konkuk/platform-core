@@ -1,6 +1,5 @@
 package gdsc.konkuk.platformcore.application.email;
 
-import static gdsc.konkuk.platformcore.fixture.email.EmailSendRequestFixture.getEmailSendRequestWillSendAfterXSeconds;
 import static java.lang.Thread.sleep;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,9 +18,11 @@ import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
 import gdsc.konkuk.platformcore.external.discord.DiscordClient;
 import gdsc.konkuk.platformcore.external.email.EmailClient;
 import gdsc.konkuk.platformcore.external.email.exceptions.EmailSendingException;
+import gdsc.konkuk.platformcore.fixture.email.EmailSendRequestFixture;
 import gdsc.konkuk.platformcore.global.exceptions.GlobalErrorCode;
 import gdsc.konkuk.platformcore.global.exceptions.TaskNotFoundException;
 import gdsc.konkuk.platformcore.global.scheduler.TaskInMemoryRepository;
+import java.time.LocalDateTime;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -69,7 +70,9 @@ class EmailIntegrationTest {
   @Transactional
   void should_save_task_at_InMemoryTaskRepository() {
     // given
-    EmailSendRequest emailRequest = getEmailSendRequestWillSendAfterXSeconds(3_600);
+    EmailSendRequest emailRequest = EmailSendRequestFixture.builder()
+        .sendAt(LocalDateTime.now().plusHours(1)).build()
+        .getFixture();
 
     // when
     EmailTask emailTask = emailTaskFacade.register(emailRequest);
@@ -85,7 +88,9 @@ class EmailIntegrationTest {
   @DisplayName("등록된 작업 스케줄된 시간에 실행 성공")
   void should_send_task_when_time_is_up() throws InterruptedException {
     // given
-    EmailSendRequest emailRequest = getEmailSendRequestWillSendAfterXSeconds(5);
+    EmailSendRequest emailRequest = EmailSendRequestFixture.builder()
+            .sendAt(LocalDateTime.now().plusSeconds(5)).build()
+            .getFixture();
 
     // when
     emailTaskFacade.register(emailRequest);
@@ -106,12 +111,16 @@ class EmailIntegrationTest {
   @DisplayName("작업 수정 시 스케줄된 작업 취소 후 다시 스케줄")
   void should_cancel_and_schedule_new_when_update() {
     // given
-    EmailTask emailTaskToUpdate =
-        emailTaskFacade.register(getEmailSendRequestWillSendAfterXSeconds(1_300));
+    EmailTask emailTaskToUpdate = emailTaskFacade.register(
+        EmailSendRequestFixture.builder()
+            .sendAt(LocalDateTime.now().plusMinutes(30)).build()
+            .getFixture());
     assertEquals(1, executor.getQueue().size());
     assertEquals(1, taskInMemoryRepository.size());
 
-    EmailSendRequest updatedRequest = getEmailSendRequestWillSendAfterXSeconds(3_600);
+    EmailSendRequest updatedRequest = EmailSendRequestFixture.builder()
+        .sendAt(LocalDateTime.now().plusHours(1)).build()
+        .getFixture();
 
     // when
     emailTaskFacade.update(emailTaskToUpdate.getId(), updatedRequest);
@@ -133,7 +142,9 @@ class EmailIntegrationTest {
   @Transactional
   void should_cancel_task() {
     // given
-    EmailSendRequest emailRequest = getEmailSendRequestWillSendAfterXSeconds(3_600);
+    EmailSendRequest emailRequest = EmailSendRequestFixture.builder()
+        .sendAt(LocalDateTime.now().plusHours(1)).build()
+        .getFixture();
     EmailTask emailTask = emailTaskFacade.register(emailRequest);
     assertEquals(1, executor.getQueue().size());
 
@@ -152,7 +163,9 @@ class EmailIntegrationTest {
   @DisplayName("이미 처리된 작업 취소 시도 시 예외 발생")
   void should_fail_when_cancel_already_processed_task() throws Exception {
     //given
-    EmailSendRequest emailRequest = getEmailSendRequestWillSendAfterXSeconds(1);
+    EmailSendRequest emailRequest = EmailSendRequestFixture.builder()
+        .sendAt(LocalDateTime.now().plusSeconds(1)).build()
+        .getFixture();
 
     //when
     EmailTask scheduledTask = emailTaskFacade.register(emailRequest);
@@ -170,9 +183,10 @@ class EmailIntegrationTest {
   @Test
   void should_send_discord_message_when_email_sending_error() throws InterruptedException {
     //given
-    EmailSendRequest emailRequest = getEmailSendRequestWillSendAfterXSeconds(1);
+    EmailSendRequest emailRequest = EmailSendRequestFixture.builder()
+        .sendAt(LocalDateTime.now().plusSeconds(1)).build()
+        .getFixture();
 
-    // TODO: 아래의 stubbing이 동작하지 않는 것으로 보임
     doThrow(EmailSendingException.of(GlobalErrorCode.INTERNAL_SERVER_ERROR))
         .when(emailClient).sendEmailToReceivers(any(EmailTask.class));
 
@@ -182,7 +196,6 @@ class EmailIntegrationTest {
 
     //then
     verify(emailClient).sendEmailToReceivers(any(EmailTask.class));
-//    verify(discordClient).sendErrorMessage(any(EmailSendingException.class));
     verify(discordClient).sendErrorMessage(any());
   }
 }

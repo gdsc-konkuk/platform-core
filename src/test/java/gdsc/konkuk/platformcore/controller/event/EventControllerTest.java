@@ -3,10 +3,6 @@ package gdsc.konkuk.platformcore.controller.event;
 import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
-import static gdsc.konkuk.platformcore.fixture.event.EventBriefResponseFixture.getEventBriefResponseFixture;
-import static gdsc.konkuk.platformcore.fixture.event.EventFixture.getEventFixture1;
-import static gdsc.konkuk.platformcore.fixture.event.EventRegisterRequestFixture.getEventFixture1RegisterRequest;
-import static gdsc.konkuk.platformcore.fixture.event.EventUpdateRequestFixture.getEventFixture1UpdateRequest;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
@@ -35,7 +31,10 @@ import gdsc.konkuk.platformcore.controller.event.dtos.EventUpdateRequest;
 import gdsc.konkuk.platformcore.controller.event.dtos.RetrospectUpdateRequest;
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
-import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
+import gdsc.konkuk.platformcore.fixture.event.EventBriefResponseFixture;
+import gdsc.konkuk.platformcore.fixture.event.EventFixture;
+import gdsc.konkuk.platformcore.fixture.event.EventRegisterRequestFixture;
+import gdsc.konkuk.platformcore.fixture.event.EventUpdateRequestFixture;
 import gdsc.konkuk.platformcore.global.configs.SecurityConfig;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -81,10 +80,10 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("모든 이벤트를 간략 조회할 수 있다")
-  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.ADMIN)
   void should_get_all_events_when_request() throws Exception {
     // given
-    given(eventService.getAllBriefs()).willReturn(getEventBriefResponseFixture());
+    given(eventService.getAllBriefs()).willReturn(EventBriefResponseFixture.builder().build().getFixture());
 
     // when
     ResultActions result =
@@ -118,17 +117,18 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("특정 이벤트를 상세 조회할 수 있다")
-  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.ADMIN)
   void should_get_event_detail_when_pass_event_id() throws Exception {
     // given
-    Event eventToSee = getEventFixture1();
+    Event eventToSee = EventFixture.builder()
+        .id(1L).build().getFixture();
     given(eventService.getEvent(eventToSee.getId())).willReturn(EventDetailResponse.fromEntity(eventToSee));
 
     // when
     ResultActions result =
         mockMvc.perform(
             RestDocumentationRequestBuilders
-                .get("/api/v1/events/{eventId}", eventToSee.getId())
+                .get("/api/v1/events/{eventId}", 1L)
                 .with(csrf()));
 
     // then
@@ -161,12 +161,12 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("이벤트를 등록할 수 있다")
-  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.ADMIN)
   void should_register_event_when_requested() throws Exception {
     // given
-    EventRegisterRequest eventRegisterRequest = getEventFixture1RegisterRequest();
+    EventRegisterRequest eventRegisterRequest = EventRegisterRequestFixture.builder().build().getFixture();
     given(eventService.register(any(EventRegisterRequest.class), any(List.class)))
-        .willReturn(getEventFixture1());
+        .willReturn(EventFixture.builder().build().getFixture());
 
     MockMultipartFile mockImages =
         new MockMultipartFile("images", "test.jpg", "image/jpeg", "test".getBytes());
@@ -233,13 +233,11 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("이벤트를 수정할 수 있다")
-  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.ADMIN)
   void should_update_event_when_requested() throws Exception {
     // given
-    EventUpdateRequest eventUpdateRequest = getEventFixture1UpdateRequest();
-    Event eventToUpdate = getEventFixture1();
+    EventUpdateRequest eventUpdateRequest = EventUpdateRequestFixture.builder().build().getFixture();
     willDoNothing().given(eventService)
-//        .update(eventToUpdate.getId(), any(EventUpdateRequest.class), any(List.class));
         .update(any(Long.class), any(EventUpdateRequest.class), any(List.class));
 
     MockMultipartFile mockImages =
@@ -260,7 +258,7 @@ public class EventControllerTest {
     // when
     MockMultipartHttpServletRequestBuilder putMultipartRestDocumentationRequestBuilder =
         RestDocumentationRequestBuilders
-            .multipart("/api/v1/events/{eventId}", eventToUpdate.getId());
+            .multipart("/api/v1/events/{eventId}", 1L);
     putMultipartRestDocumentationRequestBuilder.with(
         request -> {
           request.setMethod("PATCH");
@@ -306,7 +304,7 @@ public class EventControllerTest {
                                     - location(String?): 이벤트 장소
                                     - startAt(DateTime?): 이벤트 시작 시간
                                     - endAt(DateTime?): 이벤트 종료 시간
-                                    - eventImageKeysToDelete(String[]?): 삭제할 이미지 URL 목록
+                                    - eventImagesToDelete(URL[]?): 삭제할 이미지 URL 목록
                                     """),
                             fieldWithPath("detail.title").description("이벤트 제목").optional(),
                             fieldWithPath("detail.content").description("이벤트 내용").optional(),
@@ -324,10 +322,11 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("회고 수정 성공")
-  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.ADMIN)
   void should_update_retrospect_when_pass_content() throws Exception {
     // given
-    Event eventToUpdateRetrospect = getEventFixture1();
+    Event eventToUpdateRetrospect = EventFixture.builder()
+        .id(1L).build().getFixture();
     RetrospectUpdateRequest retrospectUpdateRequest = new RetrospectUpdateRequest("content");
     willDoNothing().given(eventService)
         .updateRetrospect(eventToUpdateRetrospect.getId(), "content");
@@ -336,11 +335,9 @@ public class EventControllerTest {
     ResultActions result =
         mockMvc.perform(
             RestDocumentationRequestBuilders
-                .patch(
-                    "/api/v1/events/{eventId}/retrospect",
-                    eventToUpdateRetrospect.getId())
-                .contentType(APPLICATION_JSON)
+                .patch("/api/v1/events/{eventId}/retrospect", 1L)
                 .content(objectMapper.writeValueAsString(retrospectUpdateRequest))
+                .contentType(APPLICATION_JSON)
                 .with(csrf()));
 
     // then
@@ -367,19 +364,19 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("이벤트 삭제 성공")
-  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.ADMIN)
   void should_delete_event_when_pass_event_id() throws Exception {
     // given
-    Event eventToDelete = getEventFixture1();
+    Event eventToDelete = EventFixture.builder()
+        .id(1L).build().getFixture();
     willDoNothing().given(eventService).delete(eventToDelete.getId());
 
     // when
     ResultActions result =
         mockMvc.perform(
             RestDocumentationRequestBuilders
-                .delete(
-                    "/api/v1/events/{eventId}",
-                    eventToDelete.getId())
+                .delete("/api/v1/events/{eventId}", 1L)
+                .contentType(APPLICATION_JSON)
                 .with(csrf()));
 
     // then

@@ -1,6 +1,5 @@
 package gdsc.konkuk.platformcore.application.email;
 
-import static gdsc.konkuk.platformcore.fixture.email.EmailTaskFixture.getEmailTaskFixture1;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 import static org.mockito.MockitoAnnotations.*;
@@ -27,7 +26,7 @@ class EmailServiceHelperTest {
   @Test
   void should_return_task_when_exists() {
     // given
-    EmailTask emailTaskToRequest = getEmailTaskFixture1();
+    EmailTask emailTaskToRequest = EmailTaskFixture.builder().build().getFixture();
     given(emailTaskRepository.findById(emailTaskToRequest.getId()))
         .willReturn(Optional.of(emailTaskToRequest));
 
@@ -47,7 +46,7 @@ class EmailServiceHelperTest {
 
     // when
     Executable executable =
-        () -> EmailServiceHelper.findEmailTaskById(emailTaskRepository, EmailTaskFixture.EMAIL_TASK_1_ID);
+        () -> EmailServiceHelper.findEmailTaskById(emailTaskRepository, 0L);
 
     // then
     assertThrows(EmailNotFoundException.class, executable);

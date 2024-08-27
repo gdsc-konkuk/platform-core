@@ -1,9 +1,6 @@
 package gdsc.konkuk.platformcore.controller.email;
 
 import static com.epages.restdocs.apispec.ResourceDocumentation.*;
-import static gdsc.konkuk.platformcore.fixture.email.EmailSendRequestFixture.getEmailTask1SendRequestFixture;
-import static gdsc.konkuk.platformcore.fixture.email.EmailTaskFixture.getEmailTaskFixture1;
-import static gdsc.konkuk.platformcore.fixture.email.EmailTaskFixture.getEmailTaskFixture2;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.*;
@@ -26,7 +23,8 @@ import gdsc.konkuk.platformcore.application.email.EmailTaskFacade;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
-import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
+import gdsc.konkuk.platformcore.fixture.email.EmailSendRequestFixture;
+import gdsc.konkuk.platformcore.fixture.email.EmailTaskFixture;
 import gdsc.konkuk.platformcore.global.configs.SecurityConfig;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,11 +74,11 @@ class EmailControllerTest {
 
   @Test
   @DisplayName("이메일 전송 작업 등록 성공")
-  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.ADMIN)
   void should_success_when_send_email() throws Exception {
     //given
-    EmailSendRequest request = getEmailTask1SendRequestFixture();
-    EmailTask emailTaskToSee = getEmailTaskFixture1();
+    EmailSendRequest request = EmailSendRequestFixture.builder().build().getFixture();
+    EmailTask emailTaskToSee = EmailTaskFixture.builder().build().getFixture();
     given(emailTaskFacade.register(any(EmailSendRequest.class))).willReturn(emailTaskToSee);
 
     //when
@@ -111,17 +109,17 @@ class EmailControllerTest {
 
   @Test
   @DisplayName("이메일 등록 내용 수정")
-  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.ADMIN)
   void should_success_when_update_emailTask() throws Exception {
     //given
-    EmailTask emailTaskToUpdate = getEmailTaskFixture1();
-    EmailSendRequest request = getEmailTask1SendRequestFixture();
+    EmailTask emailTaskToUpdate = EmailTaskFixture.builder()
+        .id(1L).build().getFixture();
+    EmailSendRequest request = EmailSendRequestFixture.builder().build().getFixture();
 
     //when
     ResultActions result = mockMvc.perform(
       RestDocumentationRequestBuilders.patch(
-          "/api/v1/emails/{emailId}",
-          emailTaskToUpdate.getId())
+          "/api/v1/emails/{emailId}", 1L)
       .contentType(APPLICATION_JSON)
       .content(objectMapper.writeValueAsString(request))
       .with(csrf()));
@@ -147,12 +145,13 @@ class EmailControllerTest {
 
   @Test
   @DisplayName("이메일 전송 조회 - 모든 이메일 전송 작업 조회")
-  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.ADMIN)
   void should_success_when_get_all_task() throws Exception {
     //given
     List<EmailTask> emailTasksToSee = List.of(
-        getEmailTaskFixture1(),
-        getEmailTaskFixture2());
+        EmailTaskFixture.builder().id(1L).build().getFixture(),
+        EmailTaskFixture.builder().id(2L).build().getFixture()
+    );
     given(emailService.getAllTaskAsList()).willReturn(emailTasksToSee);
 
     //when
@@ -187,18 +186,18 @@ class EmailControllerTest {
 
   @Test
   @DisplayName("이메일 전송 조회 - 특정 이메일 전송 작업 세부내용 조회")
-  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.ADMIN)
   void should_success_when_get_specific_task() throws Exception {
     //given
-    EmailTask emailTaskToSee = getEmailTaskFixture1();
+    EmailTask emailTaskToSee = EmailTaskFixture.builder()
+        .id(1L).build().getFixture();
     given(emailService.getTaskDetails(emailTaskToSee.getId()))
         .willReturn(emailTaskToSee);
 
     //when
     ResultActions result = mockMvc.perform(
       RestDocumentationRequestBuilders.get(
-          "/api/v1/emails/{emailId}",
-          emailTaskToSee.getId())
+          "/api/v1/emails/{emailId}", 1L)
         .contentType(APPLICATION_JSON)
         .with(csrf()));
 
@@ -228,17 +227,17 @@ class EmailControllerTest {
 
   @Test
   @DisplayName("등록된 이메일 작업을 취소한다.")
-  @WithCustomUser(memberId = MemberFixture.ADMIN_MEMBER_ID, role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.ADMIN)
   void should_success_when_cancel_registered_task() throws Exception {
     //given
-    EmailTask emailTaskToCancel = getEmailTaskFixture1();
+    EmailTask emailTaskToCancel = EmailTaskFixture.builder()
+        .id(1L).build().getFixture();
     willDoNothing().given(emailTaskFacade).cancel(emailTaskToCancel.getId());
 
     //when
     ResultActions result = mockMvc.perform(
       RestDocumentationRequestBuilders.delete(
-          "/api/v1/emails/{emailId}",
-          emailTaskToCancel.getId())
+          "/api/v1/emails/{emailId}", 1L)
         .contentType(APPLICATION_JSON)
         .with(csrf()));
 

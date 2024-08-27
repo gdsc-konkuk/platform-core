@@ -1,7 +1,5 @@
 package gdsc.konkuk.platformcore.application.member;
 
-import static gdsc.konkuk.platformcore.fixture.member.MemberFixture.getGeneralMemberFixture1;
-import static gdsc.konkuk.platformcore.fixture.member.MemberRegisterRequestFixture.getGeneralMember1RegisterRequest;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
@@ -14,6 +12,7 @@ import gdsc.konkuk.platformcore.domain.attendance.repository.ParticipantReposito
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
 import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
+import gdsc.konkuk.platformcore.fixture.member.MemberRegisterRequestFixture;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -49,8 +48,8 @@ class MemberServiceTest {
   @DisplayName("Register : 새로운 멤버 회원가입 성공")
   void should_success_when_newMember_register() {
     // given
-    MemberRegisterRequest memberRegisterRequest = getGeneralMember1RegisterRequest();
-    Member memberToRegister = getGeneralMemberFixture1();
+    MemberRegisterRequest memberRegisterRequest = MemberRegisterRequestFixture.builder().build().getFixture();
+    Member memberToRegister = MemberFixture.builder().build().getFixture();
     given(memberRepository.findByMemberId(memberRegisterRequest.getMemberId())).willReturn(Optional.empty());
     given(memberRepository.save(any(Member.class))).willReturn(memberToRegister);
     given(passwordEncoder.encode(memberRegisterRequest.getPassword())).willReturn(memberToRegister.getPassword());
@@ -66,8 +65,8 @@ class MemberServiceTest {
   @DisplayName("Register : 이미 존재하는 멤버 회원가입 실패")
   void should_fail_when_already_exist_member_register() {
     // given
-    MemberRegisterRequest memberRegisterRequest = getGeneralMember1RegisterRequest();
-    Member alreadyRegisteredMember = getGeneralMemberFixture1();
+    MemberRegisterRequest memberRegisterRequest = MemberRegisterRequestFixture.builder().build().getFixture();
+    Member alreadyRegisteredMember = MemberFixture.builder().build().getFixture();
     given(memberRepository.findByMemberId(memberRegisterRequest.getMemberId()))
         .willReturn(Optional.of(alreadyRegisteredMember));
 
@@ -82,7 +81,7 @@ class MemberServiceTest {
   @DisplayName("withdraw : 존재하는 멤버 탈퇴 성공")
   void should_success_when_user_exists() {
     // given
-    Member memberToDelete = getGeneralMemberFixture1();
+    Member memberToDelete = MemberFixture.builder().build().getFixture();
     given(memberRepository.findById(memberToDelete.getId())).willReturn(Optional.of(memberToDelete));
 
     // when
@@ -97,11 +96,10 @@ class MemberServiceTest {
   @DisplayName("withdraw : 존재하지 않는 멤버 탈퇴 실패")
   void should_fail_when_user_not_exists() {
     // given
-    Long targetId = MemberFixture.GENERAL_1_ID;
-    given(memberRepository.findById(targetId)).willReturn(Optional.empty());
+    given(memberRepository.findById(any(Long.class))).willReturn(Optional.empty());
 
     // when
-    Executable action = () -> subject.withdraw(targetId);
+    Executable action = () -> subject.withdraw(0L);
 
     // then
     assertThrows(UserNotFoundException.class, action);
@@ -111,7 +109,7 @@ class MemberServiceTest {
   @DisplayName("withdraw : 이미 삭제된 멤버 탈퇴 실패")
   void should_fail_when_user_already_deleted() {
     // given
-    Member memberAlreadyDeleted = spy(getGeneralMemberFixture1());
+    Member memberAlreadyDeleted = spy(MemberFixture.builder().build().getFixture());
     given(memberRepository.findById(memberAlreadyDeleted.getId())).willReturn(Optional.of(memberAlreadyDeleted));
     given(memberAlreadyDeleted.isMemberDeleted()).willReturn(true);
 

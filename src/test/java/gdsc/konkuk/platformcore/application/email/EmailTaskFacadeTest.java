@@ -1,8 +1,5 @@
 package gdsc.konkuk.platformcore.application.email;
 
-import static gdsc.konkuk.platformcore.fixture.email.EmailSendRequestFixture.getEmailTask2SendRequestFixture;
-import static gdsc.konkuk.platformcore.fixture.email.EmailTaskFixture.getEmailTaskFixture1;
-import static gdsc.konkuk.platformcore.fixture.email.EmailTaskFixture.getEmailTaskFixture2;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.verify;
@@ -13,6 +10,8 @@ import gdsc.konkuk.platformcore.domain.email.entity.EmailDetail;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
+import gdsc.konkuk.platformcore.fixture.email.EmailSendRequestFixture;
+import gdsc.konkuk.platformcore.fixture.email.EmailTaskFixture;
 import gdsc.konkuk.platformcore.global.scheduler.TaskScheduler;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -53,10 +52,10 @@ class EmailTaskFacadeTest {
   @DisplayName("예약 수정시 성공")
   void should_success_when_reschedule_task() {
     //given
-    EmailSendRequest emailUpdateRequest = getEmailTask2SendRequestFixture();
-    EmailTask emailTaskToUpdate = getEmailTaskFixture1();
+    EmailSendRequest emailUpdateRequest = EmailSendRequestFixture.builder().build().getFixture();
+    EmailTask emailTaskToUpdate = EmailTaskFixture.builder().id(1L).build().getFixture();
     given(emailService.update(emailTaskToUpdate.getId(), emailUpdateRequest))
-        .willReturn(getEmailTaskFixture2());
+        .willReturn(EmailTaskFixture.builder().id(1L).build().getFixture());
 
     //when
     subject.update(emailTaskToUpdate.getId(), emailUpdateRequest);
@@ -69,7 +68,7 @@ class EmailTaskFacadeTest {
   @DisplayName("예약 취소시 성공")
   void should_success_when_cancel_task() {
     //given
-    EmailTask emailTaskToCancel = getEmailTaskFixture1();
+    EmailTask emailTaskToCancel = EmailTaskFixture.builder().build().getFixture();
     willDoNothing().given(emailTaskScheduler).cancelTask(emailTaskToCancel.getId().toString());
     willDoNothing().given(emailService).delete(emailTaskToCancel.getId());
 

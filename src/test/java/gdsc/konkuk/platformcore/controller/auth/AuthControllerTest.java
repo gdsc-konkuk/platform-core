@@ -1,7 +1,6 @@
 package gdsc.konkuk.platformcore.controller.auth;
 
 import static com.epages.restdocs.apispec.ResourceDocumentation.*;
-import static gdsc.konkuk.platformcore.fixture.member.MemberFixture.getGeneralMemberFixture1;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
 
@@ -59,16 +58,17 @@ class AuthControllerTest {
   @DisplayName("사용자 로그인 성공")
   void loginSuccess() throws Exception {
     // given
-    Member memberToLogin = getGeneralMemberFixture1();
-    given(memberRepository.findByMemberId(MemberFixture.GENERAL_1_MEMBER_ID))
+    Member memberToLogin = MemberFixture.builder()
+        .memberId("202400000").password("$2a$10$d7DjseDroHsRGVGR1zDUL.q7uwAQ2aH4nHM1JiQ1OFV.D0qUTl7w.").build().getFixture();
+    given(memberRepository.findByMemberId(memberToLogin.getMemberId()))
       .willReturn(Optional.of(memberToLogin));
 
     // when
     ResultActions result =
       mockMvc.perform(
         RestDocumentationRequestBuilders.multipart("/login")
-          .formField("id", MemberFixture.GENERAL_1_MEMBER_ID)
-          .formField("password", MemberFixture.GENERAL_PASSWORD)
+          .formField("id", memberToLogin.getMemberId())
+          .formField("password", "password")
           .contentType("application/x-www-form-urlencoded")
           .characterEncoding("UTF-8")
           .with(csrf()));
@@ -88,7 +88,7 @@ class AuthControllerTest {
   }
 
   @Test
-  @DisplayName("사용자 로그인 실패")
+  @DisplayName("존재하지 않는 사용자 로그인 실패")
   void loginFail() throws Exception {
     // given
     given(memberRepository.findByMemberId(any())).willReturn(Optional.empty());
@@ -97,8 +97,8 @@ class AuthControllerTest {
     ResultActions result =
       mockMvc.perform(
         RestDocumentationRequestBuilders.multipart("/login")
-          .formField("id", MemberFixture.GENERAL_1_MEMBER_ID)
-          .formField("password", MemberFixture.WRONG_PASSWORD)
+          .formField("id", "2024000000")
+          .formField("password", "password")
           .contentType("application/x-www-form-urlencoded")
           .characterEncoding("UTF-8")
           .with(csrf()));
