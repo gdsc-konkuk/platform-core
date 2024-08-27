@@ -58,8 +58,8 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
-    // runtimeOnly 'com.h2database:h2:2.2.224'
-    implementation 'mysql:mysql-connector-java:8.0.32'
+    runtimeOnly 'com.h2database:h2:2.2.224'
+//    implementation 'mysql:mysql-connector-java:8.0.32'
     implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.1")
 
 
