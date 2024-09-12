@@ -58,11 +58,11 @@ public class AttendanceController {
     try{
       attendanceService.attend(oidcUser.getEmail(), attendanceId, qrUuid);
       HttpHeaders headers = new HttpHeaders();
-      headers.add("Location", "/success");
+      headers.add("Location", "/admin/success");
       return new ResponseEntity<>(headers, valueOf(HttpStatusCode.TEMPORARY_REDIRECT));
     }catch(Exception e) {
       HttpHeaders headers = new HttpHeaders();
-      headers.add("Location", "/fail");
+      headers.add("Location", "/admin/fail");
       return new ResponseEntity<>(headers, valueOf(HttpStatusCode.TEMPORARY_REDIRECT));
     }
   }
