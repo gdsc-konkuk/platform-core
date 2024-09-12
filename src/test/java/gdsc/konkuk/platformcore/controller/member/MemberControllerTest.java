@@ -2,7 +2,6 @@ package gdsc.konkuk.platformcore.controller.member;
 
 import static com.epages.restdocs.apispec.ResourceDocumentation.*;
 import static org.mockito.BDDMockito.*;
-import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
@@ -21,21 +20,21 @@ import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistEx
 import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateInfo;
 import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateRequest;
 import gdsc.konkuk.platformcore.controller.member.dtos.MemberRegisterRequest;
+import gdsc.konkuk.platformcore.controller.member.dtos.PasswordChangeRequest;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import gdsc.konkuk.platformcore.fixture.member.MemberAttendancesFixture;
 import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
 import gdsc.konkuk.platformcore.fixture.member.MemberRegisterRequestFixture;
-import gdsc.konkuk.platformcore.global.configs.SecurityConfig;
+import gdsc.konkuk.platformcore.fixture.member.PasswordChangeRequestFixture;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.test.web.servlet.MockMvc;
@@ -44,9 +43,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 @RestDocsTest
-@WebMvcTest(
-    controllers = MemberController.class,
-    excludeFilters = {@ComponentScan.Filter(type = ASSIGNABLE_TYPE, classes = SecurityConfig.class)})
+@SpringBootTest
 class MemberControllerTest {
 
   MockMvc mockMvc;
@@ -103,9 +100,9 @@ class MemberControllerTest {
   void should_success_when_newMember() throws Exception {
     // given
     MemberRegisterRequest memberRegisterRequest = MemberRegisterRequestFixture.builder()
-        .memberId("202400000").password("password").build().getFixture();
+        .memberId("202400000").build().getFixture();
     Member memberToRegister = MemberFixture.builder()
-        .memberId("202400000").password("$2a$10$d7DjseDroHsRGVGR1zDUL").build().getFixture();
+        .memberId("202400000").password("").build().getFixture();
     given(memberService.register(any(MemberRegisterRequest.class))).willReturn(memberToRegister);
 
     // when
@@ -132,7 +129,6 @@ class MemberControllerTest {
                         .responseHeaders(headerWithName("Location").description("등록한 Member URI"))
                         .requestFields(
                             fieldWithPath("memberId").description("회원 아이디"),
-                            fieldWithPath("password").description("비밀번호"),
                             fieldWithPath("email").description("이메일"),
                             fieldWithPath("name").description("이름"),
                             fieldWithPath("department").description("학과"),
@@ -164,6 +160,43 @@ class MemberControllerTest {
 
     // then
     result.andDo(print()).andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @DisplayName("비밀번호 수정 (사실상 회원가입)")
+  void should_success_when_change_initial_admin_password() throws Exception {
+    // given
+    PasswordChangeRequest passwordChangeRequest = PasswordChangeRequestFixture.builder().password("new password").build().getFixture();
+    willDoNothing().given(memberService).changePassword(any(String.class), any(String.class));
+
+    // when
+    ResultActions result =
+        mockMvc.perform(
+            RestDocumentationRequestBuilders.post("/api/v1/members/{member-id}/password", "202400000")
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(passwordChangeRequest))
+                .with(csrf()));
+
+    // then
+    result
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andDo(
+            document(
+                "member/change-password",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                resource(
+                    ResourceSnippetParameters.builder()
+                        .description("비밀번호 수정 (사실상 회원가입)")
+                        .tag("member")
+                        .pathParameters(parameterWithName("member-id").description("학번"))
+                        .requestFields(fieldWithPath("password").description("변경할 비밀번호"))
+                        .responseFields(
+                            fieldWithPath("success").description(true),
+                            fieldWithPath("message").description("비밀번호 변경 성공"),
+                            fieldWithPath("data").description("null"))
+                        .build())));
   }
 
   @Test

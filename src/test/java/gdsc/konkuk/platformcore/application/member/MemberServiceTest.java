@@ -52,7 +52,6 @@ class MemberServiceTest {
     Member memberToRegister = MemberFixture.builder().build().getFixture();
     given(memberRepository.findByMemberId(memberRegisterRequest.getMemberId())).willReturn(Optional.empty());
     given(memberRepository.save(any(Member.class))).willReturn(memberToRegister);
-    given(passwordEncoder.encode(memberRegisterRequest.getPassword())).willReturn(memberToRegister.getPassword());
 
     // when
     Member actual = subject.register(memberRegisterRequest);
