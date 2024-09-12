@@ -59,6 +59,8 @@ public class SecurityConfig {
                     .permitAll()
                     .requestMatchers("/login")
                     .permitAll()
+                    .requestMatchers(HttpMethod.POST, apiPath("/members/{member-id}/password"))
+                    .permitAll()
                     .requestMatchers(HttpMethod.POST, apiPath("/members/check-login"))
                     .authenticated()
                     .anyRequest()

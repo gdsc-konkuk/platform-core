@@ -13,8 +13,6 @@ public class MemberRegisterRequest {
   @NotEmpty
   private String memberId;
   @NotEmpty
-  private String password;
-  @NotEmpty
   private String name;
   @NotEmpty
   private String email;
@@ -28,7 +26,7 @@ public class MemberRegisterRequest {
   public static Member toEntity(MemberRegisterRequest request) {
     return Member.builder()
       .memberId(request.getMemberId())
-      .password(request.getPassword())
+      .password("") // `PasswordEncoder`로 생성할 수 없는 문자열 (로그인 불가해야 함)
       .name(request.getName())
       .email(request.getEmail())
       .department(request.getDepartment())

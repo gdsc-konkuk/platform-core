@@ -2,6 +2,9 @@ package gdsc.konkuk.platformcore.application.member;
 
 import gdsc.konkuk.platformcore.application.attendance.dtos.MemberAttendanceQueryDto;
 import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendances;
+import gdsc.konkuk.platformcore.application.member.exceptions.UserNotAllowedException;
+import gdsc.konkuk.platformcore.application.member.exceptions.UserPasswordInvalidException;
+import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -41,15 +44,28 @@ public class MemberService {
 
   @Transactional
   public Member register(MemberRegisterRequest registerRequest) {
-
     if (checkMemberExistWithMemberId(registerRequest.getMemberId())) {
       throw UserAlreadyExistException.of(MemberErrorCode.USER_ALREADY_EXISTS);
     }
-
-    String encodedPassword = passwordEncoder.encode(registerRequest.getPassword());
-    registerRequest.setPassword(encodedPassword);
-
     return memberRepository.save(MemberRegisterRequest.toEntity(registerRequest));
+  }
+
+  @Transactional
+  public void changePassword(String memberId, String password) {
+    Member member =
+        memberRepository
+            .findByMemberId(memberId)
+            .orElseThrow(() -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));
+
+    if(!member.isPasswordCorrect("")) { // 비밀번호가 초깃값인지 확인
+      throw UserPasswordInvalidException.of(MemberErrorCode.USER_PASSWORD_INVALID);
+    }
+    if(member.getRole() != MemberRole.ADMIN) { // 우선은 관리자만 비밀번호 변경 허용
+      throw UserNotAllowedException.of(MemberErrorCode.USER_NOT_ALLOWED);
+    }
+
+    String encodedPassword = passwordEncoder.encode(password);
+    member.updatePassword(encodedPassword);
   }
 
   @Transactional
