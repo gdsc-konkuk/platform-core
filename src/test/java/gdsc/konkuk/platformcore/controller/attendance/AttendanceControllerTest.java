@@ -165,7 +165,7 @@ class AttendanceControllerTest {
     // then
     result
         .andDo(print())
-        .andExpect(status().isMovedPermanently())
+        .andExpect(status().isTemporaryRedirect())
         .andDo(
             document(
                 "attend",

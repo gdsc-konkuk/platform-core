@@ -59,11 +59,11 @@ public class AttendanceController {
       attendanceService.attend(oidcUser.getEmail(), attendanceId, qrUuid);
       HttpHeaders headers = new HttpHeaders();
       headers.add("Location", "/success");
-      return new ResponseEntity<>(headers, valueOf(HttpStatusCode.MOVED_PERMANENTLY));
+      return new ResponseEntity<>(headers, valueOf(HttpStatusCode.TEMPORARY_REDIRECT));
     }catch(Exception e) {
       HttpHeaders headers = new HttpHeaders();
       headers.add("Location", "/fail");
-      return new ResponseEntity<>(headers, valueOf(HttpStatusCode.MOVED_PERMANENTLY));
+      return new ResponseEntity<>(headers, valueOf(HttpStatusCode.TEMPORARY_REDIRECT));
     }
   }
 
