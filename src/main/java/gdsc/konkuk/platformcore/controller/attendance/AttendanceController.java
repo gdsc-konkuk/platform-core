@@ -1,6 +1,7 @@
 package gdsc.konkuk.platformcore.controller.attendance;
 
 import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.apiPath;
+import static org.springframework.http.HttpStatusCode.valueOf;
 
 import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
 import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceErrorCode;
@@ -17,6 +18,7 @@ import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import software.amazon.awssdk.http.HttpStatusCode;
 
 @RestController
 @RequestMapping("/api/v1/attendances")
@@ -48,12 +51,20 @@ public class AttendanceController {
   }
 
   @GetMapping("/attend/{attendanceId}")
-  public ResponseEntity<SuccessResponse> attend(
+  public ResponseEntity<?> attend(
     @PathVariable Long attendanceId,
     @RequestParam String qrUuid,
     @AuthenticationPrincipal OidcUser oidcUser) {
-    attendanceService.attend(oidcUser.getEmail(), attendanceId, qrUuid);
-    return ResponseEntity.ok(SuccessResponse.messageOnly());
+    try{
+      attendanceService.attend(oidcUser.getEmail(), attendanceId, qrUuid);
+      HttpHeaders headers = new HttpHeaders();
+      headers.add("Location", "/success");
+      return new ResponseEntity<>(headers, valueOf(HttpStatusCode.MOVED_PERMANENTLY));
+    }catch(Exception e) {
+      HttpHeaders headers = new HttpHeaders();
+      headers.add("Location", "/fail");
+      return new ResponseEntity<>(headers, valueOf(HttpStatusCode.MOVED_PERMANENTLY));
+    }
   }
 
   @PostMapping()
