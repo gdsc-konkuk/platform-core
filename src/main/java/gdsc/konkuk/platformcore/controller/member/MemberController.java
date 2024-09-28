@@ -3,6 +3,7 @@ package gdsc.konkuk.platformcore.controller.member;
 import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendances;
 import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateRequest;
 import gdsc.konkuk.platformcore.controller.member.dtos.MemberRegisterRequest;
+import gdsc.konkuk.platformcore.controller.member.dtos.PasswordChangeRequest;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
@@ -44,6 +45,14 @@ public class MemberController {
     Member registeredMember = memberService.register(registerRequest);
     return ResponseEntity.created(getCreatedURI(registeredMember.getId()))
         .body(SuccessResponse.messageOnly());
+  }
+
+  @PostMapping("/{member-id}/password")
+  public ResponseEntity<SuccessResponse> changePassword(
+      @PathVariable("member-id") String memberId,
+      @RequestBody @Valid PasswordChangeRequest passwordChangeRequest) {
+    memberService.changePassword(memberId, passwordChangeRequest.getPassword());
+    return ResponseEntity.ok(SuccessResponse.messageOnly());
   }
 
   @DeleteMapping()

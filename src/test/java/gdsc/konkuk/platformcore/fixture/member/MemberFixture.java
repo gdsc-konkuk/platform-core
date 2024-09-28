@@ -16,7 +16,7 @@ public class MemberFixture {
     this.fixture = Member.builder()
       .id(getDefault(id, 0L))
       .memberId(getDefault(memberId, "202400000"))
-      .password(getDefault(password, "$2a$10$d7DjseDroHsRGVGR1zDUL.q7uwAQ2aH4nHM1JiQ1OFV.D0qUTl7w." /* == encoded "password" */))
+      .password(getDefault(password, "some_encoded_password"))
       .name(getDefault(name, "name"))
       .email(getDefault(email, "ex@gmail.com"))
       .department(getDefault(department, "department"))

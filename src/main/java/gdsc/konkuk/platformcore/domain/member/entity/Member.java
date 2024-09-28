@@ -74,6 +74,14 @@ public class Member {
     softDeletedAt = LocalDateTime.now().plusMonths(SOFT_DELETE_RETENTION_MONTHS);
   }
 
+  public boolean isPasswordCorrect(String password) {
+    return this.password.equals(password);
+  }
+
+  public void updatePassword(String password) {
+    this.password = password;
+  }
+
   public Boolean isMemberDeleted() {
     return isDeleted;
   }

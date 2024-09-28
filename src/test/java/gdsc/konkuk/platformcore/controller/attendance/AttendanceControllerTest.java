@@ -165,7 +165,7 @@ class AttendanceControllerTest {
     // then
     result
         .andDo(print())
-        .andExpect(status().isOk())
+        .andExpect(status().isTemporaryRedirect())
         .andDo(
             document(
                 "attend",
@@ -177,10 +177,7 @@ class AttendanceControllerTest {
                         .tag("attendance")
                         .pathParameters(parameterWithName("attendanceId").description("출석 ID"))
                         .queryParameters(parameterWithName("qrUuid").description("QR 코드 UUID"))
-                        .responseFields(
-                            fieldWithPath("success").description("성공 여부"),
-                            fieldWithPath("message").description("메시지"),
-                            fieldWithPath("data").description("null"))
+                        .responseHeaders(headerWithName("Location").description("출석 결과 페이지"))
                         .build())));
   }
 

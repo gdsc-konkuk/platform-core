@@ -59,7 +59,7 @@ class AuthControllerTest {
   void loginSuccess() throws Exception {
     // given
     Member memberToLogin = MemberFixture.builder()
-        .memberId("202400000").password("$2a$10$d7DjseDroHsRGVGR1zDUL.q7uwAQ2aH4nHM1JiQ1OFV.D0qUTl7w.").build().getFixture();
+        .memberId("202400000").password(passwordEncoder.encode("password")).build().getFixture();
     given(memberRepository.findByMemberId(memberToLogin.getMemberId()))
       .willReturn(Optional.of(memberToLogin));
 
