@@ -11,8 +11,10 @@ import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,11 @@ public class EmailService {
 
   public List<EmailTask> getAllTaskAsList() {
     return emailTaskRepository.findAll();
+  }
+
+  public Page<EmailTask> getAllTaskWithPage(int pageNo) {
+    Pageable pageable = PageRequest.of(pageNo, 10);
+    return emailTaskRepository.findAll(pageable);
   }
 
   public EmailTask getTaskDetails(Long taskId) {
