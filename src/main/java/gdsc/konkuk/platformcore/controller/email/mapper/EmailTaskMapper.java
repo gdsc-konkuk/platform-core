@@ -8,9 +8,14 @@ import gdsc.konkuk.platformcore.controller.email.dtos.SimpleEmailTaskResponse;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EmailTaskMapper {
+
+  public static EmailTaskListResponse mapToEmailTaskPageResponse(Page<EmailTask> emailTasks) {
+    return mapToEmailTaskListResponse(emailTasks.getContent());
+  }
 
   public static EmailTaskListResponse mapToEmailTaskListResponse(List<EmailTask> emailTasks) {
     List<SimpleEmailTaskResponse> simpleEmailTaskResponses =
