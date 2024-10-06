@@ -1,5 +1,5 @@
-# Start with a base image containing Java runtime
-FROM openjdk:17-jdk-alpine
+# Use a multi-architecture base image that supports ARM64
+FROM openjdk:17
 
 # Set the working directory in the container
 WORKDIR /app
