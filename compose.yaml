@@ -1,0 +1,140 @@
+services:
+  mysql:
+    image: mysql:8.0
+    restart: always
+    container_name: mysql
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ${AWS_REGION}
+        awslogs-group: ${AWS_LOG_GROUP}
+        awslogs-stream: mysql
+    networks:
+      - backend
+    volumes:
+      - mysql-data:/var/lib/mysql:rw
+      - ./sql/:/docker-entrypoint-initdb.d/:ro
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+    healthcheck:
+      test: mysqladmin ping --host=mysql --user=${MYSQL_USER} --password=${MYSQL_PASSWORD} || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 3m
+      start_interval: 5s
+
+  spring:
+    image: goldentrash/gdsc-internal:latest
+    container_name: spring-app
+    restart: always
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ${AWS_REGION}
+        awslogs-group: ${AWS_LOG_GROUP}
+        awslogs-stream: spring
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GMAIL_USERNAME: ${GMAIL_USERNAME}
+      GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+      AWS_REGION: ${AWS_REGION}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL}
+    healthcheck:
+      test: wget --spider --tries=1 --no-verbose http://spring:8080/actuator/health || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 3m
+      start_interval: 5s
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ${AWS_REGION}
+        awslogs-group: ${AWS_LOG_GROUP}
+        awslogs-stream: nginx
+    ports:
+      - "0.0.0.0:80:80/tcp"
+      - "0.0.0.0:443:443/tcp"
+    networks:
+      - frontend
+    depends_on:
+      spring:
+        condition: service_healthy
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot/data/:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/letsencrypt/:ro
+    healthcheck:
+      test: curl --fail --silent --show-error http://nginx/health || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 3m
+      start_interval: 5s
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: certbot
+    restart: always
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ${AWS_REGION}
+        awslogs-group: ${AWS_LOG_GROUP}
+        awslogs-stream: certbot
+    volumes:
+      - ./certbot/data:/var/www/certbot/:rw
+      - ./certbot/conf:/etc/letsencrypt/:rw
+    # If your nginx server has not yet been issued an SSL certificate, run the command below
+    # docker compose run --rm certbot certonly --webroot --webroot-path /var/www/certbot/ -d gdsc-konkuk.dev
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12d & wait $${!}; done;'"
+
+  autoheal:
+    image: willfarrell/autoheal:latest
+    container_name: autoheal
+    restart: always
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ${AWS_REGION}
+        awslogs-group: ${AWS_LOG_GROUP}
+        awslogs-stream: autoheal
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      AUTOHEAL_CONTAINER_LABEL: all
+      AUTOHEAL_INTERVAL: 30
+
+volumes:
+  mysql-data:
+
+networks:
+  frontend:
+  backend:
+    internal: true
