@@ -5,6 +5,7 @@ on:
       - main
   pull_request:
     types: [ opened, synchronize, reopened ]
+
 jobs:
   build:
     name: Build and analyze
@@ -33,7 +34,6 @@ jobs:
 
       - name: touch application.yml
         run: |
-          mkdir ./src/main/resources
           touch ./src/main/resources/application.yml
           echo "${{ secrets.APPLICATION_DEV_YML }}" > ./src/main/resources/application.yml
         shell: bash
