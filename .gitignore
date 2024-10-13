@@ -5,6 +5,10 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+### Credentials ###
+.env
+src/main/resources/application.yaml
+
 ### STS ###
 .apt_generated
 .classpath

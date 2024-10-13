@@ -1,18 +1,10 @@
-import io.swagger.v3.oas.models.servers.Server
 import org.hidetake.gradle.swagger.generator.GenerateSwaggerUI
-import org.springframework.boot.gradle.tasks.bundling.BootJar
-
-buildscript {
-    ext {
-        restdocsApiSpecVersion = '0.19.2'
-    }
-}
 
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.1'
     id 'io.spring.dependency-management' version '1.1.5'
-    id "org.sonarqube" version "4.4.1.3373"
+    id 'org.sonarqube' version '4.4.1.3373'
     id 'com.epages.restdocs-api-spec' version '0.19.2'
     id 'org.hidetake.swagger.generator' version '2.19.2'
     id 'jacoco'
@@ -27,8 +19,8 @@ java {
     }
 }
 
-jar {
-    enabled = false
+repositories {
+    mavenCentral()
 }
 
 configurations {
@@ -37,11 +29,8 @@ configurations {
     }
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
+    // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security:2.3.3.RELEASE'
@@ -49,64 +38,101 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
-    implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.0.0")
+
+    // AWS
+    implementation platform('io.awspring.cloud:spring-cloud-aws-dependencies:3.0.0')
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
 
+    // Database
+    runtimeOnly 'com.h2database:h2:2.2.224'
+    implementation 'mysql:mysql-connector-java:8.0.32'
+    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.1'
+
+    // Lombok
     compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
-    runtimeOnly 'com.h2database:h2:2.2.224'
-//    implementation 'mysql:mysql-connector-java:8.0.32'
-    implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.1")
-
-
-    // test dependencies
+    // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
-    testImplementation 'com.epages:restdocs-api-spec:0.19.2'
-    testImplementation 'com.epages:restdocs-api-spec-mockmvc:0.19.2'
+    testImplementation "com.epages:restdocs-api-spec:0.19.2"
+    testImplementation "com.epages:restdocs-api-spec-mockmvc:0.19.2"
     testImplementation 'org.springframework.security:spring-security-test:6.3.1'
 
+    // Swagger UI
     swaggerUI 'org.webjars:swagger-ui:5.0.0'
+
+    // Dev Tools
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+}
+
+jar {
+    enabled = false
+}
+
+bootJar {
+    dependsOn 'copySwaggerUI'
+    doFirst {
+        if (project.hasProperty('excludeSecrets') && project.property('excludeSecrets') == 'true') {
+            exclude 'application.yaml'
+            println 'Excluding application.yaml from the build'
+        }
+    }
+}
+
+resolveMainClassName {
+    dependsOn 'copySwaggerUI'
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy 'jacocoTestReport'
+}
+
+jacoco {
+    toolVersion = '0.8.7'
+}
+
+jacocoTestReport {
+    dependsOn 'copySwaggerUI'
+    reports {
+        html.required = true
+        xml.required = true
+    }
+}
+
+sonar {
+    properties {
+        property 'sonar.projectKey', 'gdsc-konkuk_platform-core'
+        property 'sonar.organization', 'gdsc-konkuk'
+        property 'sonar.host.url', 'https://sonarcloud.io'
+        property 'sonar.coverage.jacoco.xmlReportPaths', layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml")
+    }
 }
 
 openapi3 {
     servers = [
-            { url = 'http://localhost:8080' },
-            { url = 'https://stage.gdsc-konkuk.dev' },
             { url = 'https://gdsc-konkuk.dev' },
-    ] as List<? extends Closure<Server>>
+            { url = 'https://api.gdsc-konkuk.dev' },
+            { url = 'https://stage.gdsc-konkuk.dev' },
+            { url = 'http://localhost:8080' },
+    ]
     title = 'Post Service API'
     description = 'Post Service API description'
     version = '1.0.0'
     format = 'yaml'
 }
 
+postman {
+    baseUrl = 'http://localhost:8080'
+}
+
 swaggerSources {
     sample {
-        setInputFile(file("${project.buildDir}/api-spec/openapi3.yaml"))
-    }
-}
-
-tasks.named('test') {
-    useJUnitPlatform()
-    finalizedBy 'jacocoTestReport'
-}
-
-jacoco {
-    toolVersion = "0.8.7"
-}
-
-jacocoTestReport {
-    dependsOn 'copySwaggerUI'
-
-    reports {
-        html.required = true
-        xml.required = true
+        inputFile = file(layout.buildDirectory.file("api-spec/openapi3.yaml"))
     }
 }
 
@@ -116,31 +142,6 @@ tasks.withType(GenerateSwaggerUI).configureEach {
 
 tasks.register('copySwaggerUI', Copy) {
     dependsOn 'generateSwaggerUISample'
-
-    def generateSwaggerUISampleTask = tasks.named('generateSwaggerUISample', GenerateSwaggerUI).get()
-
-    from("${generateSwaggerUISampleTask.outputDir}")
-    into("${project.buildDir}/resources/main/static/docs")
-}
-
-tasks.resolveMainClassName {
-    dependsOn 'copySwaggerUI'
-}
-
-tasks.withType(BootJar).configureEach {
-    dependsOn 'copySwaggerUI'
-}
-
-tasks.named('jar').configure {
-    dependsOn 'copySwaggerUI'
-}
-
-// sonarqube plugins
-sonar {
-    properties {
-        property "sonar.projectKey", "gdsc-konkuk_platform-core"
-        property "sonar.organization", "gdsc-konkuk"
-        property "sonar.host.url", "https://sonarcloud.io"
-        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
-    }
+    from(tasks.named('generateSwaggerUISample', GenerateSwaggerUI).map { it.outputDir })
+    into(layout.buildDirectory.dir("resources/main/static/docs"))
 }
