@@ -1,13 +1,12 @@
 package gdsc.konkuk.platformcore.global.consts;
 
-import java.util.Arrays;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PlatformConstants {
-  public static final List<String> allowedOrigins = Arrays.asList(
+  public static final List<String> allowedOrigins = List.of(
     "http://localhost:5173", "https://stage.gdsc-konkuk.dev",
     "https://gdsc-konkuk.dev", "https://admin.gdsc-konkuk.dev",
     "https://member.gdsc-konkuk.dev", "https://landing.gdsc-konkuk.dev");
