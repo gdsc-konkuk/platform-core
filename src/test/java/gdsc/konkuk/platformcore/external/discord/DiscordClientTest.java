@@ -6,7 +6,6 @@ import static org.mockito.MockitoAnnotations.openMocks;
 
 import gdsc.konkuk.platformcore.external.email.exceptions.EmailClientErrorCode;
 import gdsc.konkuk.platformcore.external.email.exceptions.EmailSendingException;
-import java.net.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,6 +42,6 @@ class DiscordClientTest {
     subject.sendErrorMessage(e);
 
     // then
-    verify(restTemplate).postForObject(any(URI.class), any(), any());
+    verify(restTemplate).postForObject(any(String.class), any(), any());
   }
 }
