@@ -5,9 +5,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class DiscordEmbed {
+public class DiscordEmbed implements Serializable {
 
   private String title;
   private String description;
