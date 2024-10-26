@@ -19,7 +19,7 @@ public class DiscordMessage implements Serializable {
 
   private final static int MAX_STACK_DEPTH = 2;
   private String content;
-  private List<DiscordEmbed> embeds = new ArrayList<>();
+  private final List<DiscordEmbed> embeds = new ArrayList<>();
 
   public DiscordMessage(String content) {
     this.content = content;
@@ -57,7 +57,7 @@ public class DiscordMessage implements Serializable {
 
   /***
    * 스택트레이스의 최대 2개의 요소만을 반환한다. 디스코드의 Description에는 2048자가 최대길이이다.
-   * https://discord.com/safety/using-webhooks-and-embeds
+   * <a href="https://discord.com/safety/using-webhooks-and-embeds">디스코드 임베딩 규칙</a>
    *
    * @param e 발생한 Exception
    * @return 최대 2개의 스택트레이스 요소를 concat한 문자열 : String
