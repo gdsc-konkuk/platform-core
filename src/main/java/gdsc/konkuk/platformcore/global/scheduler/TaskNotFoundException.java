@@ -1,6 +1,9 @@
-package gdsc.konkuk.platformcore.global.exceptions;
+package gdsc.konkuk.platformcore.global.scheduler;
 
-public class TaskNotFoundException extends BusinessException{
+import gdsc.konkuk.platformcore.global.exceptions.BusinessException;
+import gdsc.konkuk.platformcore.global.exceptions.CustomErrorCode;
+
+public class TaskNotFoundException extends BusinessException {
 
   protected TaskNotFoundException(CustomErrorCode errorCode, String logMessage) {
     super(errorCode, logMessage);
