@@ -80,7 +80,7 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("모든 이벤트를 간략 조회할 수 있다")
-  @WithCustomUser(role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.CORE)
   void should_get_all_events_when_request() throws Exception {
     // given
     given(eventService.getAllBriefs()).willReturn(EventBriefResponseFixture.builder().build().getFixture());
@@ -117,7 +117,7 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("특정 이벤트를 상세 조회할 수 있다")
-  @WithCustomUser(role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.CORE)
   void should_get_event_detail_when_pass_event_id() throws Exception {
     // given
     Event eventToSee = EventFixture.builder()
@@ -161,7 +161,7 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("이벤트를 등록할 수 있다")
-  @WithCustomUser(role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.CORE)
   void should_register_event_when_requested() throws Exception {
     // given
     EventRegisterRequest eventRegisterRequest = EventRegisterRequestFixture.builder().build().getFixture();
@@ -233,7 +233,7 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("이벤트를 수정할 수 있다")
-  @WithCustomUser(role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.CORE)
   void should_update_event_when_requested() throws Exception {
     // given
     EventUpdateRequest eventUpdateRequest = EventUpdateRequestFixture.builder().build().getFixture();
@@ -322,7 +322,7 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("회고 수정 성공")
-  @WithCustomUser(role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.CORE)
   void should_update_retrospect_when_pass_content() throws Exception {
     // given
     Event eventToUpdateRetrospect = EventFixture.builder()
@@ -364,7 +364,7 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("이벤트 삭제 성공")
-  @WithCustomUser(role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.CORE)
   void should_delete_event_when_pass_event_id() throws Exception {
     // given
     Event eventToDelete = EventFixture.builder()

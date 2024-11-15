@@ -50,7 +50,7 @@ class MemberServiceTest {
     // given
     MemberRegisterRequest memberRegisterRequest = MemberRegisterRequestFixture.builder().build().getFixture();
     Member memberToRegister = MemberFixture.builder().build().getFixture();
-    given(memberRepository.findByMemberId(memberRegisterRequest.getMemberId())).willReturn(Optional.empty());
+    given(memberRepository.findByStudentId(memberRegisterRequest.getStudentId())).willReturn(Optional.empty());
     given(memberRepository.save(any(Member.class))).willReturn(memberToRegister);
 
     // when
@@ -66,7 +66,7 @@ class MemberServiceTest {
     // given
     MemberRegisterRequest memberRegisterRequest = MemberRegisterRequestFixture.builder().build().getFixture();
     Member alreadyRegisteredMember = MemberFixture.builder().build().getFixture();
-    given(memberRepository.findByMemberId(memberRegisterRequest.getMemberId()))
+    given(memberRepository.findByStudentId(memberRegisterRequest.getStudentId()))
         .willReturn(Optional.of(alreadyRegisteredMember));
 
     // when

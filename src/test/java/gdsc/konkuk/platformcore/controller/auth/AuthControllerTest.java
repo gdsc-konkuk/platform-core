@@ -59,15 +59,15 @@ class AuthControllerTest {
   void loginSuccess() throws Exception {
     // given
     Member memberToLogin = MemberFixture.builder()
-        .memberId("202400000").password(passwordEncoder.encode("password")).build().getFixture();
-    given(memberRepository.findByMemberId(memberToLogin.getMemberId()))
+        .studentId("202400000").password(passwordEncoder.encode("password")).build().getFixture();
+    given(memberRepository.findByStudentId(memberToLogin.getStudentId()))
       .willReturn(Optional.of(memberToLogin));
 
     // when
     ResultActions result =
       mockMvc.perform(
         RestDocumentationRequestBuilders.multipart("/login")
-          .formField("id", memberToLogin.getMemberId())
+          .formField("id", memberToLogin.getStudentId())
           .formField("password", "password")
           .contentType("application/x-www-form-urlencoded")
           .characterEncoding("UTF-8")
@@ -91,7 +91,7 @@ class AuthControllerTest {
   @DisplayName("존재하지 않는 사용자 로그인 실패")
   void loginFail() throws Exception {
     // given
-    given(memberRepository.findByMemberId(any())).willReturn(Optional.empty());
+    given(memberRepository.findByStudentId(any())).willReturn(Optional.empty());
 
     // when
     ResultActions result =

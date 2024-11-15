@@ -74,7 +74,7 @@ class EmailControllerTest {
 
   @Test
   @DisplayName("이메일 전송 작업 등록 성공")
-  @WithCustomUser(role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.CORE)
   void should_success_when_send_email() throws Exception {
     //given
     EmailSendRequest request = EmailSendRequestFixture.builder().build().getFixture();
@@ -109,7 +109,7 @@ class EmailControllerTest {
 
   @Test
   @DisplayName("이메일 등록 내용 수정")
-  @WithCustomUser(role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.CORE)
   void should_success_when_update_emailTask() throws Exception {
     //given
     EmailTask emailTaskToUpdate = EmailTaskFixture.builder()
@@ -145,7 +145,7 @@ class EmailControllerTest {
 
   @Test
   @DisplayName("이메일 전송 조회 - 모든 이메일 전송 작업 조회")
-  @WithCustomUser(role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.CORE)
   void should_success_when_get_all_task() throws Exception {
     //given
     List<EmailTask> emailTasksToSee = List.of(
@@ -186,7 +186,7 @@ class EmailControllerTest {
 
   @Test
   @DisplayName("이메일 전송 조회 - 특정 이메일 전송 작업 세부내용 조회")
-  @WithCustomUser(role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.CORE)
   void should_success_when_get_specific_task() throws Exception {
     //given
     EmailTask emailTaskToSee = EmailTaskFixture.builder()
@@ -227,7 +227,7 @@ class EmailControllerTest {
 
   @Test
   @DisplayName("등록된 이메일 작업을 취소한다.")
-  @WithCustomUser(role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.CORE)
   void should_success_when_cancel_registered_task() throws Exception {
     //given
     EmailTask emailTaskToCancel = EmailTaskFixture.builder()

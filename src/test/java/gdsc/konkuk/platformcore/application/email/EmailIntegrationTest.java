@@ -20,7 +20,7 @@ import gdsc.konkuk.platformcore.external.email.EmailClient;
 import gdsc.konkuk.platformcore.external.email.exceptions.EmailSendingException;
 import gdsc.konkuk.platformcore.fixture.email.EmailSendRequestFixture;
 import gdsc.konkuk.platformcore.global.exceptions.GlobalErrorCode;
-import gdsc.konkuk.platformcore.global.exceptions.TaskNotFoundException;
+import gdsc.konkuk.platformcore.global.scheduler.TaskNotFoundException;
 import gdsc.konkuk.platformcore.global.scheduler.TaskInMemoryRepository;
 import java.time.LocalDateTime;
 import java.util.concurrent.ScheduledThreadPoolExecutor;

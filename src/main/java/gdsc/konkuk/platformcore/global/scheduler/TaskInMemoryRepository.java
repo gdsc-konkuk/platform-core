@@ -1,7 +1,6 @@
 package gdsc.konkuk.platformcore.global.scheduler;
 
 import gdsc.konkuk.platformcore.global.exceptions.GlobalErrorCode;
-import gdsc.konkuk.platformcore.global.exceptions.TaskNotFoundException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledFuture;

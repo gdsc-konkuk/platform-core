@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
-  Optional<Member> findByMemberId(String memberId);
+  Optional<Member> findByStudentId(String studentId);
 
   Optional<Member> findByEmail(String memberEmail);
 
