@@ -112,11 +112,14 @@ services:
         awslogs-group: ${AWS_LOG_GROUP}
         awslogs-stream: certbot
         awslogs-multiline-pattern: "^Saving debug log to"
+    depends_on:
+      nginx:
+        condition: service_healthy
     volumes:
       - ./certbot/data:/var/www/certbot/:rw
       - ./certbot/conf:/etc/letsencrypt/:rw
     # If your nginx server has not yet been issued an SSL certificate, run the command below
-    # docker compose run --rm certbot certonly --webroot --webroot-path /var/www/certbot/ -d gdsc-konkuk.dev
+    # docker compose run --rm certbot certonly --webroot --webroot-path /var/www/certbot/ -d api.gdsc-konkuk.dev
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12d & wait $${!}; done;'"
 
   autoheal:
