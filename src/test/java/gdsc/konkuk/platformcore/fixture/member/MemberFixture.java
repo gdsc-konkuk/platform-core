@@ -12,10 +12,10 @@ public class MemberFixture {
   private final Member fixture;
 
   @Builder
-  public MemberFixture(Long id, String memberId, String password, String name, String email, String department, MemberRole role, String batch) {
+  public MemberFixture(Long id, String studentId, String password, String name, String email, String department, MemberRole role, String batch) {
     this.fixture = Member.builder()
       .id(getDefault(id, 0L))
-      .memberId(getDefault(memberId, "202400000"))
+      .studentId(getDefault(studentId, "202400000"))
       .password(getDefault(password, "some_encoded_password"))
       .name(getDefault(name, "name"))
       .email(getDefault(email, "ex@gmail.com"))

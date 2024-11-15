@@ -100,9 +100,9 @@ class MemberControllerTest {
   void should_success_when_newMember() throws Exception {
     // given
     MemberRegisterRequest memberRegisterRequest = MemberRegisterRequestFixture.builder()
-        .memberId("202400000").build().getFixture();
+        .studentId("202400000").build().getFixture();
     Member memberToRegister = MemberFixture.builder()
-        .memberId("202400000").password("").build().getFixture();
+        .studentId("202400000").password("").build().getFixture();
     given(memberService.register(any(MemberRegisterRequest.class))).willReturn(memberToRegister);
 
     // when
@@ -128,7 +128,7 @@ class MemberControllerTest {
                         .tag("member")
                         .responseHeaders(headerWithName("Location").description("등록한 Member URI"))
                         .requestFields(
-                            fieldWithPath("memberId").description("회원 아이디"),
+                            fieldWithPath("studentId").description("회원 아이디"),
                             fieldWithPath("email").description("이메일"),
                             fieldWithPath("name").description("이름"),
                             fieldWithPath("department").description("학과"),

@@ -31,8 +31,8 @@ public class Member {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(name = "member_id", unique = true)
-  private String memberId;
+  @Column(name = "student_id", unique = true)
+  private String studentId;
 
   @Column(name = "password")
   private String password;
@@ -93,7 +93,7 @@ public class Member {
   @Builder
   public Member(
       Long id,
-      String memberId,
+      String studentId,
       String password,
       String name,
       String email,
@@ -102,7 +102,7 @@ public class Member {
       String role,
       String batch) {
     this.id = id;
-    this.memberId = validateNotNull(memberId, "memberId");
+    this.studentId = validateNotNull(studentId, "memberId");
     this.password = validateNotNull(password, "password");
     this.name = validateNotNull(name, "name");
     this.email = validateNotNull(email, "email");

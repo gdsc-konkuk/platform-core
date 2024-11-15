@@ -44,17 +44,17 @@ public class MemberService {
 
   @Transactional
   public Member register(MemberRegisterRequest registerRequest) {
-    if (checkMemberExistWithMemberId(registerRequest.getMemberId())) {
+    if (checkMemberExistWithStudentId(registerRequest.getStudentId())) {
       throw UserAlreadyExistException.of(MemberErrorCode.USER_ALREADY_EXISTS);
     }
     return memberRepository.save(MemberRegisterRequest.toEntity(registerRequest));
   }
 
   @Transactional
-  public void changePassword(String memberId, String password) {
+  public void changePassword(String studentId, String password) {
     Member member =
         memberRepository
-            .findByMemberId(memberId)
+            .findByStudentId(studentId)
             .orElseThrow(() -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));
 
     if(!member.isPasswordCorrect("")) { // 비밀번호가 초깃값인지 확인
@@ -113,8 +113,8 @@ public class MemberService {
         .collect(toMap(Participant::getId, identity()));
   }
 
-  private boolean checkMemberExistWithMemberId(String memberId) {
-    Optional<Member> member = memberRepository.findByMemberId(memberId);
+  private boolean checkMemberExistWithStudentId(String studentId) {
+    Optional<Member> member = memberRepository.findByStudentId(studentId);
     return member.isPresent();
   }
 }
