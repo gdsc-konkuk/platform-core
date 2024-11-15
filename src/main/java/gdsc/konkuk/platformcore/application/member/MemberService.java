@@ -60,7 +60,7 @@ public class MemberService {
     if(!member.isPasswordCorrect("")) { // 비밀번호가 초깃값인지 확인
       throw UserPasswordInvalidException.of(MemberErrorCode.USER_PASSWORD_INVALID);
     }
-    if(member.getRole() != MemberRole.ADMIN) { // 우선은 관리자만 비밀번호 변경 허용
+    if(member.getRole() != MemberRole.CORE) { // 우선은 관리자만 비밀번호 변경 허용
       throw UserNotAllowedException.of(MemberErrorCode.USER_NOT_ALLOWED);
     }
 

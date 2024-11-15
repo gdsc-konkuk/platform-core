@@ -64,7 +64,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST, apiPath("/members/check-login"))
                     .authenticated()
                     .anyRequest()
-                    .hasRole("ADMIN"))
+                    .hasAnyRole("CORE", "LEAD"))
         .exceptionHandling(
             exception ->
                 exception.authenticationEntryPoint(

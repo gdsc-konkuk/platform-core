@@ -96,7 +96,7 @@ class MemberControllerTest {
 
   @Test
   @DisplayName("새로운 멤버 회원 가입 성공")
-  @WithCustomUser(role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.CORE)
   void should_success_when_newMember() throws Exception {
     // given
     MemberRegisterRequest memberRegisterRequest = MemberRegisterRequestFixture.builder()
@@ -143,7 +143,7 @@ class MemberControllerTest {
 
   @Test
   @DisplayName("이미 존재하는 유저 회원 가입 실패")
-  @WithCustomUser(role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.CORE)
   void should_fail_when_existingMember() throws Exception {
     // given
     MemberRegisterRequest memberRegisterRequest = MemberRegisterRequestFixture.builder().build().getFixture();
@@ -201,7 +201,7 @@ class MemberControllerTest {
 
   @Test
   @DisplayName("회원 탈퇴 성공")
-  @WithCustomUser(role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.CORE)
   void should_success_when_delete_member() throws Exception {
     // given
     Member memberToWithdraw = MemberFixture.builder().build().getFixture();
@@ -232,7 +232,7 @@ class MemberControllerTest {
 
   @Test
   @DisplayName("특정 배치의 특정 월의 멤버 출석 정보 조회 성공")
-  @WithCustomUser(role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.CORE)
   void should_success_when_get_attendances_by_batch() throws Exception {
     // given
     // TODO: 좀 더 상세하고 정확한 Fixture 필요 (`batch`, `eventId`, `participantId` 등)
@@ -299,7 +299,7 @@ class MemberControllerTest {
 
   @Test
   @DisplayName("특정 배치의 특정 월의 멤버 출석 정보 수정 성공")
-  @WithCustomUser(role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.CORE)
   void should_success_when_update_attendances_by_batch() throws Exception {
     // given
     List<AttendanceUpdateInfo> attendanceUpdateInfoList = List.of(

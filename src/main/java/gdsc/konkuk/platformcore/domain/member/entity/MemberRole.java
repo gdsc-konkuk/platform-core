@@ -2,7 +2,7 @@ package gdsc.konkuk.platformcore.domain.member.entity;
 
 public enum MemberRole {
   LEAD("ROLE_LEAD"),
-  ADMIN("ROLE_ADMIN"),
+  CORE("ROLE_CORE"),
   MEMBER("ROLE_MEMBER");
 
   private final String authority;
@@ -10,7 +10,7 @@ public enum MemberRole {
   public static MemberRole from(String role) {
     return switch (role) {
       case "ROLE_LEAD" -> LEAD;
-      case "ROLE_ADMIN" -> ADMIN;
+      case "ROLE_CORE" -> CORE;
       case "ROLE_MEMBER" -> MEMBER;
       default -> throw new IllegalArgumentException("Invalid role: " + role);
     };

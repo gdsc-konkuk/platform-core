@@ -82,7 +82,7 @@ class AttendanceControllerTest {
 
   @Test
   @DisplayName("특정 달의 출석 정보를 조회할 수 있다")
-  @WithCustomUser(role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.CORE)
   void should_get_events_of_the_month_when_pass_year_month() throws Exception {
     // given
     given(eventService.getEventsOfTheMonthWithAttendance(LocalDate.of(2024, 7, 1)))
@@ -225,7 +225,7 @@ class AttendanceControllerTest {
 
   @Test
   @DisplayName("출석 현황을 조회할 수 있다")
-  @WithCustomUser(role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.CORE)
   void should_get_attendance_status_when_pass_attendance_id() throws Exception {
     // given
     Attendance attendanceToGetStatus = AttendanceFixture.builder()
@@ -266,7 +266,7 @@ class AttendanceControllerTest {
 
   @Test
   @DisplayName("이벤트 출석을 삭제할 수 있다")
-  @WithCustomUser(role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.CORE)
   void should_delete_attendance_when_pass_event_id() throws Exception {
     // given
     Attendance attendanceToDelete = AttendanceFixture.builder()
@@ -300,7 +300,7 @@ class AttendanceControllerTest {
 
   @Test
   @DisplayName("QR 코드를 생성할 수 있다")
-  @WithCustomUser(role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.CORE)
   void should_generate_qr_when_pass_attendance_id() throws Exception {
     // given
     Attendance attendanceToActive = AttendanceFixture.builder()
@@ -344,7 +344,7 @@ class AttendanceControllerTest {
 
   @Test
   @DisplayName("QR 코드를 만료시킬 수 있다")
-  @WithCustomUser(role = MemberRole.ADMIN)
+  @WithCustomUser(role = MemberRole.CORE)
   void should_expire_qr_when_pass_attendance_id_and_qr_uuid() throws Exception {
     // given
     Attendance attendanceToInactive = AttendanceFixture.builder()
