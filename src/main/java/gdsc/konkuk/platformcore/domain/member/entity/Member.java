@@ -34,9 +34,6 @@ public class Member {
   @Column(name = "student_id", unique = true)
   private String studentId;
 
-  @Column(name = "password")
-  private String password;
-
   @Column(name = "member_name")
   private String name;
 
@@ -49,9 +46,6 @@ public class Member {
 
   @Column(name = "department")
   private String department;
-
-  @Column(name = "is_activated")
-  private boolean isActivated = true;
 
   @Column(name = "is_deleted")
   private boolean isDeleted = false;
@@ -74,27 +68,14 @@ public class Member {
     softDeletedAt = LocalDateTime.now().plusMonths(SOFT_DELETE_RETENTION_MONTHS);
   }
 
-  public boolean isPasswordCorrect(String password) {
-    return this.password.equals(password);
-  }
-
-  public void updatePassword(String password) {
-    this.password = password;
-  }
-
   public Boolean isMemberDeleted() {
     return isDeleted;
-  }
-
-  public Boolean isMemberActivated() {
-    return isActivated;
   }
 
   @Builder
   public Member(
       Long id,
       String studentId,
-      String password,
       String name,
       String email,
       //      String profileImageUrl,
@@ -103,7 +84,6 @@ public class Member {
       String batch) {
     this.id = id;
     this.studentId = validateNotNull(studentId, "memberId");
-    this.password = validateNotNull(password, "password");
     this.name = validateNotNull(name, "name");
     this.email = validateNotNull(email, "email");
     //    this.profileImageUrl = profileImageUrl;
