@@ -42,6 +42,10 @@ spring:
       s3:
         bucket: ${AWS_S3_BUCKET}
 
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
+
 discord:
   webhook:
     url: ${DISCORD_WEBHOOK_URL}
