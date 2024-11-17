@@ -16,12 +16,12 @@ import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,9 +54,9 @@ public class AttendanceController {
   public ResponseEntity<?> attend(
     @PathVariable Long attendanceId,
     @RequestParam String qrUuid,
-    @AuthenticationPrincipal OidcUser oidcUser) {
+    @AuthenticationPrincipal Map<String, Object> principal) {
     try{
-      attendanceService.attend(oidcUser.getEmail(), attendanceId, qrUuid);
+      attendanceService.attend((String) principal.get("email"), attendanceId, qrUuid);
       HttpHeaders headers = new HttpHeaders();
       headers.add("Location", "/admin/attendance-return/success");
       return new ResponseEntity<>(headers, valueOf(HttpStatusCode.TEMPORARY_REDIRECT));
