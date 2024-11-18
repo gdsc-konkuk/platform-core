@@ -61,6 +61,8 @@ services:
       AWS_REGION: ${AWS_REGION}
       AWS_S3_BUCKET: ${AWS_S3_BUCKET}
       DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
     healthcheck:
       test: curl --fail --silent --show-error http://spring:8080/actuator/health || exit 1
       interval: 30s
