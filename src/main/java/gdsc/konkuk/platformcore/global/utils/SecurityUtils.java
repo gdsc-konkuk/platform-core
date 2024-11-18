@@ -1,5 +1,6 @@
 package gdsc.konkuk.platformcore.global.utils;
 
+import java.util.Map;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -17,7 +18,9 @@ public class SecurityUtils {
     }
 
     if (authentication.isAuthenticated()) {
-      return Long.valueOf(authentication.getName());
+      Map<String, Object> principal = (Map<String, Object>) authentication.getPrincipal();
+      String memberId = principal.get("memberId").toString();
+      return Long.valueOf(memberId);
     }
 
     throw new IllegalStateException("비정상적인 인증정보입니다.");

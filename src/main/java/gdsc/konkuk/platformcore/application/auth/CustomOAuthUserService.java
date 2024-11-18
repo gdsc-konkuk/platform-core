@@ -27,14 +27,14 @@ public class CustomOAuthUserService extends OidcUserService {
     public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
         try {
             OidcUser oidcUser = super.loadUser(userRequest);
-            return processOAuth2User(userRequest, oidcUser);
+            return processOAuth2User(oidcUser);
         } catch (Exception ex) {
             throw new OAuth2AuthenticationException(
                 new OAuth2Error("processing_error", "Failed to process user info", null));
         }
     }
 
-    private OidcUser processOAuth2User(OidcUserRequest _userRequest, OidcUser oidcUser) {
+    private OidcUser processOAuth2User(OidcUser oidcUser) {
         String email = oidcUser.getEmail();
         Member member = memberRepository.findByEmail(email)
             .orElseThrow(() -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));

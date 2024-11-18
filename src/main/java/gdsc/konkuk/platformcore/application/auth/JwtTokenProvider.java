@@ -37,7 +37,8 @@ public class JwtTokenProvider {
 
     public String createToken(Member member) {
         Claims claims = Jwts.claims()
-                .subject(member.getStudentId())
+                .subject(member.getId().toString())
+                .add("studentId", member.getStudentId())
                 .add("email", member.getEmail())
                 .add("roles", List.of(member.getRole()))
                 .build();
@@ -63,7 +64,8 @@ public class JwtTokenProvider {
                 .collect(Collectors.toList());
 
         Map<String, Object> principal = new HashMap<>();
-        principal.put("studentId", claims.getSubject());
+        principal.put("memberId", claims.getSubject());
+        principal.put("studentId", claims.get("studentId", String.class));
         principal.put("email", claims.get("email", String.class));
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }

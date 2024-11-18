@@ -13,15 +13,14 @@ import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceResponse;
 import gdsc.konkuk.platformcore.application.attendance.dtos.AttendanceStatus;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
 import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
+import gdsc.konkuk.platformcore.global.utils.SecurityUtils;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,12 +50,10 @@ public class AttendanceController {
   }
 
   @GetMapping("/attend/{attendanceId}")
-  public ResponseEntity<?> attend(
-    @PathVariable Long attendanceId,
-    @RequestParam String qrUuid,
-    @AuthenticationPrincipal Map<String, Object> principal) {
+  public ResponseEntity<?> attend(@PathVariable Long attendanceId, @RequestParam String qrUuid) {
     try{
-      attendanceService.attend((String) principal.get("email"), attendanceId, qrUuid);
+      Long currentId = SecurityUtils.getCurrentUserId();
+      attendanceService.attend(currentId, attendanceId, qrUuid);
       HttpHeaders headers = new HttpHeaders();
       headers.add("Location", "https://admin.gdsc-konkuk.dev/attendance-return/success");
       return new ResponseEntity<>(headers, valueOf(HttpStatusCode.TEMPORARY_REDIRECT));

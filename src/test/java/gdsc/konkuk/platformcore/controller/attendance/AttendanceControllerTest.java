@@ -4,9 +4,9 @@ import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import gdsc.konkuk.platformcore.annotation.RestDocsTest;
-import gdsc.konkuk.platformcore.annotation.WithCustomUser;
 import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
 import gdsc.konkuk.platformcore.application.attendance.dtos.AttendanceStatus;
+import gdsc.konkuk.platformcore.application.auth.JwtTokenProvider;
 import gdsc.konkuk.platformcore.application.event.EventService;
 import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceRegisterRequest;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
@@ -18,7 +18,6 @@ import gdsc.konkuk.platformcore.fixture.attendance.AttendanceRegisterRequestFixt
 import gdsc.konkuk.platformcore.fixture.attendance.ParticipantFixture;
 import gdsc.konkuk.platformcore.fixture.event.EventWithAttendanceFixture;
 import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
-import gdsc.konkuk.platformcore.global.configs.SecurityConfig;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,9 +25,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.test.web.servlet.MockMvc;
@@ -42,7 +40,6 @@ import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
-import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
@@ -57,14 +54,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RestDocsTest
-@WebMvcTest(
-    controllers = AttendanceController.class,
-    excludeFilters = {@ComponentScan.Filter(type = ASSIGNABLE_TYPE, classes = SecurityConfig.class)})
+@SpringBootTest
 class AttendanceControllerTest {
 
   private MockMvc mockMvc;
 
   @Autowired private ObjectMapper objectMapper;
+  @Autowired private JwtTokenProvider jwtTokenProvider;
 
   @MockBean private AttendanceService attendanceService;
   @MockBean private EventService eventService;
@@ -82,9 +78,10 @@ class AttendanceControllerTest {
 
   @Test
   @DisplayName("특정 달의 출석 정보를 조회할 수 있다")
-  @WithCustomUser(role = MemberRole.CORE)
   void should_get_events_of_the_month_when_pass_year_month() throws Exception {
     // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
     given(eventService.getEventsOfTheMonthWithAttendance(LocalDate.of(2024, 7, 1)))
         .willReturn(
             List.of(
@@ -108,6 +105,7 @@ class AttendanceControllerTest {
     ResultActions result =
         mockMvc.perform(
             RestDocumentationRequestBuilders.get("/api/v1/attendances")
+                .header("Authorization", "Bearer " + jwt)
                 .queryParam("year", "2024")
                 .queryParam("month", "07")
                 .with(csrf()));
@@ -125,6 +123,7 @@ class AttendanceControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("특정 달의 출석 정보를 조회할 수 있다")
                         .tag("attendance")
+                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .queryParameters(
                             parameterWithName("year").description("년도"),
                             parameterWithName("month").description("월"))
@@ -144,9 +143,10 @@ class AttendanceControllerTest {
     // given
     Member memberToAttend = MemberFixture.builder()
         .email("ex@gmail.com").build().getFixture();
+    String jwt = jwtTokenProvider.createToken(memberToAttend);
     Attendance attendanceToAttend = AttendanceFixture.builder()
         .id(1L).activeQrUuid("uuid").build().getFixture();
-    given(attendanceService.attend(memberToAttend.getEmail(), attendanceToAttend.getId(), attendanceToAttend.getActiveQrUuid()))
+    given(attendanceService.attend(memberToAttend.getId(), attendanceToAttend.getId(), attendanceToAttend.getActiveQrUuid()))
         .willReturn(ParticipantFixture.builder()
             .isAttended(true)
             .memberId(memberToAttend.getId())
@@ -158,6 +158,7 @@ class AttendanceControllerTest {
         mockMvc.perform(
             RestDocumentationRequestBuilders.get(
                     "/api/v1/attendances/attend/{attendanceId}", 1L)
+                .header("Authorization", "Bearer " + jwt)
                 .queryParam("qrUuid", "uuid")
                 .with(oidcLogin()
                     .idToken(token -> token.claim("email", "ex@gmail.com"))));
@@ -175,6 +176,7 @@ class AttendanceControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("이벤트에 출석할 수 있다")
                         .tag("attendance")
+                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .pathParameters(parameterWithName("attendanceId").description("출석 ID"))
                         .queryParameters(parameterWithName("qrUuid").description("QR 코드 UUID"))
                         .responseHeaders(headerWithName("Location").description("출석 결과 페이지"))
@@ -183,9 +185,10 @@ class AttendanceControllerTest {
 
   @Test
   @DisplayName("이벤트 출석을 등록할 수 있다")
-  @WithCustomUser
   void should_register_attendance_when_pass_event_id() throws Exception {
     // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
     AttendanceRegisterRequest registerRequest = AttendanceRegisterRequestFixture.builder()
         .eventId(1L).build().getFixture();
     Attendance attendanceToRegister = AttendanceFixture.builder()
@@ -197,6 +200,7 @@ class AttendanceControllerTest {
     ResultActions result =
         mockMvc.perform(
             RestDocumentationRequestBuilders.post("/api/v1/attendances")
+                .header("Authorization", "Bearer " + jwt)
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequest))
                 .with(csrf()));
@@ -214,6 +218,7 @@ class AttendanceControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("이벤트 출석을 등록할 수 있다")
                         .tag("attendance")
+                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .responseHeaders(headerWithName("Location").description("등록한 출석"))
                         .responseFields(
                             fieldWithPath("success").description("성공 여부"),
@@ -225,9 +230,10 @@ class AttendanceControllerTest {
 
   @Test
   @DisplayName("출석 현황을 조회할 수 있다")
-  @WithCustomUser(role = MemberRole.CORE)
   void should_get_attendance_status_when_pass_attendance_id() throws Exception {
     // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
     Attendance attendanceToGetStatus = AttendanceFixture.builder()
         .id(1L).build().getFixture();
     given(attendanceService.getAttendanceStatus(attendanceToGetStatus.getId()))
@@ -239,6 +245,7 @@ class AttendanceControllerTest {
             RestDocumentationRequestBuilders.get(
                     "/api/v1/attendances/{attendanceId}/status",
                     1L)
+                .header("Authorization", "Bearer " + jwt)
                 .with(csrf()));
 
     // then
@@ -254,6 +261,7 @@ class AttendanceControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("출석 현황을 조회할 수 있다")
                         .tag("attendance")
+                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .pathParameters(parameterWithName("attendanceId").description("출석 ID"))
                         .responseFields(
                             fieldWithPath("success").description("성공 여부"),
@@ -266,9 +274,10 @@ class AttendanceControllerTest {
 
   @Test
   @DisplayName("이벤트 출석을 삭제할 수 있다")
-  @WithCustomUser(role = MemberRole.CORE)
   void should_delete_attendance_when_pass_event_id() throws Exception {
     // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
     Attendance attendanceToDelete = AttendanceFixture.builder()
         .id(1L).build().getFixture();
     willDoNothing().given(attendanceService).deleteAttendance(attendanceToDelete.getId());
@@ -278,6 +287,7 @@ class AttendanceControllerTest {
         mockMvc.perform(
             RestDocumentationRequestBuilders.delete(
                 "/api/v1/attendances/{attendanceId}", 1L)
+                .header("Authorization", "Bearer " + jwt)
                 .contentType(APPLICATION_JSON)
                 .with(csrf()));
 
@@ -294,15 +304,17 @@ class AttendanceControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("이벤트 출석을 삭제할 수 있다")
                         .tag("attendance")
+                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .pathParameters(parameterWithName("attendanceId").description("출석 ID"))
                         .build())));
   }
 
   @Test
   @DisplayName("QR 코드를 생성할 수 있다")
-  @WithCustomUser(role = MemberRole.CORE)
   void should_generate_qr_when_pass_attendance_id() throws Exception {
     // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
     Attendance attendanceToActive = AttendanceFixture.builder()
         .id(1L).build().getFixture();
     given(attendanceService.generateQr(attendanceToActive.getId()))
@@ -316,6 +328,7 @@ class AttendanceControllerTest {
         mockMvc.perform(
             RestDocumentationRequestBuilders.post(
                     "/api/v1/attendances/{attendanceId}/qr", 1L)
+                .header("Authorization", "Bearer " + jwt)
                 .contentType(APPLICATION_JSON)
                 .with(csrf()));
 
@@ -332,6 +345,7 @@ class AttendanceControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("QR 코드를 생성할 수 있다")
                         .tag("attendance")
+                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .pathParameters(parameterWithName("attendanceId").description("출석 ID"))
                         .responseHeaders(headerWithName("Location").description("출석 URL"))
                         .responseFields(
@@ -344,9 +358,10 @@ class AttendanceControllerTest {
 
   @Test
   @DisplayName("QR 코드를 만료시킬 수 있다")
-  @WithCustomUser(role = MemberRole.CORE)
   void should_expire_qr_when_pass_attendance_id_and_qr_uuid() throws Exception {
     // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
     Attendance attendanceToInactive = AttendanceFixture.builder()
         .id(1L).build().getFixture();
     willDoNothing().given(attendanceService).expireQr(attendanceToInactive.getId());
@@ -356,6 +371,7 @@ class AttendanceControllerTest {
         mockMvc.perform(
             RestDocumentationRequestBuilders.delete(
                     "/api/v1/attendances/{attendanceId}/qr", 1L)
+                .header("Authorization", "Bearer " + jwt)
                 .contentType(APPLICATION_JSON)
                 .with(csrf()));
 
@@ -372,6 +388,7 @@ class AttendanceControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("QR 코드를 만료시킬 수 있다")
                         .tag("attendance")
+                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .pathParameters(parameterWithName("attendanceId").description("출석 ID"))
                         .build())));
   }

@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.MockitoAnnotations.openMocks;
-import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
@@ -23,27 +22,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gdsc.konkuk.platformcore.annotation.RestDocsTest;
-import gdsc.konkuk.platformcore.annotation.WithCustomUser;
+import gdsc.konkuk.platformcore.application.auth.JwtTokenProvider;
 import gdsc.konkuk.platformcore.application.event.EventService;
 import gdsc.konkuk.platformcore.controller.event.dtos.EventDetailResponse;
 import gdsc.konkuk.platformcore.controller.event.dtos.EventRegisterRequest;
 import gdsc.konkuk.platformcore.controller.event.dtos.EventUpdateRequest;
 import gdsc.konkuk.platformcore.controller.event.dtos.RetrospectUpdateRequest;
 import gdsc.konkuk.platformcore.domain.event.entity.Event;
+import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import gdsc.konkuk.platformcore.fixture.event.EventBriefResponseFixture;
 import gdsc.konkuk.platformcore.fixture.event.EventFixture;
 import gdsc.konkuk.platformcore.fixture.event.EventRegisterRequestFixture;
 import gdsc.konkuk.platformcore.fixture.event.EventUpdateRequestFixture;
-import gdsc.konkuk.platformcore.global.configs.SecurityConfig;
+import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
@@ -55,9 +54,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestDocsTest
-@WebMvcTest(
-    controllers = EventController.class,
-    excludeFilters = {@ComponentScan.Filter(type = ASSIGNABLE_TYPE, classes = SecurityConfig.class)})
+@SpringBootTest
 public class EventControllerTest {
 
   private MockMvc mockMvc;
@@ -65,6 +62,7 @@ public class EventControllerTest {
   @MockBean private EventService eventService;
 
   @Autowired private ObjectMapper objectMapper;
+  @Autowired private JwtTokenProvider jwtTokenProvider;
 
   @BeforeEach
   void setUp(
@@ -80,15 +78,17 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("모든 이벤트를 간략 조회할 수 있다")
-  @WithCustomUser(role = MemberRole.CORE)
   void should_get_all_events_when_request() throws Exception {
     // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
     given(eventService.getAllBriefs()).willReturn(EventBriefResponseFixture.builder().build().getFixture());
 
     // when
     ResultActions result =
         mockMvc.perform(RestDocumentationRequestBuilders
             .get("/api/v1/events")
+            .header("Authorization", "Bearer " + jwt)
             .with(csrf()));
 
     // then
@@ -104,6 +104,7 @@ public class EventControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("모든 이벤트를 조회할 수 있다")
                         .tag("events")
+                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .responseFields(
                             fieldWithPath("success").description("성공 여부"),
                             fieldWithPath("message").description("메시지"),
@@ -117,9 +118,10 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("특정 이벤트를 상세 조회할 수 있다")
-  @WithCustomUser(role = MemberRole.CORE)
   void should_get_event_detail_when_pass_event_id() throws Exception {
     // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
     Event eventToSee = EventFixture.builder()
         .id(1L).build().getFixture();
     given(eventService.getEvent(eventToSee.getId())).willReturn(EventDetailResponse.fromEntity(eventToSee));
@@ -129,6 +131,7 @@ public class EventControllerTest {
         mockMvc.perform(
             RestDocumentationRequestBuilders
                 .get("/api/v1/events/{eventId}", 1L)
+                .header("Authorization", "Bearer " + jwt)
                 .with(csrf()));
 
     // then
@@ -144,6 +147,7 @@ public class EventControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("특정 이벤트를 상세 조회할 수 있다")
                         .tag("events")
+                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .pathParameters(parameterWithName("eventId").description("이벤트 ID"))
                         .responseFields(
                             fieldWithPath("success").description("성공 여부"),
@@ -161,9 +165,10 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("이벤트를 등록할 수 있다")
-  @WithCustomUser(role = MemberRole.CORE)
   void should_register_event_when_requested() throws Exception {
     // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
     EventRegisterRequest eventRegisterRequest = EventRegisterRequestFixture.builder().build().getFixture();
     given(eventService.register(any(EventRegisterRequest.class), any(List.class)))
         .willReturn(EventFixture.builder().build().getFixture());
@@ -190,6 +195,7 @@ public class EventControllerTest {
                 .multipart("/api/v1/events")
                 .file(mockImages)
                 .file(mockDetail)
+                .header("Authorization", "Bearer " + jwt)
                 .content(mockRequestBodyForDocument)
                 .with(csrf()));
 
@@ -206,6 +212,7 @@ public class EventControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("이벤트를 등록할 수 있다")
                         .tag("events")
+                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .responseHeaders(headerWithName("Location").description("등록한 Event URI"))
                         .requestFields(
                             fieldWithPath("detail")
@@ -233,9 +240,10 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("이벤트를 수정할 수 있다")
-  @WithCustomUser(role = MemberRole.CORE)
   void should_update_event_when_requested() throws Exception {
     // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
     EventUpdateRequest eventUpdateRequest = EventUpdateRequestFixture.builder().build().getFixture();
     willDoNothing().given(eventService)
         .update(any(Long.class), any(EventUpdateRequest.class), any(List.class));
@@ -270,6 +278,7 @@ public class EventControllerTest {
             putMultipartRestDocumentationRequestBuilder
                 .file(mockImages)
                 .file(mockDetail)
+                .header("Authorization", "Bearer " + jwt)
                 .content(mockRequestBodyForDocument)
                 .with(csrf()));
 
@@ -286,6 +295,7 @@ public class EventControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("이벤트를 수정할 수 있다")
                         .tag("events")
+                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .pathParameters(parameterWithName("eventId").description("이벤트 ID"))
                         .requestFields(
                             fieldWithPath("newImages[]")
@@ -322,9 +332,10 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("회고 수정 성공")
-  @WithCustomUser(role = MemberRole.CORE)
   void should_update_retrospect_when_pass_content() throws Exception {
     // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
     Event eventToUpdateRetrospect = EventFixture.builder()
         .id(1L).build().getFixture();
     RetrospectUpdateRequest retrospectUpdateRequest = new RetrospectUpdateRequest("content");
@@ -336,6 +347,7 @@ public class EventControllerTest {
         mockMvc.perform(
             RestDocumentationRequestBuilders
                 .patch("/api/v1/events/{eventId}/retrospect", 1L)
+                .header("Authorization", "Bearer " + jwt)
                 .content(objectMapper.writeValueAsString(retrospectUpdateRequest))
                 .contentType(APPLICATION_JSON)
                 .with(csrf()));
@@ -353,6 +365,7 @@ public class EventControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("회고를 수정할 수 있다")
                         .tag("events")
+                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .pathParameters(parameterWithName("eventId").description("이벤트 ID"))
                         .requestFields(fieldWithPath("content").description("회고 내용"))
                         .responseFields(
@@ -364,9 +377,10 @@ public class EventControllerTest {
 
   @Test
   @DisplayName("이벤트 삭제 성공")
-  @WithCustomUser(role = MemberRole.CORE)
   void should_delete_event_when_pass_event_id() throws Exception {
     // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
     Event eventToDelete = EventFixture.builder()
         .id(1L).build().getFixture();
     willDoNothing().given(eventService).delete(eventToDelete.getId());
@@ -376,6 +390,7 @@ public class EventControllerTest {
         mockMvc.perform(
             RestDocumentationRequestBuilders
                 .delete("/api/v1/events/{eventId}", 1L)
+                .header("Authorization", "Bearer " + jwt)
                 .contentType(APPLICATION_JSON)
                 .with(csrf()));
 
@@ -392,6 +407,7 @@ public class EventControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("이벤트를 삭제할 수 있다")
                         .tag("events")
+                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .pathParameters(parameterWithName("eventId").description("이벤트 ID"))
                         .build())));
   }

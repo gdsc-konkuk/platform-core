@@ -83,7 +83,7 @@ public class Member {
       String role,
       String batch) {
     this.id = id;
-    this.studentId = validateNotNull(studentId, "memberId");
+    this.studentId = validateNotNull(studentId, "studentId");
     this.name = validateNotNull(name, "name");
     this.email = validateNotNull(email, "email");
     //    this.profileImageUrl = profileImageUrl;
