@@ -58,11 +58,11 @@ public class AttendanceController {
     try{
       attendanceService.attend((String) principal.get("email"), attendanceId, qrUuid);
       HttpHeaders headers = new HttpHeaders();
-      headers.add("Location", "/admin/attendance-return/success");
+      headers.add("Location", "https://admin.gdsc-konkuk.dev/attendance-return/success");
       return new ResponseEntity<>(headers, valueOf(HttpStatusCode.TEMPORARY_REDIRECT));
     }catch(Exception e) {
       HttpHeaders headers = new HttpHeaders();
-      headers.add("Location", "/admin/attendance-return/fail");
+      headers.add("Location", "https://admin.gdsc-konkuk.dev/attendance-return/fail");
       return new ResponseEntity<>(headers, valueOf(HttpStatusCode.TEMPORARY_REDIRECT));
     }
   }
