@@ -99,7 +99,6 @@ class EmailControllerTest {
           resource(ResourceSnippetParameters.builder()
             .tag("email")
             .description("이메일 전송을 위한 작업을 등록한다.")
-            .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
             .requestFields(
               fieldWithPath("subject").type(JsonFieldType.STRING).description("이메일 제목"),
               fieldWithPath("content").type(JsonFieldType.STRING).description("이메일 내용"),
@@ -138,7 +137,6 @@ class EmailControllerTest {
           resource(ResourceSnippetParameters.builder()
             .tag("email")
             .description("이메일 전송 작업을 수정한다.")
-            .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
             .requestFields(
               fieldWithPath("subject").type(JsonFieldType.STRING).description("수정할 이메일 제목"),
               fieldWithPath("content").type(JsonFieldType.STRING).description("수정할 이메일 내용"),
@@ -177,7 +175,6 @@ class EmailControllerTest {
           resource(ResourceSnippetParameters.builder()
             .tag("email")
             .description("모든 이메일 전송 작업을 조회한다.")
-            .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
             .responseFields(
               fieldWithPath("success").description(true),
               fieldWithPath("message").description("이메일 전송 작업 조회 성공"),
@@ -221,7 +218,6 @@ class EmailControllerTest {
           resource(ResourceSnippetParameters.builder()
             .tag("email")
             .description("특정 이메일 상세정보를 조회한다.")
-            .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
             .pathParameters(
               parameterWithName("emailId").description("취소할 이메일 작업 ID"))
             .responseFields(
@@ -264,7 +260,6 @@ class EmailControllerTest {
           resource(ResourceSnippetParameters.builder()
             .tag("email")
             .description("특정 이메일 작업을 취소합니다.")
-            .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
             .pathParameters(
               parameterWithName("emailId").description("취소할 이메일 작업 ID"))
             .build())));

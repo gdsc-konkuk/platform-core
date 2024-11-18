@@ -158,7 +158,6 @@ class MemberControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("존재하는 회원 탈퇴")
                         .tag("member")
-                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .build())));
   }
 
@@ -199,7 +198,6 @@ class MemberControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("특정 달의 멤버 출석 정보 조회")
                         .tag("member")
-                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .pathParameters(parameterWithName("batch").description("조회할 멤버 기수"))
                         .queryParameters(
                             parameterWithName("year").description("조회할 년도"),
@@ -272,7 +270,6 @@ class MemberControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("특정 달의 멤버 출석 정보 수정")
                         .tag("member")
-                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .pathParameters(parameterWithName("batch").description("수정할 멤버 기수"))
                         .queryParameters(
                             parameterWithName("year").description("수정할 년도"),

@@ -104,7 +104,6 @@ public class EventControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("모든 이벤트를 조회할 수 있다")
                         .tag("events")
-                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .responseFields(
                             fieldWithPath("success").description("성공 여부"),
                             fieldWithPath("message").description("메시지"),
@@ -147,7 +146,6 @@ public class EventControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("특정 이벤트를 상세 조회할 수 있다")
                         .tag("events")
-                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .pathParameters(parameterWithName("eventId").description("이벤트 ID"))
                         .responseFields(
                             fieldWithPath("success").description("성공 여부"),
@@ -212,7 +210,6 @@ public class EventControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("이벤트를 등록할 수 있다")
                         .tag("events")
-                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .responseHeaders(headerWithName("Location").description("등록한 Event URI"))
                         .requestFields(
                             fieldWithPath("detail")
@@ -295,7 +292,6 @@ public class EventControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("이벤트를 수정할 수 있다")
                         .tag("events")
-                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .pathParameters(parameterWithName("eventId").description("이벤트 ID"))
                         .requestFields(
                             fieldWithPath("newImages[]")
@@ -365,7 +361,6 @@ public class EventControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("회고를 수정할 수 있다")
                         .tag("events")
-                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .pathParameters(parameterWithName("eventId").description("이벤트 ID"))
                         .requestFields(fieldWithPath("content").description("회고 내용"))
                         .responseFields(
@@ -407,7 +402,6 @@ public class EventControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("이벤트를 삭제할 수 있다")
                         .tag("events")
-                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .pathParameters(parameterWithName("eventId").description("이벤트 ID"))
                         .build())));
   }

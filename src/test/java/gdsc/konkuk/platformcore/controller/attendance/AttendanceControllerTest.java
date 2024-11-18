@@ -123,7 +123,6 @@ class AttendanceControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("특정 달의 출석 정보를 조회할 수 있다")
                         .tag("attendance")
-                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .queryParameters(
                             parameterWithName("year").description("년도"),
                             parameterWithName("month").description("월"))
@@ -176,7 +175,6 @@ class AttendanceControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("이벤트에 출석할 수 있다")
                         .tag("attendance")
-                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .pathParameters(parameterWithName("attendanceId").description("출석 ID"))
                         .queryParameters(parameterWithName("qrUuid").description("QR 코드 UUID"))
                         .responseHeaders(headerWithName("Location").description("출석 결과 페이지"))
@@ -218,7 +216,6 @@ class AttendanceControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("이벤트 출석을 등록할 수 있다")
                         .tag("attendance")
-                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .responseHeaders(headerWithName("Location").description("등록한 출석"))
                         .responseFields(
                             fieldWithPath("success").description("성공 여부"),
@@ -261,7 +258,6 @@ class AttendanceControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("출석 현황을 조회할 수 있다")
                         .tag("attendance")
-                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .pathParameters(parameterWithName("attendanceId").description("출석 ID"))
                         .responseFields(
                             fieldWithPath("success").description("성공 여부"),
@@ -304,7 +300,6 @@ class AttendanceControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("이벤트 출석을 삭제할 수 있다")
                         .tag("attendance")
-                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .pathParameters(parameterWithName("attendanceId").description("출석 ID"))
                         .build())));
   }
@@ -345,7 +340,6 @@ class AttendanceControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("QR 코드를 생성할 수 있다")
                         .tag("attendance")
-                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .pathParameters(parameterWithName("attendanceId").description("출석 ID"))
                         .responseHeaders(headerWithName("Location").description("출석 URL"))
                         .responseFields(
@@ -388,7 +382,6 @@ class AttendanceControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("QR 코드를 만료시킬 수 있다")
                         .tag("attendance")
-                        .requestHeaders(headerWithName("Authorization").description("Bearer 토큰"))
                         .pathParameters(parameterWithName("attendanceId").description("출석 ID"))
                         .build())));
   }
