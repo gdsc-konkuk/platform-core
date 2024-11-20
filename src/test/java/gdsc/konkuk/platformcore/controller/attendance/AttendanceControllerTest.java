@@ -7,7 +7,6 @@ import gdsc.konkuk.platformcore.annotation.RestDocsTest;
 import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
 import gdsc.konkuk.platformcore.application.attendance.dtos.AttendanceStatus;
 import gdsc.konkuk.platformcore.application.auth.JwtTokenProvider;
-import gdsc.konkuk.platformcore.application.event.EventService;
 import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceRegisterRequest;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
 
@@ -16,7 +15,6 @@ import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import gdsc.konkuk.platformcore.fixture.attendance.AttendanceFixture;
 import gdsc.konkuk.platformcore.fixture.attendance.AttendanceRegisterRequestFixture;
 import gdsc.konkuk.platformcore.fixture.attendance.ParticipantFixture;
-import gdsc.konkuk.platformcore.fixture.event.EventWithAttendanceFixture;
 import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,7 +35,6 @@ import org.springframework.web.context.WebApplicationContext;
 import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -63,7 +60,6 @@ class AttendanceControllerTest {
   @Autowired private JwtTokenProvider jwtTokenProvider;
 
   @MockBean private AttendanceService attendanceService;
-  @MockBean private EventService eventService;
 
   @BeforeEach
   void setUp(
@@ -82,23 +78,20 @@ class AttendanceControllerTest {
     // given
     Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
     String jwt = jwtTokenProvider.createToken(member);
-    given(eventService.getEventsOfTheMonthWithAttendance(LocalDate.of(2024, 7, 1)))
+    given(attendanceService.getAllByPeriod(LocalDate.of(2024, 7, 1)))
         .willReturn(
             List.of(
-                EventWithAttendanceFixture.builder()
-                    .eventId(1L)
-                    .attendanceId(1L)
-                    .startAt(LocalDateTime.of(2024, 7, 1, 15, 30))
+                AttendanceFixture.builder()
+                    .id(1L)
+                    .attendanceTime(LocalDateTime.of(2024, 7, 1, 15, 30))
                     .build().getFixture(),
-                EventWithAttendanceFixture.builder()
-                    .eventId(2L)
-                    .attendanceId(null)
-                    .startAt(LocalDateTime.of(2024, 7, 15, 15, 30))
+                AttendanceFixture.builder()
+                    .id(2L)
+                    .attendanceTime(LocalDateTime.of(2024, 7, 15, 15, 30))
                     .build().getFixture(),
-                EventWithAttendanceFixture.builder()
-                    .eventId(3L)
-                    .attendanceId(2L)
-                    .startAt(LocalDateTime.of(2024, 7, 21, 15, 30))
+                AttendanceFixture.builder()
+                    .id(3L)
+                    .attendanceTime(LocalDateTime.of(2024, 7, 21, 15, 30))
                     .build().getFixture()));
 
     // when
@@ -129,10 +122,9 @@ class AttendanceControllerTest {
                         .responseFields(
                             fieldWithPath("success").description("성공 여부"),
                             fieldWithPath("message").description("메시지"),
-                            fieldWithPath("data[].eventId").description("이벤트 ID"),
                             fieldWithPath("data[].attendanceId").description("출석 ID").optional(),
-                            fieldWithPath("data[].title").description("이벤트 제목"),
-                            fieldWithPath("data[].startAt").description("이벤트 시작 시간"))
+                            fieldWithPath("data[].title").description("출석 제목"),
+                            fieldWithPath("data[].attendanceTime").description("출석 시간"))
                         .build())));
   }
 
@@ -187,12 +179,11 @@ class AttendanceControllerTest {
     // given
     Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
     String jwt = jwtTokenProvider.createToken(member);
-    AttendanceRegisterRequest registerRequest = AttendanceRegisterRequestFixture.builder()
-        .eventId(1L).build().getFixture();
+    AttendanceRegisterRequest registerRequest = AttendanceRegisterRequestFixture.builder().build().getFixture();
     Attendance attendanceToRegister = AttendanceFixture.builder()
-        .eventId(1L).build().getFixture();
-    given(attendanceService.registerAttendance(any(AttendanceRegisterRequest.class)))
-        .willReturn(attendanceToRegister);
+            .title(registerRequest.getTitle()).build().getFixture();
+    given(attendanceService.registerAttendance(registerRequest.getTitle(), registerRequest.getBatch()))
+            .willReturn(attendanceToRegister);
 
     // when
     ResultActions result =
