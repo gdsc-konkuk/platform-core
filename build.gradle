@@ -44,10 +44,6 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
-    // AWS
-    implementation platform('io.awspring.cloud:spring-cloud-aws-dependencies:3.0.0')
-    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
-
     // Database
     runtimeOnly 'com.h2database:h2:2.2.224'
     implementation 'mysql:mysql-connector-java:8.0.32'
