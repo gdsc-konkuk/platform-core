@@ -2,9 +2,6 @@ package gdsc.konkuk.platformcore.application.member;
 
 import gdsc.konkuk.platformcore.application.attendance.dtos.MemberAttendanceQueryDto;
 import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendances;
-import gdsc.konkuk.platformcore.application.member.exceptions.UserNotAllowedException;
-import gdsc.konkuk.platformcore.application.member.exceptions.UserPasswordInvalidException;
-import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -17,7 +14,6 @@ import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateInfo;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Participant;
 import gdsc.konkuk.platformcore.domain.attendance.repository.AttendanceRepository;
 import gdsc.konkuk.platformcore.domain.attendance.repository.ParticipantRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,8 +32,6 @@ import static java.util.stream.Collectors.toMap;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MemberService {
-
-  private final PasswordEncoder passwordEncoder;
   private final MemberRepository memberRepository;
   private final AttendanceRepository attendanceRepository;
   private final ParticipantRepository participantRepository;
@@ -48,24 +42,6 @@ public class MemberService {
       throw UserAlreadyExistException.of(MemberErrorCode.USER_ALREADY_EXISTS);
     }
     return memberRepository.save(MemberRegisterRequest.toEntity(registerRequest));
-  }
-
-  @Transactional
-  public void changePassword(String studentId, String password) {
-    Member member =
-        memberRepository
-            .findByStudentId(studentId)
-            .orElseThrow(() -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));
-
-    if(!member.isPasswordCorrect("")) { // 비밀번호가 초깃값인지 확인
-      throw UserPasswordInvalidException.of(MemberErrorCode.USER_PASSWORD_INVALID);
-    }
-    if(member.getRole() != MemberRole.CORE) { // 우선은 관리자만 비밀번호 변경 허용
-      throw UserNotAllowedException.of(MemberErrorCode.USER_NOT_ALLOWED);
-    }
-
-    String encodedPassword = passwordEncoder.encode(password);
-    member.updatePassword(encodedPassword);
   }
 
   @Transactional

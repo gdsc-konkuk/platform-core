@@ -1,18 +1,17 @@
 package gdsc.konkuk.platformcore.global.configs;
 
 import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.*;
-import static org.springframework.security.config.Customizer.withDefaults;
 
+import gdsc.konkuk.platformcore.application.auth.CustomOAuthUserService;
+import gdsc.konkuk.platformcore.application.auth.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
@@ -24,6 +23,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import gdsc.konkuk.platformcore.application.auth.CustomAuthenticationFailureHandler;
 import gdsc.konkuk.platformcore.application.auth.CustomAuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -33,70 +33,47 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+  private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
   private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
-
+  private final CustomOAuthUserService customOAuthUserService;
   private final GoogleOidcConfig googleOidcConfig;
 
   @Bean
-  @Order(2)
   public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
         .csrf(AbstractHttpConfigurer::disable)
-        .cors(cors->cors.configurationSource(corsConfigurationSource()))
-        .securityMatcher(
-            apiPath("/members/**"),
-            apiPath("/events/**"),
-            apiPath("/attendances/**"),
-            apiPath("/emails/**"),
-            apiPath("/admin/**"),
-            "/docs/**",
-            "/login")
-        .authorizeHttpRequests(
-            authorize ->
-                authorize
-                    .requestMatchers("/docs/**")
-                    .permitAll()
-                    .requestMatchers("/login")
-                    .permitAll()
-                    .requestMatchers(HttpMethod.POST, apiPath("/members/{member-id}/password"))
-                    .permitAll()
-                    .requestMatchers(HttpMethod.POST, apiPath("/members/check-login"))
-                    .authenticated()
-                    .anyRequest()
-                    .hasAnyRole("CORE", "LEAD"))
-        .exceptionHandling(
-            exception ->
-                exception.authenticationEntryPoint(
-                    (request, response, authException) ->
-                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED)))
-        .formLogin(
-            login ->
-                login
-                    .defaultSuccessUrl("/")
-                    .usernameParameter(LOGIN_NAME)
-                    .successHandler(customAuthenticationSuccessHandler)
-                    .failureHandler(customAuthenticationFailureHandler));
+        .sessionManagement(session -> session
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .cors(cors ->
+                cors.configurationSource(corsConfigurationSource()))
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+        .authorizeHttpRequests(authorize -> authorize
+            // 모두를 위한 API
+            .requestMatchers("/login/**", "/docs/**", "/actuator/**", apiPath("/members"))
+            .permitAll()
+            // 동아리 회원을 위한 API
+            .requestMatchers(apiPath("/attendances/attend/**"))
+            .hasAnyRole("MEMBER", "CORE", "LEAD")
+            // 동아리 운영진을 위한 API
+            .anyRequest()
+            .hasAnyRole("CORE", "LEAD"))
+        .exceptionHandling(exception -> exception
+            .authenticationEntryPoint(
+                (request, response, authException) ->
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED))
+            .accessDeniedHandler(
+                (request, response, accessDeniedException) ->
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN)))
+        .oauth2Login(login -> login
+            .loginPage("/login")
+            .authorizationEndpoint(authorization ->
+                    authorization.baseUri("/login/oauth2/authorization"))
+            .userInfoEndpoint(userInfo ->
+                    userInfo.oidcUserService(customOAuthUserService))
+            .successHandler(customAuthenticationSuccessHandler)
+            .failureHandler(customAuthenticationFailureHandler));
     return httpSecurity.build();
-  }
-
-  @Bean
-  @Order(1)
-  public SecurityFilterChain googleOidcFilterChain(HttpSecurity httpSecurity) throws Exception {
-    httpSecurity
-        .csrf(AbstractHttpConfigurer::disable)
-        .securityMatcher(
-            apiPath("/attendances/attend/**"),
-            "/oauth2/authorization/google",
-            "/login/oauth2/code/google")
-        .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
-        .oauth2Login(withDefaults());
-    return httpSecurity.build();
-  }
-
-  @Bean
-  public BCryptPasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
   }
 
   @Bean

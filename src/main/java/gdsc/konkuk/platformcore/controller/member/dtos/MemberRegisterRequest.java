@@ -26,7 +26,6 @@ public class MemberRegisterRequest {
   public static Member toEntity(MemberRegisterRequest request) {
     return Member.builder()
       .studentId(request.getStudentId())
-      .password("") // `PasswordEncoder`로 생성할 수 없는 문자열 (로그인 불가해야 함)
       .name(request.getName())
       .email(request.getEmail())
       .department(request.getDepartment())

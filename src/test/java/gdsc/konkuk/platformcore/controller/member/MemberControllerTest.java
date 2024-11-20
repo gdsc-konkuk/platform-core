@@ -14,19 +14,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gdsc.konkuk.platformcore.annotation.RestDocsTest;
-import gdsc.konkuk.platformcore.annotation.WithCustomUser;
+import gdsc.konkuk.platformcore.application.auth.JwtTokenProvider;
 import gdsc.konkuk.platformcore.application.member.MemberService;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistException;
 import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateInfo;
 import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateRequest;
 import gdsc.konkuk.platformcore.controller.member.dtos.MemberRegisterRequest;
-import gdsc.konkuk.platformcore.controller.member.dtos.PasswordChangeRequest;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import gdsc.konkuk.platformcore.fixture.member.MemberAttendancesFixture;
 import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
 import gdsc.konkuk.platformcore.fixture.member.MemberRegisterRequestFixture;
-import gdsc.konkuk.platformcore.fixture.member.PasswordChangeRequestFixture;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,6 +49,7 @@ class MemberControllerTest {
   @MockBean private MemberService memberService;
 
   @Autowired private ObjectMapper objectMapper;
+  @Autowired private JwtTokenProvider jwtTokenProvider;
 
   @BeforeEach
   void setUp(
@@ -64,45 +63,13 @@ class MemberControllerTest {
   }
 
   @Test
-  @DisplayName("멤버 로그인 여부 확인")
-  @WithCustomUser
-  void should_success_when_check_login() throws Exception {
-    // when
-    ResultActions result =
-        mockMvc.perform(
-            RestDocumentationRequestBuilders.post("/api/v1/members/check-login")
-                .contentType(APPLICATION_JSON)
-                .with(csrf()));
-
-    // then
-    result
-        .andDo(print())
-        .andExpect(status().isOk())
-        .andDo(
-            document(
-                "member/check-login",
-                preprocessRequest(prettyPrint()),
-                preprocessResponse(prettyPrint()),
-                resource(
-                    ResourceSnippetParameters.builder()
-                        .description("멤버 로그인 여부 확인")
-                        .tag("member")
-                        .responseFields(
-                            fieldWithPath("success").description(true),
-                            fieldWithPath("message").description("멤버 로그인 여부 확인 성공"),
-                            fieldWithPath("data").description("멤버 로그인 여부"))
-                        .build())));
-  }
-
-  @Test
   @DisplayName("새로운 멤버 회원 가입 성공")
-  @WithCustomUser(role = MemberRole.CORE)
   void should_success_when_newMember() throws Exception {
     // given
     MemberRegisterRequest memberRegisterRequest = MemberRegisterRequestFixture.builder()
         .studentId("202400000").build().getFixture();
     Member memberToRegister = MemberFixture.builder()
-        .studentId("202400000").password("").build().getFixture();
+        .studentId("202400000").build().getFixture();
     given(memberService.register(any(MemberRegisterRequest.class))).willReturn(memberToRegister);
 
     // when
@@ -143,7 +110,6 @@ class MemberControllerTest {
 
   @Test
   @DisplayName("이미 존재하는 유저 회원 가입 실패")
-  @WithCustomUser(role = MemberRole.CORE)
   void should_fail_when_existingMember() throws Exception {
     // given
     MemberRegisterRequest memberRegisterRequest = MemberRegisterRequestFixture.builder().build().getFixture();
@@ -163,47 +129,11 @@ class MemberControllerTest {
   }
 
   @Test
-  @DisplayName("비밀번호 수정 (사실상 회원가입)")
-  void should_success_when_change_initial_admin_password() throws Exception {
-    // given
-    PasswordChangeRequest passwordChangeRequest = PasswordChangeRequestFixture.builder().password("new password").build().getFixture();
-    willDoNothing().given(memberService).changePassword(any(String.class), any(String.class));
-
-    // when
-    ResultActions result =
-        mockMvc.perform(
-            RestDocumentationRequestBuilders.post("/api/v1/members/{member-id}/password", "202400000")
-                .contentType(APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(passwordChangeRequest))
-                .with(csrf()));
-
-    // then
-    result
-        .andDo(print())
-        .andExpect(status().isOk())
-        .andDo(
-            document(
-                "member/change-password",
-                preprocessRequest(prettyPrint()),
-                preprocessResponse(prettyPrint()),
-                resource(
-                    ResourceSnippetParameters.builder()
-                        .description("비밀번호 수정 (사실상 회원가입)")
-                        .tag("member")
-                        .pathParameters(parameterWithName("member-id").description("학번"))
-                        .requestFields(fieldWithPath("password").description("변경할 비밀번호"))
-                        .responseFields(
-                            fieldWithPath("success").description(true),
-                            fieldWithPath("message").description("비밀번호 변경 성공"),
-                            fieldWithPath("data").description("null"))
-                        .build())));
-  }
-
-  @Test
   @DisplayName("회원 탈퇴 성공")
-  @WithCustomUser(role = MemberRole.CORE)
   void should_success_when_delete_member() throws Exception {
     // given
+    Member member = MemberFixture.builder().role(MemberRole.MEMBER).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
     Member memberToWithdraw = MemberFixture.builder().build().getFixture();
     willDoNothing().given(memberService).withdraw(memberToWithdraw.getId());
 
@@ -211,6 +141,7 @@ class MemberControllerTest {
     ResultActions result =
         mockMvc.perform(
             RestDocumentationRequestBuilders.delete("/api/v1/members")
+                .header("Authorization", "Bearer " + jwt)
                 .contentType(APPLICATION_JSON)
                 .with(csrf()));
 
@@ -232,9 +163,10 @@ class MemberControllerTest {
 
   @Test
   @DisplayName("특정 배치의 특정 월의 멤버 출석 정보 조회 성공")
-  @WithCustomUser(role = MemberRole.CORE)
   void should_success_when_get_attendances_by_batch() throws Exception {
     // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
     // TODO: 좀 더 상세하고 정확한 Fixture 필요 (`batch`, `eventId`, `participantId` 등)
     given(memberService.getMemberAttendanceWithBatchAndPeriod(anyString(), any()))
         .willReturn(
@@ -247,6 +179,7 @@ class MemberControllerTest {
     ResultActions result =
         mockMvc.perform(
             RestDocumentationRequestBuilders.get("/api/v1/members/{batch}/attendances", "24-25")
+                .header("Authorization", "Bearer " + jwt)
                 .param("year", "2024")
                 .param("month", "07")
                 .contentType(APPLICATION_JSON)
@@ -299,9 +232,10 @@ class MemberControllerTest {
 
   @Test
   @DisplayName("특정 배치의 특정 월의 멤버 출석 정보 수정 성공")
-  @WithCustomUser(role = MemberRole.CORE)
   void should_success_when_update_attendances_by_batch() throws Exception {
     // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
     List<AttendanceUpdateInfo> attendanceUpdateInfoList = List.of(
             AttendanceUpdateInfo.builder().participantId(1L).isAttended(true).build(),
             AttendanceUpdateInfo.builder().participantId(2L).isAttended(false).build(),
@@ -316,6 +250,7 @@ class MemberControllerTest {
     ResultActions result =
         mockMvc.perform(
             RestDocumentationRequestBuilders.patch("/api/v1/members/{batch}/attendances", "24-25")
+                .header("Authorization", "Bearer " + jwt)
                 .param("year", "2024")
                 .param("month", "07")
                 .contentType(APPLICATION_JSON)

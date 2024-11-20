@@ -41,7 +41,7 @@ class MemberServiceTest {
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    subject = new MemberService(passwordEncoder, memberRepository, attendanceRepository, participantRepository);
+    subject = new MemberService(memberRepository, attendanceRepository, participantRepository);
   }
 
   @Test
