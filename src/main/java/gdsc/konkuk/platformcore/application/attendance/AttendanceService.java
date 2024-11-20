@@ -11,6 +11,7 @@ import gdsc.konkuk.platformcore.domain.attendance.repository.AttendanceRepositor
 import gdsc.konkuk.platformcore.domain.attendance.repository.ParticipantRepository;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,9 +39,13 @@ public class AttendanceService {
     return participantService.attend(member.getId(), attendanceId);
   }
 
+  public List<Attendance> getAllByPeriod(LocalDate month) {
+    return attendanceRepository.findAllByPeriod(month.atStartOfDay(), month.atStartOfDay().plusMonths(1));
+  }
+
   @Transactional
-  public Attendance registerAttendance(String batch) {
-    Attendance newAttendance = Attendance.builder().attendanceDate(LocalDateTime.now()).build();
+  public Attendance registerAttendance(String title, String batch) {
+    Attendance newAttendance = Attendance.builder().title(title).attendanceTime(LocalDateTime.now()).build();
     newAttendance.generateQr();
     attendanceRepository.saveAndFlush(newAttendance);
 

@@ -23,16 +23,20 @@ public class Attendance {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(name = "attendance_date")
-  private LocalDateTime attendanceDate;
+  @Column(name = "title")
+  private String title;
+
+  @Column(name = "attendance_time")
+  private LocalDateTime attendanceTime;
 
   @Column(name = "active_qr_uuid")
   private String activeQrUuid;
 
   @Builder
-  public Attendance(Long id, LocalDateTime attendanceDate, String activeQrUuid) {
+  public Attendance(Long id, String title, LocalDateTime attendanceTime, String activeQrUuid) {
     this.id = id;
-    this.attendanceDate = attendanceDate;
+    this.title = title;
+    this.attendanceTime = attendanceTime;
     this.activeQrUuid = activeQrUuid;
   }
 

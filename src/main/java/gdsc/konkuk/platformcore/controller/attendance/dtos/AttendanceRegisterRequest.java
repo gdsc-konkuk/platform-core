@@ -1,8 +1,6 @@
 package gdsc.konkuk.platformcore.controller.attendance.dtos;
 
-import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,12 +9,8 @@ import lombok.Setter;
 @Setter
 @Builder
 public class AttendanceRegisterRequest {
-  @NotNull
-  private Long eventId;
+  @NotEmpty
+  private String title;
   @NotEmpty
   private String batch;
-
-  public static Attendance toEntity(AttendanceRegisterRequest request) {
-    return Attendance.builder().eventId(request.getEventId()).build();
-  }
 }

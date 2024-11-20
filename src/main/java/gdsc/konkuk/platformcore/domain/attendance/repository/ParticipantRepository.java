@@ -20,7 +20,7 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
       FROM Member m
       LEFT JOIN Participant p ON m.id = p.memberId
       LEFT JOIN Attendance a ON p.attendance.id = a.id
-      WHERE m.batch = :batch AND a.attendanceDate BETWEEN :st AND :en
+      WHERE m.batch = :batch AND a.attendanceTime BETWEEN :st AND :en
       """)
   List<Participant> findAllByBatchAndStartAtBetween(
       String batch, LocalDateTime st, LocalDateTime en);
