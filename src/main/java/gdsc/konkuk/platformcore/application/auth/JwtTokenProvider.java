@@ -5,12 +5,10 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import java.util.Base64;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -54,14 +52,12 @@ public class JwtTokenProvider {
             .compact();
     }
 
-    public Authentication getAuthentication(String token) {
-        Claims claims = parseClaims(token);
-
-        Collection<? extends GrantedAuthority> authorities =
+    public Authentication getAuthentication(Claims claims) {
+        List<? extends GrantedAuthority> authorities =
             ((List<?>) claims.get("roles"))
                 .stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                .collect(Collectors.toList());
+                .toList();
 
         Map<String, Object> principal = new HashMap<>();
         principal.put("memberId", claims.getSubject());
@@ -70,7 +66,7 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 
-    private Claims parseClaims(String token) {
+    public Claims parseClaims(String token) {
         return Jwts.parser()
             .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
             .build()
