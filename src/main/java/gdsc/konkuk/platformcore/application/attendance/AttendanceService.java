@@ -3,21 +3,15 @@ package gdsc.konkuk.platformcore.application.attendance;
 import static gdsc.konkuk.platformcore.application.attendance.AttendanceServiceHelper.findAttendanceById;
 
 import gdsc.konkuk.platformcore.application.attendance.dtos.AttendanceStatus;
-import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceAlreadyExistException;
-import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceErrorCode;
-import gdsc.konkuk.platformcore.application.event.exceptions.EventErrorCode;
-import gdsc.konkuk.platformcore.application.event.exceptions.EventNotFoundException;
 import gdsc.konkuk.platformcore.application.member.exceptions.MemberErrorCode;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserNotFoundException;
-import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceRegisterRequest;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Participant;
 import gdsc.konkuk.platformcore.domain.attendance.repository.AttendanceRepository;
 import gdsc.konkuk.platformcore.domain.attendance.repository.ParticipantRepository;
-import gdsc.konkuk.platformcore.domain.event.entity.Event;
-import gdsc.konkuk.platformcore.domain.event.repository.EventRepository;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class AttendanceService {
   private final ParticipantRepository participantRepository;
-  private final EventRepository eventRepository;
   private final MemberRepository memberRepository;
   private final AttendanceRepository attendanceRepository;
   private final ParticipantService participantService;
@@ -46,13 +39,12 @@ public class AttendanceService {
   }
 
   @Transactional
-  public Attendance registerAttendance(AttendanceRegisterRequest registerRequest) {
-    checkAttendanceAlreadyExist(registerRequest.getEventId());
-    Attendance newAttendance = AttendanceRegisterRequest.toEntity(registerRequest);
+  public Attendance registerAttendance(String batch) {
+    Attendance newAttendance = Attendance.builder().attendanceDate(LocalDateTime.now()).build();
     newAttendance.generateQr();
     attendanceRepository.saveAndFlush(newAttendance);
 
-    List<Member> members = memberRepository.findAllByBatch(registerRequest.getBatch());
+    List<Member> members = memberRepository.findAllByBatch(batch);
     registerParticipants(newAttendance, members);
     return newAttendance;
   }
@@ -80,21 +72,6 @@ public class AttendanceService {
   public void expireQr(Long attendanceId) {
     Attendance attendance = findAttendanceById(attendanceRepository, attendanceId);
     attendance.expireQr();
-  }
-
-  private void checkAttendanceAlreadyExist(Long eventId) {
-    Event event =
-        eventRepository
-            .findById(eventId)
-            .orElseThrow(() -> EventNotFoundException.of(EventErrorCode.EVENT_NOT_FOUND));
-
-    attendanceRepository
-        .findByEventId(event.getId())
-        .ifPresent(
-            attendance -> {
-              throw AttendanceAlreadyExistException.of(
-                  AttendanceErrorCode.ATTENDANCE_ALREADY_EXIST);
-            });
   }
 
   private void registerParticipants(Attendance attendance, List<Member> members){
