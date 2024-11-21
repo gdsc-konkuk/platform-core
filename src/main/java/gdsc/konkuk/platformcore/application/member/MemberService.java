@@ -55,6 +55,7 @@ public class MemberService {
     member.withdraw();
   }
 
+  @Transactional
   public void updateMembers(String batch, @Valid List<MemberUpdateInfo> updateInfos) {
     Map<Long, Member> memberMap = fetchMembers(batch);
     updateMembers(memberMap, updateInfos);
