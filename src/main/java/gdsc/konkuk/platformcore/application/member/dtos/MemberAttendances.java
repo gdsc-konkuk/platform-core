@@ -64,7 +64,6 @@ public class MemberAttendances{
         .attendanceDate(attendanceInfo.getAttendanceDate())
         .participantId(attendanceInfo.getParticipantId())
         .attendanceId(attendanceInfo.getAttendanceId())
-        .eventId(attendanceInfo.getEventId())
         .isAttended(attendanceInfo.isAttended())
         .build();
   }

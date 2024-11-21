@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,16 +23,20 @@ public class Attendance {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(name = "event_id")
-  private Long eventId;
+  @Column(name = "title")
+  private String title;
+
+  @Column(name = "attendance_time")
+  private LocalDateTime attendanceTime;
 
   @Column(name = "active_qr_uuid")
   private String activeQrUuid;
 
   @Builder
-  public Attendance(Long id, Long eventId, String activeQrUuid) {
+  public Attendance(Long id, String title, LocalDateTime attendanceTime, String activeQrUuid) {
     this.id = id;
-    this.eventId = eventId;
+    this.title = title;
+    this.attendanceTime = attendanceTime;
     this.activeQrUuid = activeQrUuid;
   }
 

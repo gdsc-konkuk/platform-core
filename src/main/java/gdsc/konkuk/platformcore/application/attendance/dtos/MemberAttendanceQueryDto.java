@@ -12,7 +12,6 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 public class MemberAttendanceQueryDto {
-  private Long eventId;
   private Long memberId;
   private String memberName;
   private MemberRole memberRole;

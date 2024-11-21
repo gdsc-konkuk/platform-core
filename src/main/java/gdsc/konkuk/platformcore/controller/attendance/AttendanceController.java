@@ -6,15 +6,14 @@ import static org.springframework.http.HttpStatusCode.valueOf;
 import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
 import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceErrorCode;
 import gdsc.konkuk.platformcore.application.attendance.exceptions.QrInvalidException;
-import gdsc.konkuk.platformcore.application.event.EventService;
-import gdsc.konkuk.platformcore.application.event.dtos.EventWithAttendance;
+import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceInfo;
 import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceRegisterRequest;
 import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceResponse;
 import gdsc.konkuk.platformcore.application.attendance.dtos.AttendanceStatus;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
 import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
 import gdsc.konkuk.platformcore.global.utils.SecurityUtils;
-import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -32,21 +31,19 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import software.amazon.awssdk.http.HttpStatusCode;
 
 @RestController
 @RequestMapping("/api/v1/attendances")
 @RequiredArgsConstructor
 public class AttendanceController {
   private final AttendanceService attendanceService;
-  private final EventService eventService;
 
   @GetMapping
   public ResponseEntity<SuccessResponse> getEventsOfTheMonthWithAttendance(
       @RequestParam Integer year, @RequestParam Integer month) {
-    List<EventWithAttendance> eventsOfMonthWithAttendance =
-        eventService.getEventsOfTheMonthWithAttendance(LocalDate.of(year, month, 1));
-    return ResponseEntity.ok(SuccessResponse.of(eventsOfMonthWithAttendance));
+    List<Attendance> attendances = attendanceService.getAllByPeriod(LocalDate.of(year, month, 1));
+    List<AttendanceInfo> attendanceInfos = attendances.stream().map(AttendanceInfo::from).toList();
+    return ResponseEntity.ok(SuccessResponse.of(attendanceInfos));
   }
 
   @GetMapping("/attend/{attendanceId}")
@@ -56,18 +53,20 @@ public class AttendanceController {
       attendanceService.attend(currentId, attendanceId, qrUuid);
       HttpHeaders headers = new HttpHeaders();
       headers.add("Location", "https://admin.gdsc-konkuk.dev/attendance-return/success");
-      return new ResponseEntity<>(headers, valueOf(HttpStatusCode.TEMPORARY_REDIRECT));
+      return new ResponseEntity<>(headers, valueOf(HttpServletResponse.SC_TEMPORARY_REDIRECT));
     }catch(Exception e) {
       HttpHeaders headers = new HttpHeaders();
       headers.add("Location", "https://admin.gdsc-konkuk.dev/attendance-return/fail");
-      return new ResponseEntity<>(headers, valueOf(HttpStatusCode.TEMPORARY_REDIRECT));
+      return new ResponseEntity<>(headers, valueOf(HttpServletResponse.SC_TEMPORARY_REDIRECT));
     }
   }
 
   @PostMapping()
   public ResponseEntity<SuccessResponse> registerAttendance(
-    @RequestBody @Valid AttendanceRegisterRequest registerRequest) {
-    Attendance attendance = attendanceService.registerAttendance(registerRequest);
+          @RequestBody AttendanceRegisterRequest registerRequest) {
+    String title = registerRequest.getTitle();
+    String batch = registerRequest.getBatch();
+    Attendance attendance = attendanceService.registerAttendance(title, batch);
     AttendanceResponse response = AttendanceResponse.from(attendance, generateAttendUri(attendance));
     return ResponseEntity.created(generateAttendanceUri(attendance))
       .body(SuccessResponse.of(response));

@@ -8,13 +8,13 @@ import lombok.Getter;
 
 @Getter
 public class AttendanceRegisterRequestFixture {
-  private final AttendanceRegisterRequest fixture;
+    private final AttendanceRegisterRequest fixture;
 
-  @Builder
-  public AttendanceRegisterRequestFixture(Long eventId, String batch) {
-    this.fixture = AttendanceRegisterRequest.builder()
-      .eventId(getDefault(eventId, 0L))
-      .batch(getDefault(batch, "24-25"))
-      .build();
-  }
+    @Builder
+    public AttendanceRegisterRequestFixture(String title, String batch) {
+        this.fixture = AttendanceRegisterRequest.builder()
+        .title(getDefault(title, "title"))
+        .batch(getDefault(batch, "batch"))
+        .build();
+    }
 }

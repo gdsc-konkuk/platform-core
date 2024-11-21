@@ -210,7 +210,6 @@ class MemberControllerTest {
                             fieldWithPath("data[].memberId").description("멤버 아이디"),
                             fieldWithPath("data[].memberName").description("멤버 이름"),
                             fieldWithPath("data[].memberRole").description("멤버 역할"),
-                            // fieldWithPath("data[].profileImageUrl").description("멤버 프로필 이미지"),
                             fieldWithPath("data[].department").description("멤버 학과"),
                             fieldWithPath("data[].totalAttendances").description("전체 등록 횟수"),
                             fieldWithPath("data[].actualAttendances").description("실제 출석 횟수"),

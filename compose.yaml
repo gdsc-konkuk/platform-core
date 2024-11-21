@@ -56,10 +56,6 @@ services:
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       GMAIL_USERNAME: ${GMAIL_USERNAME}
       GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD}
-      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
-      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
-      AWS_REGION: ${AWS_REGION}
-      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
       DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
@@ -112,11 +108,14 @@ services:
         awslogs-group: ${AWS_LOG_GROUP}
         awslogs-stream: certbot
         awslogs-multiline-pattern: "^Saving debug log to"
+    depends_on:
+      nginx:
+        condition: service_healthy
     volumes:
       - ./certbot/data:/var/www/certbot/:rw
       - ./certbot/conf:/etc/letsencrypt/:rw
     # If your nginx server has not yet been issued an SSL certificate, run the command below
-    # docker compose run --rm certbot certonly --webroot --webroot-path /var/www/certbot/ -d gdsc-konkuk.dev
+    # docker compose run --rm certbot certonly --webroot --webroot-path /var/www/certbot/ -d api.gdsc-konkuk.dev
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12d & wait $${!}; done;'"
 
   autoheal:
