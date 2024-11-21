@@ -22,7 +22,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import gdsc.konkuk.platformcore.application.member.MemberService;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
-import gdsc.konkuk.platformcore.global.utils.SecurityUtils;
 import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,10 +41,11 @@ public class MemberController {
         .body(SuccessResponse.messageOnly());
   }
 
-  @DeleteMapping()
-  public ResponseEntity<SuccessResponse> withdraw() {
-    Long currentId = SecurityUtils.getCurrentUserId();
-    memberService.withdraw(currentId);
+  @DeleteMapping("/{batch}/{memberId}")
+  public ResponseEntity<SuccessResponse> withdraw(
+        @PathVariable String batch, @PathVariable Long memberId
+  ) {
+    memberService.withdraw(memberId);
     return ResponseEntity.noContent().build();
   }
 

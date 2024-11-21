@@ -134,7 +134,7 @@ class MemberControllerTest {
   @DisplayName("회원 탈퇴 성공")
   void should_success_when_delete_member() throws Exception {
     // given
-    Member member = MemberFixture.builder().role(MemberRole.MEMBER).build().getFixture();
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
     String jwt = jwtTokenProvider.createToken(member);
     Member memberToWithdraw = MemberFixture.builder().build().getFixture();
     willDoNothing().given(memberService).withdraw(memberToWithdraw.getId());
@@ -142,7 +142,8 @@ class MemberControllerTest {
     // when
     ResultActions result =
         mockMvc.perform(
-            RestDocumentationRequestBuilders.delete("/api/v1/members")
+            RestDocumentationRequestBuilders
+                .delete("/api/v1/members/{batch}/{memberId}", "24-25", 1L)
                 .header("Authorization", "Bearer " + jwt)
                 .contentType(APPLICATION_JSON)
                 .with(csrf()));
@@ -160,6 +161,9 @@ class MemberControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("존재하는 회원 탈퇴")
                         .tag("member")
+                        .pathParameters(
+                          parameterWithName("batch").description("탈퇴할 멤버 기수"),
+                          parameterWithName("memberId").description("탈퇴할 멤버 아이디"))
                         .build())));
   }
 
