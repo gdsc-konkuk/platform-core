@@ -50,7 +50,7 @@ public class SecurityConfig {
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .authorizeHttpRequests(authorize -> authorize
             // 모두를 위한 API
-            .requestMatchers("/login/**", "/docs/**", "/actuator/**", apiPath("/members"))
+            .requestMatchers("/login/**", "/docs/**", "/actuator/**")
             .permitAll()
             // 동아리 회원을 위한 API
             .requestMatchers(apiPath("/attendances/attend/**"))
