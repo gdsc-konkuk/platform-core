@@ -65,6 +65,54 @@ class MemberControllerTest {
   }
 
   @Test
+  @DisplayName("특정 기수의 멤버 목록 조회 성공")
+  void should_success_when_get_members() throws Exception {
+    // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
+    given(memberService.getMembers("24-25"))
+        .willReturn(
+            List.of(
+                MemberFixture.builder().id(0L).batch("24-25").build().getFixture(),
+                MemberFixture.builder().id(1L).batch("24-25").build().getFixture(),
+                MemberFixture.builder().id(2L).batch("24-25").build().getFixture()));
+
+    // when
+    ResultActions result =
+        mockMvc.perform(
+            RestDocumentationRequestBuilders.get("/api/v1/members/{batch}", "24-25")
+                .header("Authorization", "Bearer " + jwt)
+                .contentType(APPLICATION_JSON)
+                .with(csrf()));
+
+    // then
+    result
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andDo(
+            document(
+                "member/get_members",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                resource(
+                    ResourceSnippetParameters.builder()
+                        .description("특정 기수의 멤버 목록 조회")
+                        .tag("member")
+                        .pathParameters(parameterWithName("batch").description("조회할 멤버 기수"))
+                        .responseFields(
+                            fieldWithPath("success").description(true),
+                            fieldWithPath("message").description("멤버 목록 조회 성공"),
+                            fieldWithPath("data[].memberId").description("멤버 아이디"),
+                            fieldWithPath("data[].studentId").description("학번"),
+                            fieldWithPath("data[].email").description("이메일"),
+                            fieldWithPath("data[].name").description("이름"),
+                            fieldWithPath("data[].department").description("학과"),
+                            fieldWithPath("data[].batch").description("배치"),
+                            fieldWithPath("data[].role").description("역할"))
+                        .build())));
+  }
+
+  @Test
   @DisplayName("새로운 멤버 회원 가입 성공")
   void should_success_when_newMember() throws Exception {
     // given

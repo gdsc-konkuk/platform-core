@@ -2,6 +2,7 @@ package gdsc.konkuk.platformcore.controller.member;
 
 import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendances;
 import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateRequest;
+import gdsc.konkuk.platformcore.controller.member.dtos.MemberInfo;
 import gdsc.konkuk.platformcore.controller.member.dtos.MemberRegisterRequest;
 import gdsc.konkuk.platformcore.controller.member.dtos.MemberUpdateRequest;
 import java.net.URI;
@@ -32,6 +33,14 @@ import lombok.RequiredArgsConstructor;
 public class MemberController {
 
   private final MemberService memberService;
+
+  @GetMapping("/{batch}")
+    public ResponseEntity<SuccessResponse> getMembers(@PathVariable String batch) {
+      List<MemberInfo> memberInfos = memberService.getMembers(batch).stream()
+          .map(MemberInfo::from)
+          .toList();
+      return ResponseEntity.ok(SuccessResponse.of(memberInfos));
+    }
 
   @PostMapping()
   public ResponseEntity<SuccessResponse> signup(

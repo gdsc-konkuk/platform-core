@@ -38,6 +38,10 @@ public class MemberService {
   private final AttendanceRepository attendanceRepository;
   private final ParticipantRepository participantRepository;
 
+  public List<Member> getMembers(String batch) {
+    return memberRepository.findAllActiveByBatch(batch);
+  }
+
   @Transactional
   public Member register(MemberRegisterRequest registerRequest) {
     if (checkMemberExistWithStudentId(registerRequest.getStudentId())) {
