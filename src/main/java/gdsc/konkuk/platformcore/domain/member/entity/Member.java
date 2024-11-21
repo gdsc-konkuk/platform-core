@@ -68,6 +68,30 @@ public class Member {
     return isDeleted;
   }
 
+  public void updateStudentId(String studentId) {
+    this.studentId = studentId;
+  }
+
+  public void updateName(String name) {
+      this.name = name;
+  }
+
+  public void updateEmail(String email) {
+      this.email = email;
+  }
+
+  public void updateDepartment(String department) {
+      this.department = department;
+  }
+
+  public void updateRole(String role) {
+      this.role = MemberRole.from(role);
+  }
+
+  public void updateBatch(String batch) {
+      this.batch = batch;
+  }
+
   @Builder
   public Member(
       Long id,

@@ -3,6 +3,7 @@ package gdsc.konkuk.platformcore.controller.member;
 import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendances;
 import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateRequest;
 import gdsc.konkuk.platformcore.controller.member.dtos.MemberRegisterRequest;
+import gdsc.konkuk.platformcore.controller.member.dtos.MemberUpdateRequest;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
@@ -47,6 +48,13 @@ public class MemberController {
     memberService.withdraw(currentId);
     return ResponseEntity.noContent().build();
   }
+
+  @PatchMapping("/{batch}")
+    public ResponseEntity<SuccessResponse> updateMembers(
+        @PathVariable String batch, @RequestBody @Valid MemberUpdateRequest updateInfos) {
+        memberService.updateMembers(batch, updateInfos.getMemberUpdateInfoList());
+        return ResponseEntity.ok(SuccessResponse.messageOnly());
+    }
 
   @GetMapping("/{batch}/attendances")
   public ResponseEntity<SuccessResponse> getAttendances(

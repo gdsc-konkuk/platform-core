@@ -2,6 +2,8 @@ package gdsc.konkuk.platformcore.application.member;
 
 import gdsc.konkuk.platformcore.application.attendance.dtos.MemberAttendanceQueryDto;
 import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendances;
+import gdsc.konkuk.platformcore.controller.member.dtos.MemberUpdateInfo;
+import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -53,6 +55,11 @@ public class MemberService {
     member.withdraw();
   }
 
+  public void updateMembers(String batch, @Valid List<MemberUpdateInfo> updateInfos) {
+    Map<Long, Member> memberMap = fetchMembers(batch);
+    updateMembers(memberMap, updateInfos);
+  }
+
   public List<MemberAttendances> getMemberAttendanceWithBatchAndPeriod(String batch, LocalDate month) {
     List<MemberAttendanceQueryDto> attendanceInfoList =
         attendanceRepository.findAllAttendanceInfoByBatchAndPeriod(
@@ -67,6 +74,20 @@ public class MemberService {
       String batch, LocalDate month, List<AttendanceUpdateInfo> attendanceUpdateInfoList) {
     Map<Long, Participant> participantMap = fetchParticipants(batch, month);
     updateAttendanceStatuses(participantMap, attendanceUpdateInfoList);
+  }
+
+  private void updateMembers(Map<Long, Member> memberMap, List<MemberUpdateInfo> updateInfos) {
+    for (MemberUpdateInfo memberUpdateInfo : updateInfos) {
+      if (!memberMap.containsKey(memberUpdateInfo.getMemberId())) {
+        throw UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND);
+      }
+      Member member = memberMap.get(memberUpdateInfo.getMemberId());
+      memberUpdateInfo.updateEntity(member);
+    }
+  }
+
+  private Map<Long, Member> fetchMembers(String batch) {
+    return memberRepository.findAllByBatch(batch).stream().collect(toMap(Member::getId, identity()));
   }
 
   private void updateAttendanceStatuses(Map<Long, Participant> participants, List<AttendanceUpdateInfo> updateInfos) {

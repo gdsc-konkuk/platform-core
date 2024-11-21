@@ -20,6 +20,8 @@ import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistEx
 import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateInfo;
 import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateRequest;
 import gdsc.konkuk.platformcore.controller.member.dtos.MemberRegisterRequest;
+import gdsc.konkuk.platformcore.controller.member.dtos.MemberUpdateInfo;
+import gdsc.konkuk.platformcore.controller.member.dtos.MemberUpdateRequest;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import gdsc.konkuk.platformcore.fixture.member.MemberAttendancesFixture;
@@ -158,6 +160,57 @@ class MemberControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("존재하는 회원 탈퇴")
                         .tag("member")
+                        .build())));
+  }
+
+  @Test
+  @DisplayName("멤버 정보 수정 성공")
+  void should_success_when_update_member() throws Exception {
+    // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
+    MemberUpdateRequest memberUpdateRequest = new MemberUpdateRequest(List.of(
+            MemberUpdateInfo.builder().memberId(1L).studentId("202400000").build(),
+            MemberUpdateInfo.builder().memberId(2L).name("member2").build(),
+            MemberUpdateInfo.builder().memberId(3L).email("member3").build()));
+    willDoNothing().given(memberService)
+            .updateMembers("24-25", memberUpdateRequest.getMemberUpdateInfoList());
+
+    // when
+    ResultActions result =
+        mockMvc.perform(
+            RestDocumentationRequestBuilders.patch("/api/v1/members/{batch}", "24-25")
+                .header("Authorization", "Bearer " + jwt)
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(memberUpdateRequest))
+                .with(csrf()));
+
+    // then
+    result
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andDo(
+            document(
+                "member/update",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                resource(
+                    ResourceSnippetParameters.builder()
+                        .description("멤버 정보 수정")
+                        .tag("member")
+                        .pathParameters(parameterWithName("batch").description("수정할 멤버 기수"))
+                        .requestFields(
+                            fieldWithPath("memberUpdateInfoList[].memberId").description("멤버 아이디").optional(),
+                            fieldWithPath("memberUpdateInfoList[].studentId").description("학번").optional(),
+                            fieldWithPath("memberUpdateInfoList[].name").description("이름").optional(),
+                            fieldWithPath("memberUpdateInfoList[].email").description("이메일").optional(),
+                            fieldWithPath("memberUpdateInfoList[].department").description("학과").optional(),
+                            fieldWithPath("memberUpdateInfoList[].batch").description("배치").optional(),
+                            fieldWithPath("memberUpdateInfoList[].role").description("역할").optional())
+                        .responseFields(
+                            fieldWithPath("success").description(true),
+                            fieldWithPath("message").description("멤버 정보 수정 성공"),
+                            fieldWithPath("data").description("null"))
                         .build())));
   }
 
