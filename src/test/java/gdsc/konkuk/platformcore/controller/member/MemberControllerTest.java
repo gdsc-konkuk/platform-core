@@ -70,7 +70,7 @@ class MemberControllerTest {
     // given
     Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
     String jwt = jwtTokenProvider.createToken(member);
-    given(memberService.getMembers("24-25"))
+    given(memberService.getMembersInBatch("24-25"))
         .willReturn(
             List.of(
                 MemberFixture.builder().id(0L).batch("24-25").build().getFixture(),

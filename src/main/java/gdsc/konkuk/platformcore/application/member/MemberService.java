@@ -38,7 +38,7 @@ public class MemberService {
   private final AttendanceRepository attendanceRepository;
   private final ParticipantRepository participantRepository;
 
-  public List<Member> getMembers(String batch) {
+  public List<Member> getMembersInBatch(String batch) {
     return memberRepository.findAllActiveByBatch(batch);
   }
 

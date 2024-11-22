@@ -36,7 +36,7 @@ public class MemberController {
 
   @GetMapping("/{batch}")
     public ResponseEntity<SuccessResponse> getMembers(@PathVariable String batch) {
-      List<MemberInfo> memberInfos = memberService.getMembers(batch).stream()
+      List<MemberInfo> memberInfos = memberService.getMembersInBatch(batch).stream()
           .map(MemberInfo::from)
           .toList();
       return ResponseEntity.ok(SuccessResponse.of(memberInfos));
