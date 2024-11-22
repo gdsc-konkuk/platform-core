@@ -61,7 +61,8 @@ public class MemberService {
 
   @Transactional
   public void updateMembers(String batch, @Valid List<MemberUpdateInfo> updateInfos) {
-    Map<Long, Member> memberMap = fetchMembers(batch);
+    List<Long> memberIds = updateInfos.stream().map(MemberUpdateInfo::getMemberId).toList();
+    Map<Long, Member> memberMap = fetchMembers(memberIds, batch);
     updateMembers(memberMap, updateInfos);
   }
 
@@ -87,12 +88,16 @@ public class MemberService {
         throw UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND);
       }
       Member member = memberMap.get(memberUpdateInfo.getMemberId());
-      memberUpdateInfo.updateEntity(member);
+      member.update(memberUpdateInfo.toCommand());
     }
   }
 
-  private Map<Long, Member> fetchMembers(String batch) {
-    return memberRepository.findAllByBatch(batch).stream().collect(toMap(Member::getId, identity()));
+  private Map<Long, Member> fetchMembers(List<Long> memberIds, String batch) {
+    List<Member> members =  memberRepository.findAllByIdsAndBatch(memberIds, batch);
+    if (members.size() != memberIds.size()) {
+      throw UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND);
+    }
+    return members.stream().collect(toMap(Member::getId, identity()));
   }
 
   private void updateAttendanceStatuses(Map<Long, Participant> participants, List<AttendanceUpdateInfo> updateInfos) {

@@ -1,6 +1,6 @@
 package gdsc.konkuk.platformcore.controller.member.dtos;
 
-import gdsc.konkuk.platformcore.domain.member.entity.Member;
+import gdsc.konkuk.platformcore.application.member.dtos.MemberUpdateCommand;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,24 +18,15 @@ public class MemberUpdateInfo {
   private String batch;
   private String role;
 
-  public void updateEntity(Member member) {
-    if (studentId != null) {
-      member.updateStudentId(studentId);
-    }
-    if (name != null) {
-      member.updateName(name);
-    }
-    if (email != null) {
-      member.updateEmail(email);
-    }
-    if (department != null) {
-      member.updateDepartment(department);
-    }
-    if (batch != null) {
-      member.updateBatch(batch);
-    }
-    if (role != null) {
-      member.updateRole(role);
-    }
+  public MemberUpdateCommand toCommand() {
+    return MemberUpdateCommand.builder()
+        .memberId(memberId)
+        .studentId(studentId)
+        .name(name)
+        .email(email)
+        .department(department)
+        .batch(batch)
+        .role(role)
+        .build();
   }
 }

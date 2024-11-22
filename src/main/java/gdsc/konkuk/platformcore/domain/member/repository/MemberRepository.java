@@ -12,6 +12,9 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
   @Query("SELECT m FROM Member m WHERE m.batch = :batch AND m.isDeleted = false")
   List<Member> findAllActiveByBatch(String batch);
 
+  @Query("SELECT m FROM Member m WHERE m.id IN :memberIds AND m.batch = :batch")
+  List<Member> findAllByIdsAndBatch(List<Long> memberIds, String batch);
+
   Optional<Member> findByStudentId(String studentId);
 
   Optional<Member> findByEmail(String memberEmail);
