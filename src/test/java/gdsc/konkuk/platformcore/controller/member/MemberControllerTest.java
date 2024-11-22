@@ -116,6 +116,8 @@ class MemberControllerTest {
   @DisplayName("새로운 멤버 회원 가입 성공")
   void should_success_when_newMember() throws Exception {
     // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
     MemberRegisterRequest memberRegisterRequest = MemberRegisterRequestFixture.builder()
         .studentId("202400000").build().getFixture();
     Member memberToRegister = MemberFixture.builder()
@@ -127,6 +129,7 @@ class MemberControllerTest {
         mockMvc.perform(
             RestDocumentationRequestBuilders.post("/api/v1/members")
                 .contentType(APPLICATION_JSON)
+                .header("Authorization", "Bearer " + jwt)
                 .content(objectMapper.writeValueAsString(memberRegisterRequest))
                 .with(csrf()));
 
@@ -162,6 +165,8 @@ class MemberControllerTest {
   @DisplayName("이미 존재하는 유저 회원 가입 실패")
   void should_fail_when_existingMember() throws Exception {
     // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
     MemberRegisterRequest memberRegisterRequest = MemberRegisterRequestFixture.builder().build().getFixture();
     given(memberService.register(any(MemberRegisterRequest.class)))
         .willThrow(UserAlreadyExistException.class);
@@ -171,6 +176,7 @@ class MemberControllerTest {
         mockMvc.perform(
             RestDocumentationRequestBuilders.post("/api/v1/members")
                 .contentType(APPLICATION_JSON)
+                .header("Authorization", "Bearer " + jwt)
                 .content(objectMapper.writeValueAsString(memberRegisterRequest))
                 .with(csrf()));
 
