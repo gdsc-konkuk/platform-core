@@ -3,6 +3,7 @@ package gdsc.konkuk.platformcore.domain.member.entity;
 import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.SOFT_DELETE_RETENTION_MONTHS;
 import static gdsc.konkuk.platformcore.global.utils.FieldValidator.validateNotNull;
 
+import gdsc.konkuk.platformcore.application.member.dtos.MemberUpdateCommand;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.SQLRestriction;
@@ -66,6 +67,27 @@ public class Member {
 
   public Boolean isMemberDeleted() {
     return isDeleted;
+  }
+
+  public void update(MemberUpdateCommand command) {
+    if (command.getStudentId() != null) {
+      studentId = command.getStudentId();
+    }
+    if (command.getName() != null) {
+      name = command.getName();
+    }
+    if (command.getEmail() != null) {
+      email = command.getEmail();
+    }
+    if (command.getDepartment() != null) {
+      department = command.getDepartment();
+    }
+    if (command.getRole() != null) {
+      role = MemberRole.from(command.getRole());
+    }
+    if (command.getBatch() != null) {
+      batch = command.getBatch();
+    }
   }
 
   @Builder

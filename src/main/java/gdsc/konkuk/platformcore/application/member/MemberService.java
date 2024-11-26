@@ -2,6 +2,8 @@ package gdsc.konkuk.platformcore.application.member;
 
 import gdsc.konkuk.platformcore.application.attendance.dtos.MemberAttendanceQueryDto;
 import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendances;
+import gdsc.konkuk.platformcore.controller.member.dtos.MemberUpdateInfo;
+import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -36,6 +38,10 @@ public class MemberService {
   private final AttendanceRepository attendanceRepository;
   private final ParticipantRepository participantRepository;
 
+  public List<Member> getMembersInBatch(String batch) {
+    return memberRepository.findAllActiveByBatch(batch);
+  }
+
   @Transactional
   public Member register(MemberRegisterRequest registerRequest) {
     if (checkMemberExistWithStudentId(registerRequest.getStudentId())) {
@@ -53,6 +59,13 @@ public class MemberService {
     member.withdraw();
   }
 
+  @Transactional
+  public void updateMembers(String batch, @Valid List<MemberUpdateInfo> updateInfos) {
+    List<Long> memberIds = updateInfos.stream().map(MemberUpdateInfo::getMemberId).toList();
+    Map<Long, Member> memberMap = fetchMembers(memberIds, batch);
+    updateMembers(memberMap, updateInfos);
+  }
+
   public List<MemberAttendances> getMemberAttendanceWithBatchAndPeriod(String batch, LocalDate month) {
     List<MemberAttendanceQueryDto> attendanceInfoList =
         attendanceRepository.findAllAttendanceInfoByBatchAndPeriod(
@@ -67,6 +80,24 @@ public class MemberService {
       String batch, LocalDate month, List<AttendanceUpdateInfo> attendanceUpdateInfoList) {
     Map<Long, Participant> participantMap = fetchParticipants(batch, month);
     updateAttendanceStatuses(participantMap, attendanceUpdateInfoList);
+  }
+
+  private void updateMembers(Map<Long, Member> memberMap, List<MemberUpdateInfo> updateInfos) {
+    for (MemberUpdateInfo memberUpdateInfo : updateInfos) {
+      if (!memberMap.containsKey(memberUpdateInfo.getMemberId())) {
+        throw UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND);
+      }
+      Member member = memberMap.get(memberUpdateInfo.getMemberId());
+      member.update(memberUpdateInfo.toCommand());
+    }
+  }
+
+  private Map<Long, Member> fetchMembers(List<Long> memberIds, String batch) {
+    List<Member> members =  memberRepository.findAllByIdsAndBatch(memberIds, batch);
+    if (members.size() != memberIds.size()) {
+      throw UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND);
+    }
+    return members.stream().collect(toMap(Member::getId, identity()));
   }
 
   private void updateAttendanceStatuses(Map<Long, Participant> participants, List<AttendanceUpdateInfo> updateInfos) {

@@ -20,6 +20,8 @@ import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistEx
 import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateInfo;
 import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateRequest;
 import gdsc.konkuk.platformcore.controller.member.dtos.MemberRegisterRequest;
+import gdsc.konkuk.platformcore.controller.member.dtos.MemberUpdateInfo;
+import gdsc.konkuk.platformcore.controller.member.dtos.MemberUpdateRequest;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import gdsc.konkuk.platformcore.fixture.member.MemberAttendancesFixture;
@@ -63,9 +65,59 @@ class MemberControllerTest {
   }
 
   @Test
+  @DisplayName("특정 기수의 멤버 목록 조회 성공")
+  void should_success_when_get_members() throws Exception {
+    // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
+    given(memberService.getMembersInBatch("24-25"))
+        .willReturn(
+            List.of(
+                MemberFixture.builder().id(0L).batch("24-25").build().getFixture(),
+                MemberFixture.builder().id(1L).batch("24-25").build().getFixture(),
+                MemberFixture.builder().id(2L).batch("24-25").build().getFixture()));
+
+    // when
+    ResultActions result =
+        mockMvc.perform(
+            RestDocumentationRequestBuilders.get("/api/v1/members/{batch}", "24-25")
+                .header("Authorization", "Bearer " + jwt)
+                .contentType(APPLICATION_JSON)
+                .with(csrf()));
+
+    // then
+    result
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andDo(
+            document(
+                "member/get_members",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                resource(
+                    ResourceSnippetParameters.builder()
+                        .description("특정 기수의 멤버 목록 조회")
+                        .tag("member")
+                        .pathParameters(parameterWithName("batch").description("조회할 멤버 기수"))
+                        .responseFields(
+                            fieldWithPath("success").description(true),
+                            fieldWithPath("message").description("멤버 목록 조회 성공"),
+                            fieldWithPath("data[].memberId").description("멤버 아이디"),
+                            fieldWithPath("data[].studentId").description("학번"),
+                            fieldWithPath("data[].email").description("이메일"),
+                            fieldWithPath("data[].name").description("이름"),
+                            fieldWithPath("data[].department").description("학과"),
+                            fieldWithPath("data[].batch").description("배치"),
+                            fieldWithPath("data[].role").description("역할"))
+                        .build())));
+  }
+
+  @Test
   @DisplayName("새로운 멤버 회원 가입 성공")
   void should_success_when_newMember() throws Exception {
     // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
     MemberRegisterRequest memberRegisterRequest = MemberRegisterRequestFixture.builder()
         .studentId("202400000").build().getFixture();
     Member memberToRegister = MemberFixture.builder()
@@ -77,6 +129,7 @@ class MemberControllerTest {
         mockMvc.perform(
             RestDocumentationRequestBuilders.post("/api/v1/members")
                 .contentType(APPLICATION_JSON)
+                .header("Authorization", "Bearer " + jwt)
                 .content(objectMapper.writeValueAsString(memberRegisterRequest))
                 .with(csrf()));
 
@@ -112,6 +165,8 @@ class MemberControllerTest {
   @DisplayName("이미 존재하는 유저 회원 가입 실패")
   void should_fail_when_existingMember() throws Exception {
     // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
     MemberRegisterRequest memberRegisterRequest = MemberRegisterRequestFixture.builder().build().getFixture();
     given(memberService.register(any(MemberRegisterRequest.class)))
         .willThrow(UserAlreadyExistException.class);
@@ -121,6 +176,7 @@ class MemberControllerTest {
         mockMvc.perform(
             RestDocumentationRequestBuilders.post("/api/v1/members")
                 .contentType(APPLICATION_JSON)
+                .header("Authorization", "Bearer " + jwt)
                 .content(objectMapper.writeValueAsString(memberRegisterRequest))
                 .with(csrf()));
 
@@ -132,7 +188,7 @@ class MemberControllerTest {
   @DisplayName("회원 탈퇴 성공")
   void should_success_when_delete_member() throws Exception {
     // given
-    Member member = MemberFixture.builder().role(MemberRole.MEMBER).build().getFixture();
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
     String jwt = jwtTokenProvider.createToken(member);
     Member memberToWithdraw = MemberFixture.builder().build().getFixture();
     willDoNothing().given(memberService).withdraw(memberToWithdraw.getId());
@@ -140,7 +196,8 @@ class MemberControllerTest {
     // when
     ResultActions result =
         mockMvc.perform(
-            RestDocumentationRequestBuilders.delete("/api/v1/members")
+            RestDocumentationRequestBuilders
+                .delete("/api/v1/members/{batch}/{memberId}", "24-25", 1L)
                 .header("Authorization", "Bearer " + jwt)
                 .contentType(APPLICATION_JSON)
                 .with(csrf()));
@@ -158,6 +215,60 @@ class MemberControllerTest {
                     ResourceSnippetParameters.builder()
                         .description("존재하는 회원 탈퇴")
                         .tag("member")
+                        .pathParameters(
+                          parameterWithName("batch").description("탈퇴할 멤버 기수"),
+                          parameterWithName("memberId").description("탈퇴할 멤버 아이디"))
+                        .build())));
+  }
+
+  @Test
+  @DisplayName("멤버 정보 수정 성공")
+  void should_success_when_update_member() throws Exception {
+    // given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
+    MemberUpdateRequest memberUpdateRequest = new MemberUpdateRequest(List.of(
+            MemberUpdateInfo.builder().memberId(1L).studentId("202400000").build(),
+            MemberUpdateInfo.builder().memberId(2L).name("member2").build(),
+            MemberUpdateInfo.builder().memberId(3L).email("member3").build()));
+    willDoNothing().given(memberService)
+            .updateMembers("24-25", memberUpdateRequest.getMemberUpdateInfoList());
+
+    // when
+    ResultActions result =
+        mockMvc.perform(
+            RestDocumentationRequestBuilders.patch("/api/v1/members/{batch}", "24-25")
+                .header("Authorization", "Bearer " + jwt)
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(memberUpdateRequest))
+                .with(csrf()));
+
+    // then
+    result
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andDo(
+            document(
+                "member/update",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                resource(
+                    ResourceSnippetParameters.builder()
+                        .description("멤버 정보 수정")
+                        .tag("member")
+                        .pathParameters(parameterWithName("batch").description("수정할 멤버 기수"))
+                        .requestFields(
+                            fieldWithPath("memberUpdateInfoList[].memberId").description("멤버 아이디").optional(),
+                            fieldWithPath("memberUpdateInfoList[].studentId").description("학번").optional(),
+                            fieldWithPath("memberUpdateInfoList[].name").description("이름").optional(),
+                            fieldWithPath("memberUpdateInfoList[].email").description("이메일").optional(),
+                            fieldWithPath("memberUpdateInfoList[].department").description("학과").optional(),
+                            fieldWithPath("memberUpdateInfoList[].batch").description("배치").optional(),
+                            fieldWithPath("memberUpdateInfoList[].role").description("역할").optional())
+                        .responseFields(
+                            fieldWithPath("success").description(true),
+                            fieldWithPath("message").description("멤버 정보 수정 성공"),
+                            fieldWithPath("data").description("null"))
                         .build())));
   }
 
