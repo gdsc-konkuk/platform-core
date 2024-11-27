@@ -22,6 +22,7 @@ import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateRequest;
 import gdsc.konkuk.platformcore.controller.member.dtos.MemberRegisterRequest;
 import gdsc.konkuk.platformcore.controller.member.dtos.MemberUpdateInfo;
 import gdsc.konkuk.platformcore.controller.member.dtos.MemberUpdateRequest;
+import gdsc.konkuk.platformcore.domain.attendance.entity.AttendanceType;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import gdsc.konkuk.platformcore.fixture.member.MemberAttendancesFixture;
@@ -324,18 +325,15 @@ class MemberControllerTest {
                             fieldWithPath("data[].department").description("멤버 학과"),
                             fieldWithPath("data[].totalAttendances").description("전체 등록 횟수"),
                             fieldWithPath("data[].actualAttendances").description("실제 출석 횟수"),
-                            fieldWithPath("data[].attendanceInfoList").description("멤버 출석 정보 리스트"),
                             fieldWithPath("data[].attendanceInfoList[].attendanceId")
                                 .description("출석 아이디"),
                             fieldWithPath("data[].attendanceInfoList[].memberId")
                                 .description("멤버 아이디"),
-                            fieldWithPath("data[].attendanceInfoList[].eventId")
-                                .description("이벤트 아이디"),
                             fieldWithPath("data[].attendanceInfoList[].participantId")
                                 .description("참가자 아이디"),
                             fieldWithPath("data[].attendanceInfoList[].attendanceDate")
                                 .description("출석 날짜"),
-                            fieldWithPath("data[].attendanceInfoList[].attended")
+                            fieldWithPath("data[].attendanceInfoList[].attendanceType")
                                 .description("출석 여부"))
                         .build())));
   }
@@ -347,9 +345,9 @@ class MemberControllerTest {
     Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
     String jwt = jwtTokenProvider.createToken(member);
     List<AttendanceUpdateInfo> attendanceUpdateInfoList = List.of(
-            AttendanceUpdateInfo.builder().participantId(1L).isAttended(true).build(),
-            AttendanceUpdateInfo.builder().participantId(2L).isAttended(false).build(),
-            AttendanceUpdateInfo.builder().participantId(3L).isAttended(true).build());
+            AttendanceUpdateInfo.builder().participantId(1L).attendanceType(AttendanceType.ATTEND).build(),
+            AttendanceUpdateInfo.builder().participantId(2L).attendanceType(AttendanceType.ABSENT).build(),
+            AttendanceUpdateInfo.builder().participantId(3L).attendanceType(AttendanceType.LATE).build());
     AttendanceUpdateRequest attendanceUpdateRequest = new AttendanceUpdateRequest(attendanceUpdateInfoList);
     willDoNothing().given(memberService).updateAttendances(
             "24-25",
@@ -389,7 +387,7 @@ class MemberControllerTest {
                             fieldWithPath("attendanceUpdateInfoList[]").description("출석 정보 수정 리스트"),
                             fieldWithPath("attendanceUpdateInfoList[].participantId")
                                 .description("참가자 아이디"),
-                            fieldWithPath("attendanceUpdateInfoList[].attended")
+                            fieldWithPath("attendanceUpdateInfoList[].attendanceType")
                                 .description("출석 여부"))
                         .responseFields(
                             fieldWithPath("success").description(true),
