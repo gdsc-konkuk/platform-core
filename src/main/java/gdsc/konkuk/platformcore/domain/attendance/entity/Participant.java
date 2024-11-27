@@ -2,6 +2,8 @@ package gdsc.konkuk.platformcore.domain.attendance.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,32 +30,33 @@ public class Participant {
   @Column(name = "member_id")
   private Long memberId;
 
-  @Column(name = "attendance")
-  private boolean isAttended;
+  @Column(name = "attendance_type")
+  @Enumerated(EnumType.STRING)
+  private AttendanceType attendanceType;
 
   @Builder
-  public Participant(Long memberId, Attendance attendance, boolean isAttended) {
+  public Participant(Long memberId, Attendance attendance, AttendanceType attendanceType) {
     this.memberId = memberId;
     this.attendance = attendance;
-    this.isAttended = isAttended;
+    this.attendanceType = attendanceType;
   }
 
   public void register(Attendance attendance) {
-    if(isAttended || attendance == null) {
+    if(this.attendance != null || attendance == null) {
       throw new IllegalStateException();
     }
     this.attendance = attendance;
   }
 
+  public boolean isAttend() {
+    return !this.attendanceType.equals(AttendanceType.ABSENT);
+  }
+
   public void attend() {
-    this.isAttended = true;
+    this.attendanceType = AttendanceType.ATTEND;
   }
 
-  public void cancel() {
-    this.isAttended = false;
-  }
-
-  public void updateAttendanceStatus(boolean isAttended) {
-    this.isAttended = isAttended;
+  public void updateAttendanceStatus(AttendanceType isAttended) {
+    this.attendanceType = isAttended;
   }
 }

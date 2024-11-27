@@ -1,5 +1,6 @@
 package gdsc.konkuk.platformcore.controller.member.dtos;
 
+import gdsc.konkuk.platformcore.domain.attendance.entity.AttendanceType;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,5 +11,5 @@ import lombok.Setter;
 @Builder
 public class AttendanceUpdateInfo {
   @NotNull private Long participantId;
-  @NotNull private boolean isAttended;
+  @NotNull private AttendanceType attendanceType;
 }

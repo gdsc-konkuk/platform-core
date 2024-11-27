@@ -2,6 +2,7 @@ package gdsc.konkuk.platformcore.application.member.dtos;
 
 import gdsc.konkuk.platformcore.application.attendance.dtos.MemberAttendanceInfo;
 import gdsc.konkuk.platformcore.application.attendance.dtos.MemberAttendanceQueryDto;
+import gdsc.konkuk.platformcore.domain.attendance.entity.AttendanceType;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -41,7 +42,7 @@ public class MemberAttendances{
 
   private static void updateAttendanceCounts(MemberAttendances memberAttendances, MemberAttendanceQueryDto attendanceInfo) {
     memberAttendances.totalAttendances++;
-    if (attendanceInfo.isAttended()) {
+    if (!attendanceInfo.getAttendanceType().equals(AttendanceType.ABSENT)) {
       memberAttendances.actualAttendances++;
     }
   }
@@ -64,7 +65,7 @@ public class MemberAttendances{
         .attendanceDate(attendanceInfo.getAttendanceDate())
         .participantId(attendanceInfo.getParticipantId())
         .attendanceId(attendanceInfo.getAttendanceId())
-        .isAttended(attendanceInfo.isAttended())
+        .attendanceType(attendanceInfo.getAttendanceType())
         .build();
   }
 }

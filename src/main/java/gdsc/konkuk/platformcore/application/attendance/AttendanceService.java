@@ -6,6 +6,7 @@ import gdsc.konkuk.platformcore.application.attendance.dtos.AttendanceStatus;
 import gdsc.konkuk.platformcore.application.member.exceptions.MemberErrorCode;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserNotFoundException;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
+import gdsc.konkuk.platformcore.domain.attendance.entity.AttendanceType;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Participant;
 import gdsc.konkuk.platformcore.domain.attendance.repository.AttendanceRepository;
 import gdsc.konkuk.platformcore.domain.attendance.repository.ParticipantRepository;
@@ -56,7 +57,7 @@ public class AttendanceService {
 
   public AttendanceStatus getAttendanceStatus(Long attendanceId) {
     List<Participant> totalParticipants = participantRepository.findAllByAttendanceId(attendanceId);
-    List<Participant> attendedParticipants = totalParticipants.stream().filter(Participant::isAttended).toList();
+    List<Participant> attendedParticipants = totalParticipants.stream().filter(Participant::isAttend).toList();
     return AttendanceStatus.of(attendanceId, totalParticipants.size(), attendedParticipants.size());
   }
 
@@ -84,7 +85,7 @@ public class AttendanceService {
     for(Member member : members) {
       Participant participant = Participant.builder()
           .memberId(member.getId())
-          .isAttended(false)
+          .attendanceType(AttendanceType.ABSENT)
           .build();
       participant.register(attendance);
       participants.add(participant);

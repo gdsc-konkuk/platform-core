@@ -1,5 +1,6 @@
 package gdsc.konkuk.platformcore.application.attendance.dtos;
 
+import gdsc.konkuk.platformcore.domain.attendance.entity.AttendanceType;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -19,5 +20,5 @@ public class MemberAttendanceQueryDto {
   private Long participantId;
   private Long attendanceId;
   private LocalDateTime attendanceDate;
-  private boolean isAttended;
+  private AttendanceType attendanceType;
 }
