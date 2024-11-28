@@ -62,7 +62,7 @@ public class EmailController {
     return ResponseEntity.noContent().build();
   }
 
-  @DeleteMapping("/")
+  @DeleteMapping("")
   public ResponseEntity<SuccessResponse> deleteEmailTaskInBatch(@RequestParam List<Long> emailIds) {
     emailTaskFacade.cancelAll(emailIds);
     return ResponseEntity.noContent().build();
