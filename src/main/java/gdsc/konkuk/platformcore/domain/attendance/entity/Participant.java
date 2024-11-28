@@ -49,7 +49,7 @@ public class Participant {
   }
 
   public boolean isAttend() {
-    return !this.attendanceType.equals(AttendanceType.ABSENT);
+    return !this.attendanceType.isAbsent();
   }
 
   public void attend() {

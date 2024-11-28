@@ -9,6 +9,10 @@ public enum AttendanceType {
         this.value = value;
     }
 
+    public boolean isAbsent() {
+        return this == ABSENT;
+    }
+
     @Override
     public String toString() {
         return value;
