@@ -23,6 +23,7 @@ import gdsc.konkuk.platformcore.global.exceptions.GlobalErrorCode;
 import gdsc.konkuk.platformcore.global.scheduler.TaskNotFoundException;
 import gdsc.konkuk.platformcore.global.scheduler.TaskInMemoryRepository;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -198,4 +199,34 @@ class EmailIntegrationTest {
     verify(emailClient).sendEmailToReceivers(any(EmailTask.class));
     verify(discordClient).sendErrorMessage(any());
   }
+
+  @Test
+  @DisplayName("모든 작업 취소 성공")
+  void should_cancel_all_tasks() {
+    // given
+    EmailSendRequest emailRequest1 = EmailSendRequestFixture.builder()
+        .sendAt(LocalDateTime.now().plusHours(1)).build()
+        .getFixture();
+    EmailSendRequest emailRequest2 = EmailSendRequestFixture.builder()
+        .sendAt(LocalDateTime.now().plusHours(2)).build()
+        .getFixture();
+    EmailTask emailTask1 = emailTaskFacade.register(emailRequest1);
+    EmailTask emailTask2 = emailTaskFacade.register(emailRequest2);
+    assertEquals(2, executor.getQueue().size());
+
+    // when
+    emailTaskFacade.cancelAll(List.of(emailTask1.getId(), emailTask2.getId()));
+
+    // then
+    assertEquals(0, executor.getQueue().size());
+    assertTrue(emailTaskRepository.findById(emailTask1.getId()).isEmpty());
+    assertTrue(emailTaskRepository.findById(emailTask2.getId()).isEmpty());
+    assertThrows(
+        TaskNotFoundException.class,
+        () -> taskInMemoryRepository.getTask(emailTask1.getId().toString()));
+    assertThrows(
+        TaskNotFoundException.class,
+        () -> taskInMemoryRepository.getTask(emailTask2.getId().toString()));
+  }
+
 }

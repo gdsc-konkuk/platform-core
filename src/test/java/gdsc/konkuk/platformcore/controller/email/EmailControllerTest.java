@@ -264,4 +264,33 @@ class EmailControllerTest {
               parameterWithName("emailId").description("취소할 이메일 작업 ID"))
             .build())));
   }
+
+  @Test
+  @DisplayName("선택한 모든 이메일 작업을 취소한다.")
+  void should_success_when_cancel_all_tasks() throws Exception {
+    //given
+    Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+    String jwt = jwtTokenProvider.createToken(member);
+    List<Long> emailIds = List.of(1L, 2L);
+    willDoNothing().given(emailTaskFacade).cancelAll(emailIds);
+
+    //when
+    ResultActions result = mockMvc.perform(
+      RestDocumentationRequestBuilders.delete("/api/v1/emails/?emailIds=1&emailIds=2")
+        .header("Authorization", "Bearer " + jwt)
+        .contentType(APPLICATION_JSON)
+        .with(csrf()));
+
+    //then
+    result
+      .andDo(print())
+      .andExpect(status().isNoContent())
+      .andDo(
+        document("cancel all EmailTask",
+          preprocessRequest(prettyPrint()),
+          resource(ResourceSnippetParameters.builder()
+            .tag("email")
+            .description("선택한 모든 이메일 작업을 취소합니다.")
+            .build())));
+  }
 }
