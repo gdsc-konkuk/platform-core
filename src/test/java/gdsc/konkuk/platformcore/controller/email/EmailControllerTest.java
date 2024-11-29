@@ -276,7 +276,7 @@ class EmailControllerTest {
 
     //when
     ResultActions result = mockMvc.perform(
-      RestDocumentationRequestBuilders.delete("/api/v1/emails/?emailIds=1&emailIds=2")
+      RestDocumentationRequestBuilders.delete("/api/v1/emails?emailIds=1&emailIds=2")
         .header("Authorization", "Bearer " + jwt)
         .contentType(APPLICATION_JSON)
         .with(csrf()));
