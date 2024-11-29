@@ -5,6 +5,8 @@ import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.global.scheduler.TaskScheduler;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +35,11 @@ public class EmailTaskFacade {
   public void cancel(Long emailId) {
     emailTaskScheduler.cancelTask(String.valueOf(emailId));
     emailService.delete(emailId);
+  }
+
+  public void cancelAll(List<Long> emailIds) {
+    emailIds.forEach(emailId -> emailTaskScheduler.cancelTask(String.valueOf(emailId)));
+    emailService.deleteAll(emailIds);
   }
 
   private long getWaitingPeriod(EmailTask emailTask) {

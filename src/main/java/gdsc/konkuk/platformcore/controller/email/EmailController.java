@@ -10,6 +10,8 @@ import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -36,14 +38,6 @@ public class EmailController {
     return ResponseEntity.ok(SuccessResponse.of(emailTasks));
   }
 
-  @GetMapping("/pages")
-  public ResponseEntity<SuccessResponse> getAllEmailTask(
-      @RequestParam(required = false, defaultValue = "0", value = "page") int pageNo
-  ) {
-    EmailTaskListResponse emailTasks = EmailTaskMapper.mapToEmailTaskPageResponse(emailService.getAllTaskWithPage(pageNo));
-    return ResponseEntity.ok(SuccessResponse.of(emailTasks));
-  }
-
   @GetMapping("/{taskId}")
   public ResponseEntity<SuccessResponse> getEmailTask(@PathVariable Long taskId) {
     EmailTaskDetailResponse emailTask = EmailTaskMapper.mapToEmailTaskDetailsResponse(emailService.getTaskDetails(taskId));
@@ -65,6 +59,12 @@ public class EmailController {
   @DeleteMapping("/{emailId}")
   public ResponseEntity<SuccessResponse> deleteEmailTask(@PathVariable Long emailId) {
     emailTaskFacade.cancel(emailId);
+    return ResponseEntity.noContent().build();
+  }
+
+  @DeleteMapping("")
+  public ResponseEntity<SuccessResponse> deleteEmailTaskInBatch(@RequestParam List<Long> emailIds) {
+    emailTaskFacade.cancelAll(emailIds);
     return ResponseEntity.noContent().build();
   }
 }

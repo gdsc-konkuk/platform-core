@@ -11,6 +11,8 @@ import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,11 +30,6 @@ public class EmailService {
 
   public List<EmailTask> getAllTaskAsList() {
     return emailTaskRepository.findAll();
-  }
-
-  public Page<EmailTask> getAllTaskWithPage(int pageNo) {
-    Pageable pageable = PageRequest.of(pageNo, 10);
-    return emailTaskRepository.findAll(pageable);
   }
 
   public EmailTask getTaskDetails(Long taskId) {
@@ -73,6 +70,12 @@ public class EmailService {
   public void delete(Long emailId) {
     EmailTask task = findEmailTaskById(emailTaskRepository, emailId);
     emailTaskRepository.delete(task);
+  }
+
+  @Transactional
+  public void deleteAll(List<Long> emailIds) {
+    List<EmailTask> tasks = emailTaskRepository.findAllById(emailIds);
+    emailTaskRepository.deleteAllInBatch(tasks);
   }
 
   private void validateEmailTaskAlreadySent(EmailTask emailTask) {
