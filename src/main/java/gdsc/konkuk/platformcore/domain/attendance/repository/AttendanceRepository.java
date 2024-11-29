@@ -14,7 +14,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
   List<Attendance> findAllByPeriod(LocalDateTime st, LocalDateTime en);
 
   @Query("SELECT new gdsc.konkuk.platformcore.application.attendance.dtos.MemberAttendanceQueryDto(" +
-      "m.id, m.name, m.role, m.department, p.id, a.id, a.attendanceTime, p.isAttended) " +
+      "m.id, m.name, m.role, m.department, p.id, a.id, a.attendanceTime, p.attendanceType) " +
       "FROM Attendance a " +
       "LEFT JOIN Participant p ON p.attendance.id = a.id " +
       "LEFT JOIN Member m ON m.id = p.memberId " +

@@ -10,6 +10,7 @@ import gdsc.konkuk.platformcore.application.auth.JwtTokenProvider;
 import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceRegisterRequest;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
 
+import gdsc.konkuk.platformcore.domain.attendance.entity.AttendanceType;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import gdsc.konkuk.platformcore.fixture.attendance.AttendanceFixture;
@@ -139,7 +140,7 @@ class AttendanceControllerTest {
         .id(1L).activeQrUuid("uuid").build().getFixture();
     given(attendanceService.attend(memberToAttend.getId(), attendanceToAttend.getId(), attendanceToAttend.getActiveQrUuid()))
         .willReturn(ParticipantFixture.builder()
-            .isAttended(true)
+            .attendanceType(AttendanceType.ATTEND)
             .memberId(memberToAttend.getId())
             .attendance(attendanceToAttend)
             .build().getFixture());

@@ -106,7 +106,7 @@ public class MemberService {
         throw ParticipantNotFoundException.of(AttendanceErrorCode.PARTICIPANT_NOT_FOUND);
       }
       Participant participant = participants.get(attendanceUpdateInfo.getParticipantId());
-      participant.updateAttendanceStatus(attendanceUpdateInfo.isAttended());
+      participant.updateAttendanceStatus(attendanceUpdateInfo.getAttendanceType());
     }
   }
 

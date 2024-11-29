@@ -4,6 +4,7 @@ import static gdsc.konkuk.platformcore.global.utils.GetDefault.getDefault;
 
 import gdsc.konkuk.platformcore.application.attendance.dtos.MemberAttendanceInfo;
 import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendances;
+import gdsc.konkuk.platformcore.domain.attendance.entity.AttendanceType;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,26 +28,23 @@ public class MemberAttendancesFixture {
         MemberAttendanceInfo.builder()
             .attendanceId(0L)
             .memberId(0L)
-            .eventId(0L)
             .participantId(0L)
+            .attendanceType(AttendanceType.ABSENT)
             .attendanceDate(LocalDateTime.now())
-            .isAttended(true)
             .build(),
         MemberAttendanceInfo.builder()
             .attendanceId(1L)
             .memberId(0L)
-            .eventId(1L)
             .participantId(1L)
+            .attendanceType(AttendanceType.LATE)
             .attendanceDate(LocalDateTime.now().plusDays(3))
-            .isAttended(false)
             .build(),
         MemberAttendanceInfo.builder()
             .attendanceId(2L)
             .memberId(0L)
-            .eventId(2L)
             .participantId(2L)
+            .attendanceType(AttendanceType.ATTEND)
             .attendanceDate(LocalDateTime.now().plusDays(5))
-            .isAttended(true)
             .build())))
       .build();
   }

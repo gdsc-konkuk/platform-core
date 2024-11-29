@@ -40,8 +40,9 @@ public class MemberAttendances{
   }
 
   private static void updateAttendanceCounts(MemberAttendances memberAttendances, MemberAttendanceQueryDto attendanceInfo) {
+    // TODO : 너무 높아진 복잡도, 리팩터링 필요
     memberAttendances.totalAttendances++;
-    if (attendanceInfo.isAttended()) {
+    if (!attendanceInfo.getAttendanceType().isAbsent()) {
       memberAttendances.actualAttendances++;
     }
   }
@@ -64,7 +65,7 @@ public class MemberAttendances{
         .attendanceDate(attendanceInfo.getAttendanceDate())
         .participantId(attendanceInfo.getParticipantId())
         .attendanceId(attendanceInfo.getAttendanceId())
-        .isAttended(attendanceInfo.isAttended())
+        .attendanceType(attendanceInfo.getAttendanceType())
         .build();
   }
 }
