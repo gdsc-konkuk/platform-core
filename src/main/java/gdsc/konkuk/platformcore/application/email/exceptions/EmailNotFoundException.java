@@ -5,11 +5,11 @@ import gdsc.konkuk.platformcore.global.exceptions.CustomErrorCode;
 
 public class EmailNotFoundException extends BusinessException {
 
-  protected EmailNotFoundException(CustomErrorCode errorCode, String logMessage) {
-    super(errorCode, logMessage);
-  }
+    protected EmailNotFoundException(CustomErrorCode errorCode, String logMessage) {
+        super(errorCode, logMessage);
+    }
 
-  public static EmailNotFoundException of(CustomErrorCode errorCode) {
-    return new EmailNotFoundException(errorCode, errorCode.getMessage());
-  }
+    public static EmailNotFoundException of(CustomErrorCode errorCode) {
+        return new EmailNotFoundException(errorCode, errorCode.getMessage());
+    }
 }

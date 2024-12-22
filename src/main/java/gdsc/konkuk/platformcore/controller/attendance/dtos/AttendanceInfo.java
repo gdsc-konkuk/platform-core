@@ -10,15 +10,16 @@ import lombok.Setter;
 @Setter
 @Builder
 public class AttendanceInfo {
-  private Long attendanceId;
-  private String title;
-  private LocalDateTime attendanceTime;
 
-  public static AttendanceInfo from(Attendance attendance) {
-       return AttendanceInfo.builder()
-           .attendanceId(attendance.getId())
-           .title(attendance.getTitle())
-           .attendanceTime(attendance.getAttendanceTime())
-           .build();
-  }
+    private Long attendanceId;
+    private String title;
+    private LocalDateTime attendanceTime;
+
+    public static AttendanceInfo from(Attendance attendance) {
+        return AttendanceInfo.builder()
+                .attendanceId(attendance.getId())
+                .title(attendance.getTitle())
+                .attendanceTime(attendance.getAttendanceTime())
+                .build();
+    }
 }

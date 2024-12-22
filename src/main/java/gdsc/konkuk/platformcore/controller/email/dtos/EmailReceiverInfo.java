@@ -13,35 +13,38 @@ import lombok.Setter;
 @Getter
 @Setter
 public class EmailReceiverInfo {
-  @NotEmpty @Email
-  private String email;
 
-  @NotEmpty private String name;
+    @NotEmpty
+    @Email
+    private String email;
 
-  @Builder
-  public EmailReceiverInfo(String email, String name) {
-    this.email = email;
-    this.name = name;
-  }
+    @NotEmpty
+    private String name;
 
-  public static EmailReceiver toValueObject(EmailReceiverInfo info) {
-    return EmailReceiver.builder()
-      .email(info.getEmail())
-      .name(info.getName())
-      .build();
-  }
+    @Builder
+    public EmailReceiverInfo(String email, String name) {
+        this.email = email;
+        this.name = name;
+    }
 
-  public static EmailReceiverInfo fromValueObject(EmailReceiver emailReceiver) {
-    return EmailReceiverInfo.builder()
-      .email(emailReceiver.getEmail())
-      .name(emailReceiver.getName())
-      .build();
-  }
+    public static EmailReceiver toValueObject(EmailReceiverInfo info) {
+        return EmailReceiver.builder()
+                .email(info.getEmail())
+                .name(info.getName())
+                .build();
+    }
 
-  public static Set<EmailReceiverInfo> fromValueObject(EmailReceivers emailReceivers) {
-    return emailReceivers.getReceivers()
-      .stream()
-      .map(EmailReceiverInfo::fromValueObject)
-      .collect(Collectors.toSet());
-  }
+    public static EmailReceiverInfo fromValueObject(EmailReceiver emailReceiver) {
+        return EmailReceiverInfo.builder()
+                .email(emailReceiver.getEmail())
+                .name(emailReceiver.getName())
+                .build();
+    }
+
+    public static Set<EmailReceiverInfo> fromValueObject(EmailReceivers emailReceivers) {
+        return emailReceivers.getReceivers()
+                .stream()
+                .map(EmailReceiverInfo::fromValueObject)
+                .collect(Collectors.toSet());
+    }
 }

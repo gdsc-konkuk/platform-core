@@ -8,49 +8,50 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Attendance {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
 
-  @Column(name = "title")
-  private String title;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Column(name = "attendance_time")
-  private LocalDateTime attendanceTime;
+    @Column(name = "title")
+    private String title;
 
-  @Column(name = "active_qr_uuid")
-  private String activeQrUuid;
+    @Column(name = "attendance_time")
+    private LocalDateTime attendanceTime;
 
-  @Builder
-  public Attendance(Long id, String title, LocalDateTime attendanceTime, String activeQrUuid) {
-    this.id = id;
-    this.title = title;
-    this.attendanceTime = attendanceTime;
-    this.activeQrUuid = activeQrUuid;
-  }
+    @Column(name = "active_qr_uuid")
+    private String activeQrUuid;
 
-  public void validateActiveQr(String qrUuid) {
-    if (this.activeQrUuid == null || !this.activeQrUuid.equals(qrUuid))
-      throw QrInvalidException.of(AttendanceErrorCode.INVALID_QR_UUID);
-  }
+    @Builder
+    public Attendance(Long id, String title, LocalDateTime attendanceTime, String activeQrUuid) {
+        this.id = id;
+        this.title = title;
+        this.attendanceTime = attendanceTime;
+        this.activeQrUuid = activeQrUuid;
+    }
 
-  public String generateQr() {
-    this.activeQrUuid = UUID.randomUUID().toString();
-    return this.activeQrUuid;
-  }
+    public void validateActiveQr(String qrUuid) {
+        if (this.activeQrUuid == null || !this.activeQrUuid.equals(qrUuid)) {
+            throw QrInvalidException.of(AttendanceErrorCode.INVALID_QR_UUID);
+        }
+    }
 
-  public void expireQr() {
-    this.activeQrUuid = null;
-  }
+    public String generateQr() {
+        this.activeQrUuid = UUID.randomUUID().toString();
+        return this.activeQrUuid;
+    }
+
+    public void expireQr() {
+        this.activeQrUuid = null;
+    }
 }

@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class EmailServiceHelper {
 
-  public static EmailTask findEmailTaskById(EmailTaskRepository repository, Long id) {
-    return repository
-        .findById(id)
-        .orElseThrow(() -> EmailNotFoundException.of(EmailErrorCode.EMAIL_NOT_FOUND));
-  }
+    public static EmailTask findEmailTaskById(EmailTaskRepository repository, Long id) {
+        return repository
+                .findById(id)
+                .orElseThrow(() -> EmailNotFoundException.of(EmailErrorCode.EMAIL_NOT_FOUND));
+    }
 }

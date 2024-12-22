@@ -16,26 +16,28 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequiredArgsConstructor
 public class DiscordClient {
 
-  @Value("${discord.webhook.url}")
-  private static String WEB_HOOK_URL;
+    @Value("${discord.webhook.url}")
+    private static String WEB_HOOK_URL;
 
-  private final RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
-  /***
-   * Discord Webhook을 통해 에러메세지를 전송한다.
-   * @param e 발생한 Exception
-   * @author ekgns33
-   */
-  public void sendErrorMessage(Exception e) {
-    DiscordMessage message = DiscordMessage.of(e);
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
-    HttpEntity<DiscordMessage> entity = new HttpEntity<>(message, headers);
-    try {
-      restTemplate.postForObject(UriComponentsBuilder.fromUriString(WEB_HOOK_URL).toUriString(), entity, String.class);
-    } catch (Exception ex) {
-      //TODO: 웹훅 요청 자체가 잘못된 경우에 대한 처리 고안해야함.
-      log.error(Arrays.toString(ex.getStackTrace()));
+    /***
+     * Discord Webhook을 통해 에러메세지를 전송한다.
+     * @param e 발생한 Exception
+     * @author ekgns33
+     */
+    public void sendErrorMessage(Exception e) {
+        DiscordMessage message = DiscordMessage.of(e);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<DiscordMessage> entity = new HttpEntity<>(message, headers);
+        try {
+            restTemplate.postForObject(
+                    UriComponentsBuilder.fromUriString(WEB_HOOK_URL).toUriString(), entity,
+                    String.class);
+        } catch (Exception ex) {
+            //TODO: 웹훅 요청 자체가 잘못된 경우에 대한 처리 고안해야함.
+            log.error(Arrays.toString(ex.getStackTrace()));
+        }
     }
-  }
 }

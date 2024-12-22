@@ -19,29 +19,29 @@ import org.springframework.web.client.RestTemplate;
 @ExtendWith(MockitoExtension.class)
 class DiscordClientTest {
 
-  @Mock
-  private RestTemplate restTemplate;
+    @Mock
+    private RestTemplate restTemplate;
 
-  @InjectMocks
-  private DiscordClient subject;
+    @InjectMocks
+    private DiscordClient subject;
 
-  @BeforeEach
-  void setUp() {
-    openMocks(this);
-    ReflectionTestUtils.setField(subject, "WEB_HOOK_URL", "/hi");
-    subject = new DiscordClient(restTemplate);
-  }
+    @BeforeEach
+    void setUp() {
+        openMocks(this);
+        ReflectionTestUtils.setField(subject, "WEB_HOOK_URL", "/hi");
+        subject = new DiscordClient(restTemplate);
+    }
 
-  @Test
-  @DisplayName("에러메세지 전송 성공")
-  void should_send_error_message() {
-    // given
-    Exception e = EmailSendingException.of(EmailClientErrorCode.MAIL_SENDING_ERROR);
+    @Test
+    @DisplayName("에러메세지 전송 성공")
+    void should_send_error_message() {
+        // given
+        Exception e = EmailSendingException.of(EmailClientErrorCode.MAIL_SENDING_ERROR);
 
-    // when
-    subject.sendErrorMessage(e);
+        // when
+        subject.sendErrorMessage(e);
 
-    // then
-    verify(restTemplate).postForObject(any(String.class), any(), any());
-  }
+        // then
+        verify(restTemplate).postForObject(any(String.class), any(), any());
+    }
 }

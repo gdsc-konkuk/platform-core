@@ -1,6 +1,7 @@
 package gdsc.konkuk.platformcore.application.auth;
 
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -16,7 +17,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
-import io.jsonwebtoken.Claims;
 
 @Component
 @RequiredArgsConstructor
@@ -45,19 +45,19 @@ public class JwtTokenProvider {
         Date validity = new Date(now.getTime() + validityInMilliseconds);
 
         return Jwts.builder()
-            .claims(claims)
-            .issuedAt(now)
-            .expiration(validity)
-            .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
-            .compact();
+                .claims(claims)
+                .issuedAt(now)
+                .expiration(validity)
+                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                .compact();
     }
 
     public Authentication getAuthentication(Claims claims) {
         List<? extends GrantedAuthority> authorities =
-            ((List<?>) claims.get("roles"))
-                .stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                .toList();
+                ((List<?>) claims.get("roles"))
+                        .stream()
+                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                        .toList();
 
         Map<String, Object> principal = new HashMap<>();
         principal.put("memberId", claims.getSubject());
@@ -68,9 +68,9 @@ public class JwtTokenProvider {
 
     public Claims parseClaims(String token) {
         return Jwts.parser()
-            .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
-            .build()
-            .parseSignedClaims(token)
-            .getPayload();
+                .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }

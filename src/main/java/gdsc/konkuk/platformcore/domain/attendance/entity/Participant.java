@@ -19,44 +19,45 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Participant {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "attendance_id")
-  private Attendance attendance;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Column(name = "member_id")
-  private Long memberId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "attendance_id")
+    private Attendance attendance;
 
-  @Column(name = "attendance_type")
-  @Enumerated(EnumType.STRING)
-  private AttendanceType attendanceType;
+    @Column(name = "member_id")
+    private Long memberId;
 
-  @Builder
-  public Participant(Long memberId, Attendance attendance, AttendanceType attendanceType) {
-    this.memberId = memberId;
-    this.attendance = attendance;
-    this.attendanceType = attendanceType;
-  }
+    @Column(name = "attendance_type")
+    @Enumerated(EnumType.STRING)
+    private AttendanceType attendanceType;
 
-  public void register(Attendance attendance) {
-    if(this.attendance != null || attendance == null) {
-      throw new IllegalStateException();
+    @Builder
+    public Participant(Long memberId, Attendance attendance, AttendanceType attendanceType) {
+        this.memberId = memberId;
+        this.attendance = attendance;
+        this.attendanceType = attendanceType;
     }
-    this.attendance = attendance;
-  }
 
-  public boolean isAttend() {
-    return !this.attendanceType.isAbsent();
-  }
+    public void register(Attendance attendance) {
+        if (this.attendance != null || attendance == null) {
+            throw new IllegalStateException();
+        }
+        this.attendance = attendance;
+    }
 
-  public void attend() {
-    this.attendanceType = AttendanceType.ATTEND;
-  }
+    public boolean isAttend() {
+        return !this.attendanceType.isAbsent();
+    }
 
-  public void updateAttendanceStatus(AttendanceType isAttended) {
-    this.attendanceType = isAttended;
-  }
+    public void attend() {
+        this.attendanceType = AttendanceType.ATTEND;
+    }
+
+    public void updateAttendanceStatus(AttendanceType isAttended) {
+        this.attendanceType = isAttended;
+    }
 }

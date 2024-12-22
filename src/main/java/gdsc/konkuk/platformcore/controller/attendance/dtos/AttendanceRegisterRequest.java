@@ -9,8 +9,9 @@ import lombok.Setter;
 @Setter
 @Builder
 public class AttendanceRegisterRequest {
-  @NotEmpty
-  private String title;
-  @NotEmpty
-  private String batch;
+
+    @NotEmpty
+    private String title;
+    @NotEmpty
+    private String batch;
 }

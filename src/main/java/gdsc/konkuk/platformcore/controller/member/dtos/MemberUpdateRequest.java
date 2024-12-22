@@ -15,6 +15,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MemberUpdateRequest {
+
     @NotNull
     @Valid
     private List<MemberUpdateInfo> memberUpdateInfoList;

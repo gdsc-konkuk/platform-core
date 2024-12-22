@@ -9,20 +9,22 @@ import lombok.Getter;
 
 @Getter
 public class EmailTaskDetailResponse {
-  private final String subject;
-  private final String content;
-  private final List<EmailReceiverInfo> receiverInfos;
-  private final LocalDateTime sendAt;
 
-  @Builder
-  public EmailTaskDetailResponse(EmailDetail emailDetail, EmailReceivers emailReceivers, LocalDateTime sendAt) {
-    this.subject = emailDetail.getSubject();
-    this.content = emailDetail.getContent();
-    this.receiverInfos = emailReceivers
-        .getReceivers()
-        .stream()
-        .map(EmailReceiverInfo::fromValueObject)
-        .toList();
-    this.sendAt = sendAt;
-  }
+    private final String subject;
+    private final String content;
+    private final List<EmailReceiverInfo> receiverInfos;
+    private final LocalDateTime sendAt;
+
+    @Builder
+    public EmailTaskDetailResponse(EmailDetail emailDetail, EmailReceivers emailReceivers,
+            LocalDateTime sendAt) {
+        this.subject = emailDetail.getSubject();
+        this.content = emailDetail.getContent();
+        this.receiverInfos = emailReceivers
+                .getReceivers()
+                .stream()
+                .map(EmailReceiverInfo::fromValueObject)
+                .toList();
+        this.sendAt = sendAt;
+    }
 }

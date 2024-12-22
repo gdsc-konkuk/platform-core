@@ -26,64 +26,64 @@ import org.springframework.transaction.support.TransactionTemplate;
 @RequiredArgsConstructor
 public class EmailTaskScheduler implements TaskScheduler {
 
-  private final TaskInMemoryRepository taskInMemoryRepository;
-  private final EmailService emailService;
-  private final ScheduledThreadPoolExecutor executor;
-  private final EmailClient emailClient;
-  private final DiscordClient discordClient;
-  private final TransactionTemplate transactionTemplate;
+    private final TaskInMemoryRepository taskInMemoryRepository;
+    private final EmailService emailService;
+    private final ScheduledThreadPoolExecutor executor;
+    private final EmailClient emailClient;
+    private final DiscordClient discordClient;
+    private final TransactionTemplate transactionTemplate;
 
 
-  @Override
-  public void scheduleSyncTask(Object emailTask, long delay) {
+    @Override
+    public void scheduleSyncTask(Object emailTask, long delay) {
 
-    EmailTask email = (EmailTask) emailTask;
-    Long id = email.getId();
+        EmailTask email = (EmailTask) emailTask;
+        Long id = email.getId();
 
-    Runnable sendEmailTask =
-        () -> {
-          transactionTemplate.execute(status -> {
-            try {
-              EmailTask sendingTask = emailService.getTaskDetails(id);
-              emailClient.sendEmailToReceivers(sendingTask);
-              emailService.markAsCompleted(id);
-            } catch (Exception e) {
-              log.error("[ERROR] : 이메일 전송과정에서 에러가 발생했습니다.", e);
-              discordClient.sendErrorMessage(e);
-              status.setRollbackOnly();
-            } finally {
-              taskInMemoryRepository.removeTask(String.valueOf(id));
-            }
-            return null;
-          });
-        };
-    ScheduledFuture<?> future = executor.schedule(sendEmailTask, delay, SECONDS);
-    taskInMemoryRepository.addTask(String.valueOf(email.getId()), future);
-  }
-
-  @Override
-  public synchronized void cancelTask(String taskId) {
-
-    Future<?> scheduledFuture = taskInMemoryRepository.getTask(taskId);
-    boolean isCanceled = scheduledFuture.cancel(false);
-    if (!isCanceled) {
-      throw EmailAlreadyProcessedException.of(EmailErrorCode.EMAIL_ALREADY_PROCESSED);
+        Runnable sendEmailTask =
+                () -> {
+                    transactionTemplate.execute(status -> {
+                        try {
+                            EmailTask sendingTask = emailService.getTaskDetails(id);
+                            emailClient.sendEmailToReceivers(sendingTask);
+                            emailService.markAsCompleted(id);
+                        } catch (Exception e) {
+                            log.error("[ERROR] : 이메일 전송과정에서 에러가 발생했습니다.", e);
+                            discordClient.sendErrorMessage(e);
+                            status.setRollbackOnly();
+                        } finally {
+                            taskInMemoryRepository.removeTask(String.valueOf(id));
+                        }
+                        return null;
+                    });
+                };
+        ScheduledFuture<?> future = executor.schedule(sendEmailTask, delay, SECONDS);
+        taskInMemoryRepository.addTask(String.valueOf(email.getId()), future);
     }
-    taskInMemoryRepository.removeTask(taskId);
-  }
 
-  /*
-  * Read DataBase and load unsent tasks to the memory.
-  * This method is called after the bean is initialized.
-  * */
-  @PostConstruct
-  public void init() {
-    log.info("EmailTaskScheduler initialized");
-    List<EmailTask> tasksToReschedule = emailService.getAllTaskWhereNotSent();
-    tasksToReschedule.forEach(
-        task -> {
-          long delay = ChronoUnit.SECONDS.between(LocalDateTime.now(), task.getSendAt());
-          scheduleSyncTask(task, delay);
-        });
-  }
+    @Override
+    public synchronized void cancelTask(String taskId) {
+
+        Future<?> scheduledFuture = taskInMemoryRepository.getTask(taskId);
+        boolean isCanceled = scheduledFuture.cancel(false);
+        if (!isCanceled) {
+            throw EmailAlreadyProcessedException.of(EmailErrorCode.EMAIL_ALREADY_PROCESSED);
+        }
+        taskInMemoryRepository.removeTask(taskId);
+    }
+
+    /*
+     * Read DataBase and load unsent tasks to the memory.
+     * This method is called after the bean is initialized.
+     * */
+    @PostConstruct
+    public void init() {
+        log.info("EmailTaskScheduler initialized");
+        List<EmailTask> tasksToReschedule = emailService.getAllTaskWhereNotSent();
+        tasksToReschedule.forEach(
+                task -> {
+                    long delay = ChronoUnit.SECONDS.between(LocalDateTime.now(), task.getSendAt());
+                    scheduleSyncTask(task, delay);
+                });
+    }
 }

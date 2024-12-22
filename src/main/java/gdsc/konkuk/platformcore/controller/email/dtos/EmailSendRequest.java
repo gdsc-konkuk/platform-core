@@ -16,41 +16,43 @@ import lombok.Setter;
 @Getter
 @Setter
 public class EmailSendRequest {
-  @NotEmpty
-  private String subject;
-  @NotEmpty
-  private String content;
-  @NotNull
-  private Set<EmailReceiverInfo> receiverInfos;
-  @NotNull
-  private LocalDateTime sendAt;
 
-  @Builder
-  public EmailSendRequest(String subject, String content, Set<EmailReceiverInfo> receiverInfos, LocalDateTime sendAt) {
-    this.subject = subject;
-    this.content = content;
-    this.receiverInfos = receiverInfos;
-    this.sendAt = sendAt;
-  }
+    @NotEmpty
+    private String subject;
+    @NotEmpty
+    private String content;
+    @NotNull
+    private Set<EmailReceiverInfo> receiverInfos;
+    @NotNull
+    private LocalDateTime sendAt;
 
-  public static EmailTask toEntity(EmailSendRequest request) {
-    EmailDetail details = new EmailDetail(request.getSubject(), request.getContent());
-    EmailReceivers receivers = new EmailReceivers(request.toEmailReceivers());
-    return EmailTask.builder()
-      .emailDetail(details)
-      .receivers(receivers)
-      .sendAt(request.getSendAt())
-      .build();
-  }
+    @Builder
+    public EmailSendRequest(String subject, String content, Set<EmailReceiverInfo> receiverInfos,
+            LocalDateTime sendAt) {
+        this.subject = subject;
+        this.content = content;
+        this.receiverInfos = receiverInfos;
+        this.sendAt = sendAt;
+    }
 
-  public EmailDetail toEmailDetails() {
-    return new EmailDetail(subject, content);
-  }
+    public static EmailTask toEntity(EmailSendRequest request) {
+        EmailDetail details = new EmailDetail(request.getSubject(), request.getContent());
+        EmailReceivers receivers = new EmailReceivers(request.toEmailReceivers());
+        return EmailTask.builder()
+                .emailDetail(details)
+                .receivers(receivers)
+                .sendAt(request.getSendAt())
+                .build();
+    }
 
-  public Set<EmailReceiver> toEmailReceivers() {
-    return receiverInfos
-            .stream()
-            .map(EmailReceiverInfo::toValueObject)
-            .collect(Collectors.toSet());
-  }
+    public EmailDetail toEmailDetails() {
+        return new EmailDetail(subject, content);
+    }
+
+    public Set<EmailReceiver> toEmailReceivers() {
+        return receiverInfos
+                .stream()
+                .map(EmailReceiverInfo::toValueObject)
+                .collect(Collectors.toSet());
+    }
 }
