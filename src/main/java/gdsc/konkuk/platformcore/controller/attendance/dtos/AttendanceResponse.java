@@ -10,13 +10,14 @@ import lombok.Setter;
 @Setter
 @Builder
 public class AttendanceResponse {
-  private Long attendanceId;
-  private URI attendUrl;
 
-  public static AttendanceResponse from(Attendance attendance, URI attendUrl) {
-    return AttendanceResponse.builder()
-        .attendanceId(attendance.getId())
-        .attendUrl(attendUrl)
-        .build();
-  }
+    private Long attendanceId;
+    private URI attendUrl;
+
+    public static AttendanceResponse from(Attendance attendance, URI attendUrl) {
+        return AttendanceResponse.builder()
+                .attendanceId(attendance.getId())
+                .attendUrl(attendUrl)
+                .build();
+    }
 }

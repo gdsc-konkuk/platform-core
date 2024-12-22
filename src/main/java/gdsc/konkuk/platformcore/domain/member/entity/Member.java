@@ -4,10 +4,6 @@ import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.SOFT_DELE
 import static gdsc.konkuk.platformcore.global.utils.FieldValidator.validateNotNull;
 
 import gdsc.konkuk.platformcore.application.member.dtos.MemberUpdateCommand;
-import java.time.LocalDateTime;
-
-import org.hibernate.annotations.SQLRestriction;
-
 import gdsc.konkuk.platformcore.application.member.exceptions.MemberErrorCode;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyDeletedException;
 import jakarta.persistence.Column;
@@ -17,10 +13,12 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @SQLRestriction("is_deleted = false")
@@ -28,83 +26,83 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Column(name = "student_id", unique = true)
-  private String studentId;
+    @Column(name = "student_id", unique = true)
+    private String studentId;
 
-  @Column(name = "member_name")
-  private String name;
+    @Column(name = "member_name")
+    private String name;
 
-  @Column(name = "member_email")
-  private String email;
+    @Column(name = "member_email")
+    private String email;
 
-  @Column(name = "department")
-  private String department;
+    @Column(name = "department")
+    private String department;
 
-  @Column(name = "is_deleted")
-  private boolean isDeleted = false;
+    @Column(name = "is_deleted")
+    private boolean isDeleted = false;
 
-  @Column(name = "soft_deleted_at")
-  private LocalDateTime softDeletedAt;
+    @Column(name = "soft_deleted_at")
+    private LocalDateTime softDeletedAt;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "member_role")
-  private MemberRole role;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "member_role")
+    private MemberRole role;
 
-  @Column(name = "batch")
-  private String batch;
+    @Column(name = "batch")
+    private String batch;
 
-  public void withdraw() {
-    if (isDeleted) {
-      throw UserAlreadyDeletedException.of(MemberErrorCode.USER_ALREADY_DELETED);
+    @Builder
+    public Member(
+            Long id,
+            String studentId,
+            String name,
+            String email,
+            String department,
+            String role,
+            String batch) {
+        this.id = id;
+        this.studentId = validateNotNull(studentId, "studentId");
+        this.name = validateNotNull(name, "name");
+        this.email = validateNotNull(email, "email");
+        this.department = validateNotNull(department, "department");
+        this.role = (role != null) ? MemberRole.from(role) : MemberRole.MEMBER;
+        this.batch = validateNotNull(batch, "batch");
     }
-    isDeleted = true;
-    softDeletedAt = LocalDateTime.now().plusMonths(SOFT_DELETE_RETENTION_MONTHS);
-  }
 
-  public Boolean isMemberDeleted() {
-    return isDeleted;
-  }
+    public void withdraw() {
+        if (isDeleted) {
+            throw UserAlreadyDeletedException.of(MemberErrorCode.USER_ALREADY_DELETED);
+        }
+        isDeleted = true;
+        softDeletedAt = LocalDateTime.now().plusMonths(SOFT_DELETE_RETENTION_MONTHS);
+    }
 
-  public void update(MemberUpdateCommand command) {
-    if (command.getStudentId() != null) {
-      studentId = command.getStudentId();
+    public Boolean isMemberDeleted() {
+        return isDeleted;
     }
-    if (command.getName() != null) {
-      name = command.getName();
-    }
-    if (command.getEmail() != null) {
-      email = command.getEmail();
-    }
-    if (command.getDepartment() != null) {
-      department = command.getDepartment();
-    }
-    if (command.getRole() != null) {
-      role = MemberRole.from(command.getRole());
-    }
-    if (command.getBatch() != null) {
-      batch = command.getBatch();
-    }
-  }
 
-  @Builder
-  public Member(
-      Long id,
-      String studentId,
-      String name,
-      String email,
-      String department,
-      String role,
-      String batch) {
-    this.id = id;
-    this.studentId = validateNotNull(studentId, "studentId");
-    this.name = validateNotNull(name, "name");
-    this.email = validateNotNull(email, "email");
-    this.department = validateNotNull(department, "department");
-    this.role = (role != null) ? MemberRole.from(role) : MemberRole.MEMBER;
-    this.batch = validateNotNull(batch, "batch");
-  }
+    public void update(MemberUpdateCommand command) {
+        if (command.getStudentId() != null) {
+            studentId = command.getStudentId();
+        }
+        if (command.getName() != null) {
+            name = command.getName();
+        }
+        if (command.getEmail() != null) {
+            email = command.getEmail();
+        }
+        if (command.getDepartment() != null) {
+            department = command.getDepartment();
+        }
+        if (command.getRole() != null) {
+            role = MemberRole.from(command.getRole());
+        }
+        if (command.getBatch() != null) {
+            batch = command.getBatch();
+        }
+    }
 }

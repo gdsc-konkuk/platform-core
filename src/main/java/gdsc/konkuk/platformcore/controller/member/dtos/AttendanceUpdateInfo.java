@@ -10,6 +10,9 @@ import lombok.Setter;
 @Setter
 @Builder
 public class AttendanceUpdateInfo {
-  @NotNull private Long participantId;
-  @NotNull private AttendanceType attendanceType;
+
+    @NotNull
+    private Long participantId;
+    @NotNull
+    private AttendanceType attendanceType;
 }

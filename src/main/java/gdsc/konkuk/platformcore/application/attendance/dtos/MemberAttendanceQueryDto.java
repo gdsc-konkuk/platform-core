@@ -13,12 +13,13 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 public class MemberAttendanceQueryDto {
-  private Long memberId;
-  private String memberName;
-  private MemberRole memberRole;
-  private String memberDepartment;
-  private Long participantId;
-  private Long attendanceId;
-  private LocalDateTime attendanceDate;
-  private AttendanceType attendanceType;
+
+    private Long memberId;
+    private String memberName;
+    private MemberRole memberRole;
+    private String memberDepartment;
+    private Long participantId;
+    private Long attendanceId;
+    private LocalDateTime attendanceDate;
+    private AttendanceType attendanceType;
 }

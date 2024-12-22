@@ -11,11 +11,13 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 public class MemberUpdateCommand {
-  @NotNull private Long memberId;
-  private String studentId;
-  private String name;
-  private String email;
-  private String department;
-  private String batch;
-  private String role;
+
+    @NotNull
+    private Long memberId;
+    private String studentId;
+    private String name;
+    private String email;
+    private String department;
+    private String batch;
+    private String role;
 }

@@ -22,61 +22,60 @@ import org.mockito.Mock;
 
 class EmailTaskFacadeTest {
 
-  private EmailTaskFacade subject;
+    private final EmailTask mock1 =
+            EmailTask.builder()
+                    .id(1L)
+                    .emailDetail(new EmailDetail("subject", "content"))
+                    .receivers(new EmailReceivers(
+                            Set.of(
+                                    EmailReceiver.builder().email("example1.com").name("guest1")
+                                            .build(),
+                                    EmailReceiver.builder().email("example2.com").name("guest2")
+                                            .build())))
+                    .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
+                    .build();
+    private EmailTaskFacade subject;
+    @Mock
+    private EmailService emailService;
+    @Mock
+    private TaskScheduler emailTaskScheduler;
 
-  @Mock
-  private EmailService emailService;
+    @BeforeEach
+    void setUp() {
+        openMocks(this);
+        subject = new EmailTaskFacade(emailService, emailTaskScheduler);
+    }
 
-  @Mock
-  private TaskScheduler emailTaskScheduler;
+    @Test
+    @DisplayName("예약 수정시 성공")
+    void should_success_when_reschedule_task() {
+        //given
+        EmailSendRequest emailUpdateRequest = EmailSendRequestFixture.builder().build()
+                .getFixture();
+        EmailTask emailTaskToUpdate = EmailTaskFixture.builder().id(1L).build().getFixture();
+        given(emailService.update(emailTaskToUpdate.getId(), emailUpdateRequest))
+                .willReturn(EmailTaskFixture.builder().id(1L).build().getFixture());
 
+        //when
+        subject.update(emailTaskToUpdate.getId(), emailUpdateRequest);
 
-  private final EmailTask mock1 =
-      EmailTask.builder()
-          .id(1L)
-          .emailDetail(new EmailDetail("subject", "content"))
-          .receivers(new EmailReceivers(
-              Set.of(
-                  EmailReceiver.builder().email("example1.com").name("guest1").build(),
-                  EmailReceiver.builder().email("example2.com").name("guest2").build())))
-          .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
-          .build();
+        //then
+        verify(emailTaskScheduler).cancelTask(emailTaskToUpdate.getId().toString());
+    }
 
-  @BeforeEach
-  void setUp() {
-    openMocks(this);
-    subject = new EmailTaskFacade(emailService, emailTaskScheduler);
-  }
+    @Test
+    @DisplayName("예약 취소시 성공")
+    void should_success_when_cancel_task() {
+        //given
+        EmailTask emailTaskToCancel = EmailTaskFixture.builder().build().getFixture();
+        willDoNothing().given(emailTaskScheduler).cancelTask(emailTaskToCancel.getId().toString());
+        willDoNothing().given(emailService).delete(emailTaskToCancel.getId());
 
-  @Test
-  @DisplayName("예약 수정시 성공")
-  void should_success_when_reschedule_task() {
-    //given
-    EmailSendRequest emailUpdateRequest = EmailSendRequestFixture.builder().build().getFixture();
-    EmailTask emailTaskToUpdate = EmailTaskFixture.builder().id(1L).build().getFixture();
-    given(emailService.update(emailTaskToUpdate.getId(), emailUpdateRequest))
-        .willReturn(EmailTaskFixture.builder().id(1L).build().getFixture());
+        //when
+        subject.cancel(emailTaskToCancel.getId());
 
-    //when
-    subject.update(emailTaskToUpdate.getId(), emailUpdateRequest);
-
-    //then
-    verify(emailTaskScheduler).cancelTask(emailTaskToUpdate.getId().toString());
-  }
-
-  @Test
-  @DisplayName("예약 취소시 성공")
-  void should_success_when_cancel_task() {
-    //given
-    EmailTask emailTaskToCancel = EmailTaskFixture.builder().build().getFixture();
-    willDoNothing().given(emailTaskScheduler).cancelTask(emailTaskToCancel.getId().toString());
-    willDoNothing().given(emailService).delete(emailTaskToCancel.getId());
-
-    //when
-    subject.cancel(emailTaskToCancel.getId());
-
-    //then
-    verify(emailTaskScheduler).cancelTask(emailTaskToCancel.getId().toString());
-    verify(emailService).delete(emailTaskToCancel.getId());
-  }
+        //then
+        verify(emailTaskScheduler).cancelTask(emailTaskToCancel.getId().toString());
+        verify(emailService).delete(emailTaskToCancel.getId());
+    }
 }

@@ -8,13 +8,14 @@ import lombok.Getter;
 
 @Getter
 public class EmailReceiverFixture {
-  private final EmailReceiver fixture;
 
-  @Builder
-  public EmailReceiverFixture(String email, String name) {
-    this.fixture = EmailReceiver.builder()
-      .email(getDefault(email, "ex@gmail.com"))
-      .name(getDefault(name, "guest"))
-      .build();
-  }
+    private final EmailReceiver fixture;
+
+    @Builder
+    public EmailReceiverFixture(String email, String name) {
+        this.fixture = EmailReceiver.builder()
+                .email(getDefault(email, "ex@gmail.com"))
+                .name(getDefault(name, "guest"))
+                .build();
+    }
 }

@@ -10,23 +10,25 @@ import lombok.Setter;
 @Setter
 @Builder
 public class MemberUpdateInfo {
-  @NotNull private Long memberId;
-  private String studentId;
-  private String name;
-  private String email;
-  private String department;
-  private String batch;
-  private String role;
 
-  public MemberUpdateCommand toCommand() {
-    return MemberUpdateCommand.builder()
-        .memberId(memberId)
-        .studentId(studentId)
-        .name(name)
-        .email(email)
-        .department(department)
-        .batch(batch)
-        .role(role)
-        .build();
-  }
+    @NotNull
+    private Long memberId;
+    private String studentId;
+    private String name;
+    private String email;
+    private String department;
+    private String batch;
+    private String role;
+
+    public MemberUpdateCommand toCommand() {
+        return MemberUpdateCommand.builder()
+                .memberId(memberId)
+                .studentId(studentId)
+                .name(name)
+                .email(email)
+                .department(department)
+                .batch(batch)
+                .role(role)
+                .build();
+    }
 }

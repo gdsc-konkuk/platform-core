@@ -1,12 +1,13 @@
 package gdsc.konkuk.platformcore.controller.auth;
 
-import static com.epages.restdocs.apispec.ResourceDocumentation.*;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
-
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
+import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import gdsc.konkuk.platformcore.annotation.RestDocsTest;
@@ -26,44 +27,47 @@ import org.springframework.web.context.WebApplicationContext;
 @SpringBootTest
 class AuthControllerTest {
 
-  @Autowired
-  private WebApplicationContext context;
+    @Autowired
+    private WebApplicationContext context;
 
-  private MockMvc mockMvc;
+    private MockMvc mockMvc;
 
-  @BeforeEach
-  void setUp(RestDocumentationContextProvider restDocumentation) {
-    mockMvc =
-      MockMvcBuilders.webAppContextSetup(this.context)
-        .apply(springSecurity())
-        .apply(documentationConfiguration(restDocumentation))
-        .build();
-  }
+    @BeforeEach
+    void setUp(RestDocumentationContextProvider restDocumentation) {
+        mockMvc =
+                MockMvcBuilders.webAppContextSetup(this.context)
+                        .apply(springSecurity())
+                        .apply(documentationConfiguration(restDocumentation))
+                        .build();
+    }
 
-  @Test
-  @DisplayName("사용자 로그인 성공")
-  void loginSuccess() throws Exception {
-    // given
+    @Test
+    @DisplayName("사용자 로그인 성공")
+    void loginSuccess() throws Exception {
+        // given
 
-    // when
-    ResultActions result =
-      mockMvc.perform(
-        RestDocumentationRequestBuilders.multipart("/login/oauth2/authorization/google")
-          .characterEncoding("UTF-8")
-          .with(csrf()));
+        // when
+        ResultActions result =
+                mockMvc.perform(
+                        RestDocumentationRequestBuilders.multipart(
+                                        "/login/oauth2/authorization/google")
+                                .characterEncoding("UTF-8")
+                                .with(csrf()));
 
-    // then
-    result
-      .andDo(print())
-      .andExpect(status().isFound())
-      .andDo(
-        document(
-          "login",
-          resource(
-            ResourceSnippetParameters.builder()
-              .description("사용자 로그인 성공")
-              .tag("auth")
-              .responseHeaders(headerWithName("Location").description("Google 로그인 페이지 URL"))
-              .build())));
-  }
+        // then
+        result
+                .andDo(print())
+                .andExpect(status().isFound())
+                .andDo(
+                        document(
+                                "login",
+                                resource(
+                                        ResourceSnippetParameters.builder()
+                                                .description("사용자 로그인 성공")
+                                                .tag("auth")
+                                                .responseHeaders(
+                                                        headerWithName("Location").description(
+                                                                "Google 로그인 페이지 URL"))
+                                                .build())));
+    }
 }

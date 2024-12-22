@@ -6,9 +6,9 @@ import lombok.Getter;
 @Getter
 public class EmailTaskListResponse {
 
-  private final List<SimpleEmailTaskResponse> emailTasks;
+    private final List<SimpleEmailTaskResponse> emailTasks;
 
-  public EmailTaskListResponse(List<SimpleEmailTaskResponse> emailTasks) {
-    this.emailTasks = emailTasks;
-  }
+    public EmailTaskListResponse(List<SimpleEmailTaskResponse> emailTasks) {
+        this.emailTasks = emailTasks;
+    }
 }

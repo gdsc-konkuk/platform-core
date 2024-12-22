@@ -1,8 +1,11 @@
 package gdsc.konkuk.platformcore.application.auth;
 
+import gdsc.konkuk.platformcore.application.member.exceptions.MemberErrorCode;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserNotFoundException;
-
+import gdsc.konkuk.platformcore.domain.member.entity.Member;
+import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
@@ -11,11 +14,6 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
-
-import gdsc.konkuk.platformcore.application.member.exceptions.MemberErrorCode;
-import gdsc.konkuk.platformcore.domain.member.entity.Member;
-import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -30,18 +28,18 @@ public class CustomOAuthUserService extends OidcUserService {
             return processOAuth2User(oidcUser);
         } catch (Exception ex) {
             throw new OAuth2AuthenticationException(
-                new OAuth2Error("processing_error", "Failed to process user info", null));
+                    new OAuth2Error("processing_error", "Failed to process user info", null));
         }
     }
 
     private OidcUser processOAuth2User(OidcUser oidcUser) {
         String email = oidcUser.getEmail();
         Member member = memberRepository.findByEmail(email)
-            .orElseThrow(() -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));
 
         return new DefaultOidcUser(
-            List.of(new SimpleGrantedAuthority(member.getRole().toString())),
-            oidcUser.getIdToken(),
-            oidcUser.getUserInfo());
+                List.of(new SimpleGrantedAuthority(member.getRole().toString())),
+                oidcUser.getIdToken(),
+                oidcUser.getUserInfo());
     }
 }

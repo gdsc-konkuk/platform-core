@@ -9,15 +9,17 @@ import lombok.Getter;
 
 @Getter
 public class AttendanceFixture {
-  private final Attendance fixture;
 
-  @Builder
-  public AttendanceFixture(Long id, String title, LocalDateTime attendanceTime, String activeQrUuid) {
-    this.fixture = Attendance.builder()
-      .id(getDefault(id, 0L))
-      .title(getDefault(title, "title"))
-      .attendanceTime(getDefault(attendanceTime, LocalDateTime.now()))
-      .activeQrUuid(getDefault(activeQrUuid, "uuid"))
-      .build();
-  }
+    private final Attendance fixture;
+
+    @Builder
+    public AttendanceFixture(Long id, String title, LocalDateTime attendanceTime,
+            String activeQrUuid) {
+        this.fixture = Attendance.builder()
+                .id(getDefault(id, 0L))
+                .title(getDefault(title, "title"))
+                .attendanceTime(getDefault(attendanceTime, LocalDateTime.now()))
+                .activeQrUuid(getDefault(activeQrUuid, "uuid"))
+                .build();
+    }
 }

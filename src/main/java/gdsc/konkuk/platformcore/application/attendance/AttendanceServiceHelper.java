@@ -10,11 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class AttendanceServiceHelper {
 
-  public static Attendance findAttendanceById(
-      AttendanceRepository attendanceRepository, Long attendanceId) {
-    return attendanceRepository
-        .findById(attendanceId)
-        .orElseThrow(
-            () -> AttendanceNotFoundException.of(AttendanceErrorCode.ATTENDANCE_NOT_FOUND));
-  }
+    public static Attendance findAttendanceById(
+            AttendanceRepository attendanceRepository, Long attendanceId) {
+        return attendanceRepository
+                .findById(attendanceId)
+                .orElseThrow(
+                        () -> AttendanceNotFoundException.of(
+                                AttendanceErrorCode.ATTENDANCE_NOT_FOUND));
+    }
 }

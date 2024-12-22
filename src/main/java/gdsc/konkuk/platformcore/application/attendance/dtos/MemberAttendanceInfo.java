@@ -11,9 +11,10 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 public class MemberAttendanceInfo {
-  private Long attendanceId;
-  private Long memberId;
-  private AttendanceType attendanceType;
-  private LocalDateTime attendanceDate;
-  private Long participantId;
+
+    private Long attendanceId;
+    private Long memberId;
+    private AttendanceType attendanceType;
+    private LocalDateTime attendanceDate;
+    private Long participantId;
 }

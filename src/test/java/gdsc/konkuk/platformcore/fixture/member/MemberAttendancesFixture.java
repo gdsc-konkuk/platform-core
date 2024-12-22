@@ -13,39 +13,42 @@ import lombok.Getter;
 
 @Getter
 public class MemberAttendancesFixture {
-  private final MemberAttendances fixture;
 
-  @Builder
-  public MemberAttendancesFixture(Long memberId, String memberName, MemberRole memberRole, String department, Long totalAttendances, Long actualAttendances, List<MemberAttendanceInfo> attendanceInfoList) {
-    this.fixture = MemberAttendances.builder()
-      .memberId(getDefault(memberId, 0L))
-      .memberName(getDefault(memberName, "name"))
-      .memberRole(getDefault(memberRole, MemberRole.MEMBER))
-      .department(getDefault(department, "department"))
-      .totalAttendances(getDefault(totalAttendances, 3L))
-      .actualAttendances(getDefault(actualAttendances, 2L))
-      .attendanceInfoList(getDefault(attendanceInfoList, List.of(
-        MemberAttendanceInfo.builder()
-            .attendanceId(0L)
-            .memberId(0L)
-            .participantId(0L)
-            .attendanceType(AttendanceType.ABSENT)
-            .attendanceDate(LocalDateTime.now())
-            .build(),
-        MemberAttendanceInfo.builder()
-            .attendanceId(1L)
-            .memberId(0L)
-            .participantId(1L)
-            .attendanceType(AttendanceType.LATE)
-            .attendanceDate(LocalDateTime.now().plusDays(3))
-            .build(),
-        MemberAttendanceInfo.builder()
-            .attendanceId(2L)
-            .memberId(0L)
-            .participantId(2L)
-            .attendanceType(AttendanceType.ATTEND)
-            .attendanceDate(LocalDateTime.now().plusDays(5))
-            .build())))
-      .build();
-  }
+    private final MemberAttendances fixture;
+
+    @Builder
+    public MemberAttendancesFixture(Long memberId, String memberName, MemberRole memberRole,
+            String department, Long totalAttendances, Long actualAttendances,
+            List<MemberAttendanceInfo> attendanceInfoList) {
+        this.fixture = MemberAttendances.builder()
+                .memberId(getDefault(memberId, 0L))
+                .memberName(getDefault(memberName, "name"))
+                .memberRole(getDefault(memberRole, MemberRole.MEMBER))
+                .department(getDefault(department, "department"))
+                .totalAttendances(getDefault(totalAttendances, 3L))
+                .actualAttendances(getDefault(actualAttendances, 2L))
+                .attendanceInfoList(getDefault(attendanceInfoList, List.of(
+                        MemberAttendanceInfo.builder()
+                                .attendanceId(0L)
+                                .memberId(0L)
+                                .participantId(0L)
+                                .attendanceType(AttendanceType.ABSENT)
+                                .attendanceDate(LocalDateTime.now())
+                                .build(),
+                        MemberAttendanceInfo.builder()
+                                .attendanceId(1L)
+                                .memberId(0L)
+                                .participantId(1L)
+                                .attendanceType(AttendanceType.LATE)
+                                .attendanceDate(LocalDateTime.now().plusDays(3))
+                                .build(),
+                        MemberAttendanceInfo.builder()
+                                .attendanceId(2L)
+                                .memberId(0L)
+                                .participantId(2L)
+                                .attendanceType(AttendanceType.ATTEND)
+                                .attendanceDate(LocalDateTime.now().plusDays(5))
+                                .build())))
+                .build();
+    }
 }

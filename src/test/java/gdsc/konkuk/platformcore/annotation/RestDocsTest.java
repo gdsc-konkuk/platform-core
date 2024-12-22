@@ -20,4 +20,5 @@ import org.springframework.restdocs.RestDocumentationExtension;
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
 public @interface RestDocsTest {
+
 }

@@ -12,20 +12,25 @@ import lombok.Getter;
 
 @Getter
 public class EmailTaskFixture {
-  private final EmailTask fixture;
 
-  @Builder
-  public EmailTaskFixture(Long id, EmailDetail emailDetail, EmailReceivers receivers, LocalDateTime sendAt) {
-    this.fixture =
-        EmailTask.builder()
-            .id(getDefault(id, 0L))
-            .emailDetail(getDefault(emailDetail, EmailDetailFixture.builder().build().getFixture()))
-            .receivers(getDefault(
-                receivers,
-                new EmailReceivers(Set.of(
-                    EmailReceiverFixture.builder().email("ex1@gmail.com").name("guest1").build().getFixture(),
-                    EmailReceiverFixture.builder().email("ex2@gmail.com").name("guest2").build().getFixture()))))
-            .sendAt(getDefault(sendAt, LocalDateTime.now().plusHours(1)))
-            .build();
-  }
+    private final EmailTask fixture;
+
+    @Builder
+    public EmailTaskFixture(Long id, EmailDetail emailDetail, EmailReceivers receivers,
+            LocalDateTime sendAt) {
+        this.fixture =
+                EmailTask.builder()
+                        .id(getDefault(id, 0L))
+                        .emailDetail(getDefault(emailDetail,
+                                EmailDetailFixture.builder().build().getFixture()))
+                        .receivers(getDefault(
+                                receivers,
+                                new EmailReceivers(Set.of(
+                                        EmailReceiverFixture.builder().email("ex1@gmail.com")
+                                                .name("guest1").build().getFixture(),
+                                        EmailReceiverFixture.builder().email("ex2@gmail.com")
+                                                .name("guest2").build().getFixture()))))
+                        .sendAt(getDefault(sendAt, LocalDateTime.now().plusHours(1)))
+                        .build();
+    }
 }

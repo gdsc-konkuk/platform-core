@@ -10,14 +10,16 @@ import lombok.Getter;
 
 @Getter
 public class ParticipantFixture {
-  private final Participant fixture;
 
-  @Builder
-  public ParticipantFixture(Long memberId, Attendance attendance, AttendanceType attendanceType) {
-    this.fixture = Participant.builder()
-      .memberId(getDefault(memberId, 0L))
-      .attendance(getDefault(attendance, AttendanceFixture.builder().build().getFixture()))
-      .attendanceType(getDefault(attendanceType, AttendanceType.ABSENT))
-      .build();
-  }
+    private final Participant fixture;
+
+    @Builder
+    public ParticipantFixture(Long memberId, Attendance attendance, AttendanceType attendanceType) {
+        this.fixture = Participant.builder()
+                .memberId(getDefault(memberId, 0L))
+                .attendance(
+                        getDefault(attendance, AttendanceFixture.builder().build().getFixture()))
+                .attendanceType(getDefault(attendanceType, AttendanceType.ABSENT))
+                .build();
+    }
 }
