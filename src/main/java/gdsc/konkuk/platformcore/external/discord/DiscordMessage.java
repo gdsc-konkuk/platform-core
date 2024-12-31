@@ -1,8 +1,8 @@
 package gdsc.konkuk.platformcore.external.discord;
 
-import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.DISCORD_ERROR_DESCRIPTION;
-import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.DISCORD_ERROR_TIME_TEXT;
-import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.DISCORD_ERROR_TITLE;
+import static gdsc.konkuk.platformcore.global.consts.DiscordConstants.DISCORD_ERROR_DESCRIPTION;
+import static gdsc.konkuk.platformcore.global.consts.DiscordConstants.DISCORD_ERROR_TIME_TEXT;
+import static gdsc.konkuk.platformcore.global.consts.DiscordConstants.DISCORD_ERROR_TITLE;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

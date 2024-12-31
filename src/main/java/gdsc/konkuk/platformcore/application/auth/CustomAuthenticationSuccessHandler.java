@@ -1,5 +1,7 @@
 package gdsc.konkuk.platformcore.application.auth;
 
+import static gdsc.konkuk.platformcore.global.consts.SPAConstants.SPA_ADMIN_LOGIN_REDIRECT_URL;
+
 import gdsc.konkuk.platformcore.application.member.exceptions.MemberErrorCode;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserNotFoundException;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
@@ -35,6 +37,6 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         response.addHeader("Authorization", "Bearer " + token);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        response.sendRedirect("https://admin.gdsc-konkuk.dev/oauth/callback");
+        response.sendRedirect(SPA_ADMIN_LOGIN_REDIRECT_URL);
     }
 }

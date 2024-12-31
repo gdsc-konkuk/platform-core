@@ -1,6 +1,8 @@
 package gdsc.konkuk.platformcore.controller.attendance;
 
 import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.apiPath;
+import static gdsc.konkuk.platformcore.global.consts.SPAConstants.SPA_ADMIN_ATTENDANCE_FAIL_REDIRECT_URL;
+import static gdsc.konkuk.platformcore.global.consts.SPAConstants.SPA_ADMIN_ATTENDANCE_SUCCESS_REDIRECT_URL;
 import static org.springframework.http.HttpStatusCode.valueOf;
 
 import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
@@ -53,12 +55,12 @@ public class AttendanceController {
             Long currentId = SecurityUtils.getCurrentUserId();
             attendanceService.attend(currentId, attendanceId, qrUuid);
             HttpHeaders headers = new HttpHeaders();
-            headers.add("Location", "https://admin.gdsc-konkuk.dev/attendance-return/success");
+            headers.add("Location", SPA_ADMIN_ATTENDANCE_SUCCESS_REDIRECT_URL);
             return new ResponseEntity<>(headers,
                     valueOf(HttpServletResponse.SC_TEMPORARY_REDIRECT));
         } catch (Exception e) {
             HttpHeaders headers = new HttpHeaders();
-            headers.add("Location", "https://admin.gdsc-konkuk.dev/attendance-return/fail");
+            headers.add("Location", SPA_ADMIN_ATTENDANCE_FAIL_REDIRECT_URL);
             return new ResponseEntity<>(headers,
                     valueOf(HttpServletResponse.SC_TEMPORARY_REDIRECT));
         }

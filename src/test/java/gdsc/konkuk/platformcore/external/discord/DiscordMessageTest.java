@@ -1,6 +1,6 @@
 package gdsc.konkuk.platformcore.external.discord;
 
-import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.DISCORD_ERROR_TITLE;
+import static gdsc.konkuk.platformcore.global.consts.DiscordConstants.DISCORD_ERROR_TITLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailErrorCode;
