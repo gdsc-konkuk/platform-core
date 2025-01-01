@@ -1,11 +1,14 @@
 package gdsc.konkuk.platformcore.application.auth;
 
+import static gdsc.konkuk.platformcore.global.consts.SPAConstants.SPA_ADMIN_LOGIN_REDIRECT_URL;
+
 import gdsc.konkuk.platformcore.application.member.exceptions.MemberErrorCode;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserNotFoundException;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -24,7 +27,7 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     @Override
     public void onAuthenticationSuccess(
             HttpServletRequest request, HttpServletResponse response,
-            Authentication authentication) {
+            Authentication authentication) throws IOException {
 
         OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
         Member member = memberRepository.findByEmail(oidcUser.getEmail())
@@ -34,5 +37,6 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         response.addHeader("Authorization", "Bearer " + token);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        response.sendRedirect(SPA_ADMIN_LOGIN_REDIRECT_URL);
     }
 }
