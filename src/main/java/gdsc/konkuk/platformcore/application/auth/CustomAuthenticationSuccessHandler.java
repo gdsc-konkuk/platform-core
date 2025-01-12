@@ -34,9 +34,8 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 .orElseThrow(() -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));
         String token = jwtTokenProvider.createToken(member);
 
-        response.addHeader("Authorization", "Bearer " + token);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        response.sendRedirect(SPA_ADMIN_LOGIN_REDIRECT_URL);
+        response.sendRedirect(SPA_ADMIN_LOGIN_REDIRECT_URL + "#" + token);
     }
 }
