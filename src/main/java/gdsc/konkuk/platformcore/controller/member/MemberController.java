@@ -1,7 +1,7 @@
 package gdsc.konkuk.platformcore.controller.member;
 
 import gdsc.konkuk.platformcore.application.member.MemberService;
-import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendances;
+import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendanceAggregate;
 import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateRequest;
 import gdsc.konkuk.platformcore.controller.member.dtos.MemberInfo;
 import gdsc.konkuk.platformcore.controller.member.dtos.MemberRegisterRequest;
@@ -43,7 +43,7 @@ public class MemberController {
     @PostMapping()
     public ResponseEntity<SuccessResponse> signup(
             @RequestBody @Valid MemberRegisterRequest registerRequest) {
-        Member registeredMember = memberService.register(registerRequest);
+        Member registeredMember = memberService.register(registerRequest.toCommand());
         return ResponseEntity.created(getCreatedURI(registeredMember.getId()))
                 .body(SuccessResponse.messageOnly());
     }
@@ -59,14 +59,14 @@ public class MemberController {
     @PatchMapping("/{batch}")
     public ResponseEntity<SuccessResponse> updateMembers(
             @PathVariable String batch, @RequestBody @Valid MemberUpdateRequest updateInfos) {
-        memberService.updateMembers(batch, updateInfos.getMemberUpdateInfoList());
+        memberService.updateMembers(batch, MemberUpdateRequest.toCommand(updateInfos));
         return ResponseEntity.ok(SuccessResponse.messageOnly());
     }
 
     @GetMapping("/{batch}/attendances")
     public ResponseEntity<SuccessResponse> getAttendances(
             @PathVariable String batch, @RequestParam Integer year, @RequestParam Integer month) {
-        List<MemberAttendances> memberAttendanceInfoList =
+        List<MemberAttendanceAggregate> memberAttendanceInfoList =
                 memberService.getMemberAttendanceWithBatchAndPeriod(batch,
                         LocalDate.of(year, month, 1));
         return ResponseEntity.ok(SuccessResponse.of(memberAttendanceInfoList));
