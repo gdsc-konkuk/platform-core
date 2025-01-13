@@ -6,13 +6,13 @@ import static java.util.stream.Collectors.toMap;
 import gdsc.konkuk.platformcore.application.attendance.dtos.MemberAttendanceQueryDto;
 import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceErrorCode;
 import gdsc.konkuk.platformcore.application.attendance.exceptions.ParticipantNotFoundException;
-import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendances;
+import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendanceAggregate;
+import gdsc.konkuk.platformcore.application.member.dtos.MemberCreateCommand;
+import gdsc.konkuk.platformcore.application.member.dtos.MemberUpdateCommand;
 import gdsc.konkuk.platformcore.application.member.exceptions.MemberErrorCode;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistException;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserNotFoundException;
-import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateInfo;
-import gdsc.konkuk.platformcore.controller.member.dtos.MemberRegisterRequest;
-import gdsc.konkuk.platformcore.controller.member.dtos.MemberUpdateInfo;
+import gdsc.konkuk.platformcore.application.member.dtos.AttendanceUpdateCommand;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Participant;
 import gdsc.konkuk.platformcore.domain.attendance.repository.AttendanceRepository;
 import gdsc.konkuk.platformcore.domain.attendance.repository.ParticipantRepository;
@@ -23,7 +23,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class MemberService {
 
+    private final MemberFinder memberFinder;
     private final MemberRepository memberRepository;
     private final AttendanceRepository attendanceRepository;
     private final ParticipantRepository participantRepository;
@@ -42,73 +42,74 @@ public class MemberService {
     }
 
     @Transactional
-    public Member register(MemberRegisterRequest registerRequest) {
-        if (checkMemberExistWithStudentId(registerRequest.getStudentId())) {
+    public Member register(MemberCreateCommand memberCreateCommand) {
+        if (memberFinder.checkMemberExistWithStudentId(memberCreateCommand.getStudentId())) {
             throw UserAlreadyExistException.of(MemberErrorCode.USER_ALREADY_EXISTS);
         }
-        return memberRepository.save(MemberRegisterRequest.toEntity(registerRequest));
+        return memberRepository.save(MemberCreateCommand
+            .toEntity(memberCreateCommand));
     }
 
     @Transactional
     public void withdraw(Long currentId) {
-        Member member =
-                memberRepository
-                        .findById(currentId)
-                        .orElseThrow(
-                                () -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));
+        Member member = memberFinder.fetchMemberById(currentId);
         member.withdraw();
     }
 
     @Transactional
-    public void updateMembers(String batch, @Valid List<MemberUpdateInfo> updateInfos) {
-        List<Long> memberIds = updateInfos.stream().map(MemberUpdateInfo::getMemberId).toList();
-        Map<Long, Member> memberMap = fetchMembers(memberIds, batch);
+    public void updateMembers(String batch, @Valid List<MemberUpdateCommand> updateInfos) {
+        List<Long> memberIds = updateInfos.stream().map(MemberUpdateCommand::getMemberId).toList();
+        Map<Long, Member> memberMap = memberFinder.fetchMembersByIdsAndBatch(memberIds, batch);
         updateMembers(memberMap, updateInfos);
     }
 
-    public List<MemberAttendances> getMemberAttendanceWithBatchAndPeriod(String batch,
-            LocalDate month) {
+    /**
+     * {batch} 기수에 속한 멤버들의 {month}간 출석 정보를 조회하는 메소드
+     * @param batch
+     * @param month
+     * @return List<MemberAttendances> 멤버별 출석 정보, 통계 dto 리스트
+     * */
+    public List<MemberAttendanceAggregate> getMemberAttendanceWithBatchAndPeriod(String batch,
+                                                                                 LocalDate month) {
         List<MemberAttendanceQueryDto> attendanceInfoList =
                 attendanceRepository.findAllAttendanceInfoByBatchAndPeriod(
                         batch,
                         month.withDayOfMonth(1).atStartOfDay(),
                         month.withDayOfMonth(month.lengthOfMonth()).atTime(LocalTime.MAX));
-        return MemberAttendances.from(attendanceInfoList);
+        return MemberAttendanceAggregator.process(attendanceInfoList);
     }
 
+    /***
+     * {batch} 기수에 속한 멤버들의 {month}간 출석 정보를 업데이트하는 메소드
+     * @param batch 소속 기수
+     * @param month 출석 정보를 업데이트할 월
+     * @param attendanceUpdateCommandList 업데이트할 출석 정보 리스트
+     */
     @Transactional
     public void updateAttendances(
-            String batch, LocalDate month, List<AttendanceUpdateInfo> attendanceUpdateInfoList) {
+            String batch, LocalDate month, List<AttendanceUpdateCommand> attendanceUpdateCommandList) {
         Map<Long, Participant> participantMap = fetchParticipants(batch, month);
-        updateAttendanceStatuses(participantMap, attendanceUpdateInfoList);
+        updateAttendanceStatuses(participantMap, attendanceUpdateCommandList);
     }
 
-    private void updateMembers(Map<Long, Member> memberMap, List<MemberUpdateInfo> updateInfos) {
-        for (MemberUpdateInfo memberUpdateInfo : updateInfos) {
-            if (!memberMap.containsKey(memberUpdateInfo.getMemberId())) {
+    private void updateMembers(Map<Long, Member> memberMap, List<MemberUpdateCommand> updateCommands) {
+        for (MemberUpdateCommand memberUpdateCommand : updateCommands) {
+            if (!memberMap.containsKey(memberUpdateCommand.getMemberId())) {
                 throw UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND);
             }
-            Member member = memberMap.get(memberUpdateInfo.getMemberId());
-            member.update(memberUpdateInfo.toCommand());
+            Member member = memberMap.get(memberUpdateCommand.getMemberId());
+            member.update(memberUpdateCommand);
         }
-    }
-
-    private Map<Long, Member> fetchMembers(List<Long> memberIds, String batch) {
-        List<Member> members = memberRepository.findAllByIdsAndBatch(memberIds, batch);
-        if (members.size() != memberIds.size()) {
-            throw UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND);
-        }
-        return members.stream().collect(toMap(Member::getId, identity()));
     }
 
     private void updateAttendanceStatuses(Map<Long, Participant> participants,
-            List<AttendanceUpdateInfo> updateInfos) {
-        for (AttendanceUpdateInfo attendanceUpdateInfo : updateInfos) {
-            if (!participants.containsKey(attendanceUpdateInfo.getParticipantId())) {
+            List<AttendanceUpdateCommand> updateCommands) {
+        for (AttendanceUpdateCommand attendanceUpdateCommand : updateCommands) {
+            if (!participants.containsKey(attendanceUpdateCommand.getParticipantId())) {
                 throw ParticipantNotFoundException.of(AttendanceErrorCode.PARTICIPANT_NOT_FOUND);
             }
-            Participant participant = participants.get(attendanceUpdateInfo.getParticipantId());
-            participant.updateAttendanceStatus(attendanceUpdateInfo.getAttendanceType());
+            Participant participant = participants.get(attendanceUpdateCommand.getParticipantId());
+            participant.updateAttendanceStatus(attendanceUpdateCommand.getAttendanceType());
         }
     }
 
@@ -120,10 +121,5 @@ public class MemberService {
                         month.withDayOfMonth(month.lengthOfMonth()).atTime(LocalTime.MAX))
                 .stream()
                 .collect(toMap(Participant::getId, identity()));
-    }
-
-    private boolean checkMemberExistWithStudentId(String studentId) {
-        Optional<Member> member = memberRepository.findByStudentId(studentId);
-        return member.isPresent();
     }
 }
