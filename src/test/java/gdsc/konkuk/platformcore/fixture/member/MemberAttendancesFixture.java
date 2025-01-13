@@ -3,7 +3,7 @@ package gdsc.konkuk.platformcore.fixture.member;
 import static gdsc.konkuk.platformcore.global.utils.GetDefault.getDefault;
 
 import gdsc.konkuk.platformcore.application.attendance.dtos.MemberAttendanceInfo;
-import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendances;
+import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendanceAggregate;
 import gdsc.konkuk.platformcore.domain.attendance.entity.AttendanceType;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import java.time.LocalDateTime;
@@ -14,13 +14,13 @@ import lombok.Getter;
 @Getter
 public class MemberAttendancesFixture {
 
-    private final MemberAttendances fixture;
+    private final MemberAttendanceAggregate fixture;
 
     @Builder
     public MemberAttendancesFixture(Long memberId, String memberName, MemberRole memberRole,
             String department, Long totalAttendances, Long actualAttendances,
             List<MemberAttendanceInfo> attendanceInfoList) {
-        this.fixture = MemberAttendances.builder()
+        this.fixture = MemberAttendanceAggregate.builder()
                 .memberId(getDefault(memberId, 0L))
                 .memberName(getDefault(memberName, "name"))
                 .memberRole(getDefault(memberRole, MemberRole.MEMBER))

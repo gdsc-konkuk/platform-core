@@ -17,4 +17,14 @@ public class MemberAttendanceInfo {
     private AttendanceType attendanceType;
     private LocalDateTime attendanceDate;
     private Long participantId;
+
+    public static MemberAttendanceInfo from(MemberAttendanceQueryDto attendanceInfo) {
+        return MemberAttendanceInfo.builder()
+            .memberId(attendanceInfo.getMemberId())
+            .attendanceDate(attendanceInfo.getAttendanceDate())
+            .participantId(attendanceInfo.getParticipantId())
+            .attendanceId(attendanceInfo.getAttendanceId())
+            .attendanceType(attendanceInfo.getAttendanceType())
+            .build();
+    }
 }
