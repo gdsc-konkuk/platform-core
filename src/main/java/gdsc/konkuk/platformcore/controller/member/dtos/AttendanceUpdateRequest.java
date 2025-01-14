@@ -1,5 +1,6 @@
 package gdsc.konkuk.platformcore.controller.member.dtos;
 
+import gdsc.konkuk.platformcore.application.member.dtos.AttendanceUpdateCommand;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
@@ -18,5 +19,5 @@ public class AttendanceUpdateRequest {
 
     @NotNull
     @Valid
-    private List<AttendanceUpdateInfo> attendanceUpdateInfoList;
+    private List<AttendanceUpdateCommand> attendanceUpdateInfoList;
 }

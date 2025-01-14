@@ -24,8 +24,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gdsc.konkuk.platformcore.annotation.RestDocsTest;
 import gdsc.konkuk.platformcore.application.auth.JwtTokenProvider;
 import gdsc.konkuk.platformcore.application.member.MemberService;
+import gdsc.konkuk.platformcore.application.member.dtos.MemberCreateCommand;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistException;
-import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateInfo;
+import gdsc.konkuk.platformcore.application.member.dtos.AttendanceUpdateCommand;
 import gdsc.konkuk.platformcore.controller.member.dtos.AttendanceUpdateRequest;
 import gdsc.konkuk.platformcore.controller.member.dtos.MemberRegisterRequest;
 import gdsc.konkuk.platformcore.controller.member.dtos.MemberUpdateInfo;
@@ -148,7 +149,7 @@ class MemberControllerTest {
                 .studentId("202400000").build().getFixture();
         Member memberToRegister = MemberFixture.builder()
                 .studentId("202400000").build().getFixture();
-        given(memberService.register(any(MemberRegisterRequest.class))).willReturn(
+        given(memberService.register(any(MemberCreateCommand.class))).willReturn(
                 memberToRegister);
 
         // when
@@ -201,7 +202,7 @@ class MemberControllerTest {
         String jwt = jwtTokenProvider.createToken(member);
         MemberRegisterRequest memberRegisterRequest = MemberRegisterRequestFixture.builder().build()
                 .getFixture();
-        given(memberService.register(any(MemberRegisterRequest.class)))
+        given(memberService.register(any(MemberCreateCommand.class)))
                 .willThrow(UserAlreadyExistException.class);
 
         // when
@@ -267,7 +268,7 @@ class MemberControllerTest {
                 MemberUpdateInfo.builder().memberId(2L).name("member2").build(),
                 MemberUpdateInfo.builder().memberId(3L).email("member3").build()));
         willDoNothing().given(memberService)
-                .updateMembers("24-25", memberUpdateRequest.getMemberUpdateInfoList());
+                .updateMembers("24-25", MemberUpdateRequest.toCommand(memberUpdateRequest));
 
         // when
         ResultActions result =
@@ -422,19 +423,19 @@ class MemberControllerTest {
         // given
         Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
-        List<AttendanceUpdateInfo> attendanceUpdateInfoList = List.of(
-                AttendanceUpdateInfo.builder().participantId(1L)
+        List<AttendanceUpdateCommand> attendanceUpdateCommandList = List.of(
+                AttendanceUpdateCommand.builder().participantId(1L)
                         .attendanceType(AttendanceType.ATTEND).build(),
-                AttendanceUpdateInfo.builder().participantId(2L)
+                AttendanceUpdateCommand.builder().participantId(2L)
                         .attendanceType(AttendanceType.ABSENT).build(),
-                AttendanceUpdateInfo.builder().participantId(3L).attendanceType(AttendanceType.LATE)
+                AttendanceUpdateCommand.builder().participantId(3L).attendanceType(AttendanceType.LATE)
                         .build());
         AttendanceUpdateRequest attendanceUpdateRequest = new AttendanceUpdateRequest(
-                attendanceUpdateInfoList);
+            attendanceUpdateCommandList);
         willDoNothing().given(memberService).updateAttendances(
                 "24-25",
                 LocalDate.of(2024, 7, 1),
-                attendanceUpdateInfoList);
+            attendanceUpdateCommandList);
 
         // when
         ResultActions result =

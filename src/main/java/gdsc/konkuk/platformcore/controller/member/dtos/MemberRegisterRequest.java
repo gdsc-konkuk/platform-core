@@ -1,6 +1,6 @@
 package gdsc.konkuk.platformcore.controller.member.dtos;
 
-import gdsc.konkuk.platformcore.domain.member.entity.Member;
+import gdsc.konkuk.platformcore.application.member.dtos.MemberCreateCommand;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,14 +24,8 @@ public class MemberRegisterRequest {
     @NotEmpty
     private String role;
 
-    public static Member toEntity(MemberRegisterRequest request) {
-        return Member.builder()
-                .studentId(request.getStudentId())
-                .name(request.getName())
-                .email(request.getEmail())
-                .department(request.getDepartment())
-                .batch(request.getBatch())
-                .role(request.getRole())
-                .build();
+    public MemberCreateCommand toCommand() {
+        return new MemberCreateCommand(studentId, name, email, department, batch, role);
     }
+
 }
