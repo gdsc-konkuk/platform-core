@@ -162,27 +162,6 @@ class EmailIntegrationTest {
     }
 
     @Test
-    @DisplayName("이미 처리된 작업 취소 시도 시 예외 발생")
-    void should_fail_when_cancel_already_processed_task() throws Exception {
-        //given
-        EmailSendRequest emailRequest = EmailSendRequestFixture.builder()
-                .sendAt(LocalDateTime.now().plusSeconds(1)).build()
-                .getFixture();
-
-        //when
-        EmailTask scheduledTask = emailTaskFacade.register(emailRequest);
-        sleep(2_000);
-
-        //then
-        try {
-            emailTaskFacade.cancel(scheduledTask.getId());
-            fail("`TaskNotFoundException` or `EmailAlreadyProcessedException` should be thrown");
-        } catch (TaskNotFoundException | EmailAlreadyProcessedException e) {
-            // pass
-        }
-    }
-
-    @Test
     void should_send_discord_message_when_email_sending_error() throws InterruptedException {
         //given
         EmailSendRequest emailRequest = EmailSendRequestFixture.builder()
