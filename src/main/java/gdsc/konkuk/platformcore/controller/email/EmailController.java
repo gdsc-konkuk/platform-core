@@ -41,7 +41,7 @@ public class EmailController {
     @GetMapping("/{taskId}")
     public ResponseEntity<SuccessResponse> getEmailTask(@PathVariable Long taskId) {
         EmailTaskDetailResponse emailTask = EmailTaskMapper.mapToEmailTaskDetailsResponse(
-                emailService.getTaskDetails(taskId));
+                emailService.findById(taskId));
         return ResponseEntity.ok(SuccessResponse.of(emailTask));
     }
 

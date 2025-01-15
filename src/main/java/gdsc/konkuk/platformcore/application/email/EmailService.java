@@ -26,8 +26,11 @@ public class EmailService {
     public List<EmailTask> getAllTaskAsList() {
         return emailTaskRepository.findAll();
     }
+    public List<EmailTask> getTasksInIds(List<Long> emailIds) {
+        return emailTaskRepository.findAllById(emailIds);
+    }
 
-    public EmailTask getTaskDetails(Long taskId) {
+    public EmailTask findById(Long taskId) {
         return findEmailTaskById(emailTaskRepository, taskId);
     }
 
@@ -68,9 +71,8 @@ public class EmailService {
     }
 
     @Transactional
-    public void deleteAll(List<Long> emailIds) {
-        List<EmailTask> tasks = emailTaskRepository.findAllById(emailIds);
-        emailTaskRepository.deleteAllInBatch(tasks);
+    public void deleteAll(List<EmailTask> emailTasks) {
+        emailTaskRepository.deleteAllInBatch(emailTasks);
     }
 
     private void validateEmailTaskAlreadySent(EmailTask emailTask) {
