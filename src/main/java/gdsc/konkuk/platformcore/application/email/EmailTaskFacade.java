@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.hibernate.internal.util.collections.ArrayHelper.forEach;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -32,13 +34,26 @@ public class EmailTaskFacade {
     }
 
     public void cancel(Long emailId) {
-        emailTaskScheduler.cancelTask(String.valueOf(emailId));
+        EmailTask savedTask = emailService.findById(emailId);
+        cancelIfTaskNotProcessed(savedTask);
         emailService.delete(emailId);
     }
 
     public void cancelAll(List<Long> emailIds) {
-        emailIds.forEach(emailId -> emailTaskScheduler.cancelTask(String.valueOf(emailId)));
-        emailService.deleteAll(emailIds);
+        List<EmailTask> taskList = emailService.getTasksInIds(emailIds);
+        cancelUnProcessedTasks(taskList);
+        emailService.deleteAll(taskList);
+    }
+
+    private void cancelIfTaskNotProcessed(EmailTask emailTask) {
+        if(emailTask.isSent()) return;
+        emailTaskScheduler.cancelTask(String.valueOf(emailTask.getId()));
+    }
+
+    private void cancelUnProcessedTasks(List<EmailTask> taskList) {
+        for(EmailTask task : taskList) {
+            cancelIfTaskNotProcessed(task);
+        }
     }
 
     private long getWaitingPeriod(EmailTask emailTask) {
