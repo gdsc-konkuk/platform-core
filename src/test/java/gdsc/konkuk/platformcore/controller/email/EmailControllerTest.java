@@ -222,7 +222,7 @@ class EmailControllerTest {
         String jwt = jwtTokenProvider.createToken(member);
         EmailTask emailTaskToSee = EmailTaskFixture.builder()
                 .id(1L).build().getFixture();
-        given(emailService.getTaskDetails(emailTaskToSee.getId()))
+        given(emailService.findById(emailTaskToSee.getId()))
                 .willReturn(emailTaskToSee);
 
         //when

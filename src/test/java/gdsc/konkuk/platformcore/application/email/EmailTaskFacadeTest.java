@@ -1,8 +1,10 @@
 package gdsc.konkuk.platformcore.application.email;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
@@ -70,6 +72,7 @@ class EmailTaskFacadeTest {
         EmailTask emailTaskToCancel = EmailTaskFixture.builder().build().getFixture();
         willDoNothing().given(emailTaskScheduler).cancelTask(emailTaskToCancel.getId().toString());
         willDoNothing().given(emailService).delete(emailTaskToCancel.getId());
+        when(emailService.findById(any())).thenReturn(emailTaskToCancel);
 
         //when
         subject.cancel(emailTaskToCancel.getId());
