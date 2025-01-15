@@ -44,7 +44,7 @@ public class EmailTaskScheduler implements TaskScheduler {
                 () -> {
                     transactionTemplate.execute(status -> {
                         try {
-                            EmailTask sendingTask = emailService.getTaskDetails(id);
+                            EmailTask sendingTask = emailService.findById(id);
                             emailClient.sendEmailToReceivers(sendingTask);
                             emailService.markAsCompleted(id);
                         } catch (Exception e) {
