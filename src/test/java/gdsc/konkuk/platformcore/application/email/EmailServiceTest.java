@@ -60,14 +60,14 @@ class EmailServiceTest {
 
     @Test
     @DisplayName("getTaskDetails : 특정 이메일 전송 작업 조회 성공")
-    void should_success_when_getTaskDetails() {
+    void should_success_when_findById() {
         // given
         EmailTask emailTaskToFind = EmailTaskFixture.builder().build().getFixture();
         given(emailTaskRepository.findById(emailTaskToFind.getId()))
                 .willReturn(java.util.Optional.of(emailTaskToFind));
 
         // when
-        EmailTask actual = subject.getTaskDetails(emailTaskToFind.getId());
+        EmailTask actual = subject.findById(emailTaskToFind.getId());
 
         // then
         assertEquals(emailTaskToFind.getId(), actual.getId());
