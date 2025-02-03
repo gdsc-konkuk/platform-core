@@ -62,7 +62,7 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(
                                 (request, response, authException) ->
-                                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED))
+                                        response.sendRedirect("/login/oauth2/authorization/google"))
                         .accessDeniedHandler(
                                 (request, response, accessDeniedException) ->
                                         response.setStatus(HttpServletResponse.SC_FORBIDDEN)))
