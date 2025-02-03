@@ -22,31 +22,34 @@ UPDATE gdsc.member
 SET member_role = 'CORE'
 WHERE member_role = 'ADMIN';
 
--- 4. Modify participant table
--- 4.1. Add attendance_type column
+-- 4. Add attendance_type column and migrate data
 ALTER TABLE gdsc.participant
     ADD COLUMN attendance_type enum ('ATTEND', 'ABSENT', 'LATE') NOT NULL DEFAULT 'ABSENT';
 
--- 4.2. Convert existing boolean data to ENUM
 UPDATE gdsc.participant
-SET attendance_type =
-        IF(attendance = TRUE, 'ATTEND', 'ABSENT');
+SET attendance_type = IF(attendance = TRUE, 'ATTEND', 'ABSENT');
 
--- 5. Remove old columns and modify new columns as required
--- 5.1. Drop event-related tables
-DROP TABLE IF EXISTS gdsc.event_image;
-DROP TABLE IF EXISTS gdsc.event;
+-- 5. Drop constraints and clean up tables
+-- 5.1. Remove foreign key constraints
+ALTER TABLE gdsc.attendance
+    DROP FOREIGN KEY attendance_ibfk_1;
 
--- 5.2. Remove event_id from attendance table
+-- 5.2. Drop event-related tables
+DROP TABLE gdsc.event_image;
+DROP TABLE gdsc.event;
+
+-- 5.3 Drop unused columns
 ALTER TABLE gdsc.attendance
     DROP COLUMN event_id;
-
--- 5.3. Remove password column from member table
 ALTER TABLE gdsc.member
-    DROP COLUMN password;
-
--- 5.4. Remove attendance column from participant table
+    DROP COLUMN password,
+    MODIFY COLUMN member_role enum ('CORE', 'LEAD', 'MEMBER') NOT NULL;
 ALTER TABLE gdsc.participant
     DROP COLUMN attendance;
 
--- 6. Migration complete
+-- 6. Make migrated columns non-nullable
+ALTER TABLE gdsc.attendance
+    MODIFY COLUMN title varchar(255) NOT NULL,
+    MODIFY COLUMN attendance_time datetime(6) NOT NULL;
+
+-- 7. Migration complete
