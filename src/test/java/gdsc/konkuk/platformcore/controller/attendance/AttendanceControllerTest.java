@@ -142,7 +142,6 @@ class AttendanceControllerTest {
         // given
         Member memberToAttend = MemberFixture.builder()
                 .email("ex@gmail.com").build().getFixture();
-        String jwt = jwtTokenProvider.createToken(memberToAttend);
         Attendance attendanceToAttend = AttendanceFixture.builder()
                 .id(1L).activeQrUuid("uuid").build().getFixture();
         given(attendanceService.attend(memberToAttend.getId(), attendanceToAttend.getId(),
@@ -158,7 +157,6 @@ class AttendanceControllerTest {
                 mockMvc.perform(
                         RestDocumentationRequestBuilders.get(
                                         "/api/v1/attendances/attend/{attendanceId}", 1L)
-                                .header("Authorization", "Bearer " + jwt)
                                 .queryParam("qrUuid", "uuid")
                                 .with(oidcLogin()
                                         .idToken(token -> token.claim("email", "ex@gmail.com"))));

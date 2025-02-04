@@ -35,7 +35,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             log.error("[ERROR] : 인증 정보가 유효하지 않습니다.", e);
             SecurityContextHolder.clearContext();
         } catch (IllegalArgumentException ignored) {
-            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);
