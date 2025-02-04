@@ -144,7 +144,7 @@ class AttendanceControllerTest {
                 .email("ex@gmail.com").build().getFixture();
         Attendance attendanceToAttend = AttendanceFixture.builder()
                 .id(1L).activeQrUuid("uuid").build().getFixture();
-        given(attendanceService.attend(memberToAttend.getId(), attendanceToAttend.getId(),
+        given(attendanceService.attend(memberToAttend.getEmail(), attendanceToAttend.getId(),
                 attendanceToAttend.getActiveQrUuid()))
                 .willReturn(ParticipantFixture.builder()
                         .attendanceType(AttendanceType.ATTEND)
