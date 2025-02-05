@@ -31,10 +31,10 @@ public class AttendanceService {
     private final ParticipantService participantService;
 
     @Transactional
-    public Participant attend(Long memberId, Long attendanceId, String qrUuid) {
+    public Participant attend(String memberEmail, Long attendanceId, String qrUuid) {
         Member member =
                 memberRepository
-                        .findById(memberId)
+                        .findByEmail(memberEmail)
                         .orElseThrow(
                                 () -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));
         Attendance attendance = findAttendanceById(attendanceRepository, attendanceId);

@@ -36,6 +36,8 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+
+        // TODO: Admin이 아닌 여러 클라이언트를 사용하게 될 경우, authorization code를 통한 POST 로그인으로 변경 필요
         response.sendRedirect(SPA_ADMIN_LOGIN_REDIRECT_URL + "#" + token);
     }
 }
