@@ -116,7 +116,6 @@ sonar {
 
 openapi3 {
     servers = [
-            { url = 'https://gdsc-konkuk.dev' },
             { url = 'https://api.gdsc-konkuk.dev' },
             { url = 'https://stage.gdsc-konkuk.dev' },
             { url = 'http://localhost:8080' },
