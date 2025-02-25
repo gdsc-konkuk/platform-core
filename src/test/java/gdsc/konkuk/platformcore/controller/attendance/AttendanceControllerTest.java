@@ -78,7 +78,7 @@ class AttendanceControllerTest {
     @DisplayName("특정 달의 출석 정보를 조회할 수 있다")
     void should_get_events_of_the_month_when_pass_year_month() throws Exception {
         // given
-        Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+        Member member = MemberFixture.builder().role(MemberRole.ROLE_CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
         given(attendanceService.getAllByPeriod(LocalDate.of(2024, 7, 1)))
                 .willReturn(
@@ -189,7 +189,7 @@ class AttendanceControllerTest {
     @DisplayName("이벤트 출석을 등록할 수 있다")
     void should_register_attendance_when_pass_event_id() throws Exception {
         // given
-        Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+        Member member = MemberFixture.builder().role(MemberRole.ROLE_CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
         AttendanceRegisterRequest registerRequest = AttendanceRegisterRequestFixture.builder()
                 .build().getFixture();
@@ -240,7 +240,7 @@ class AttendanceControllerTest {
     @DisplayName("출석 현황을 조회할 수 있다")
     void should_get_attendance_status_when_pass_attendance_id() throws Exception {
         // given
-        Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+        Member member = MemberFixture.builder().role(MemberRole.ROLE_CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
         Attendance attendanceToGetStatus = AttendanceFixture.builder()
                 .id(1L).build().getFixture();
@@ -289,7 +289,7 @@ class AttendanceControllerTest {
     @DisplayName("이벤트 출석을 삭제할 수 있다")
     void should_delete_attendance_when_pass_event_id() throws Exception {
         // given
-        Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+        Member member = MemberFixture.builder().role(MemberRole.ROLE_CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
         Attendance attendanceToDelete = AttendanceFixture.builder()
                 .id(1L).build().getFixture();
@@ -326,7 +326,7 @@ class AttendanceControllerTest {
     @DisplayName("QR 코드를 생성할 수 있다")
     void should_generate_qr_when_pass_attendance_id() throws Exception {
         // given
-        Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+        Member member = MemberFixture.builder().role(MemberRole.ROLE_CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
         Attendance attendanceToActive = AttendanceFixture.builder()
                 .id(1L).build().getFixture();
@@ -379,7 +379,7 @@ class AttendanceControllerTest {
     @DisplayName("QR 코드를 만료시킬 수 있다")
     void should_expire_qr_when_pass_attendance_id_and_qr_uuid() throws Exception {
         // given
-        Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+        Member member = MemberFixture.builder().role(MemberRole.ROLE_CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
         Attendance attendanceToInactive = AttendanceFixture.builder()
                 .id(1L).build().getFixture();

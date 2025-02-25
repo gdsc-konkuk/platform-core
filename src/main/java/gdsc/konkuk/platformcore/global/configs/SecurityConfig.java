@@ -84,7 +84,7 @@ public class SecurityConfig {
                         .permitAll()
                         // 동아리 회원을 위한 API
                         .anyRequest()
-                        .authenticated())
+                        .hasAnyRole("CORE", "LEAD", "MEMBER"))
                 .oauth2Login(login -> login
                         .clientRegistrationRepository(new InMemoryClientRegistrationRepository(
                                 googleOidcConfig.googleAttendanceClientRegistration()))

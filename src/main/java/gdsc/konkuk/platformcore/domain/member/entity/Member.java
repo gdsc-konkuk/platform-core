@@ -69,7 +69,7 @@ public class Member {
         this.name = validateNotNull(name, "name");
         this.email = validateNotNull(email, "email");
         this.department = validateNotNull(department, "department");
-        this.role = (role != null) ? MemberRole.from(role) : MemberRole.MEMBER;
+        this.role = (role != null) ? MemberRole.from(role) : MemberRole.ROLE_MEMBER;
         this.batch = validateNotNull(batch, "batch");
     }
 

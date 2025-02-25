@@ -21,7 +21,7 @@ public class MemberFixture {
                 .name(getDefault(name, "name"))
                 .email(getDefault(email, "ex@gmail.com"))
                 .department(getDefault(department, "department"))
-                .role(getDefault(role, MemberRole.MEMBER).toString())
+                .role(getDefault(role, MemberRole.ROLE_MEMBER).toString())
                 .batch(getDefault(batch, "24-25"))
                 .build();
     }

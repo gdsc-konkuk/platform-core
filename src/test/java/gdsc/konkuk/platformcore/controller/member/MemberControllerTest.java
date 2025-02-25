@@ -81,7 +81,7 @@ class MemberControllerTest {
     @DisplayName("특정 기수의 멤버 목록 조회 성공")
     void should_success_when_get_members() throws Exception {
         // given
-        Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+        Member member = MemberFixture.builder().role(MemberRole.ROLE_CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
         given(memberService.getMembersInBatch("24-25"))
                 .willReturn(
@@ -143,7 +143,7 @@ class MemberControllerTest {
     @DisplayName("새로운 멤버 회원 가입 성공")
     void should_success_when_newMember() throws Exception {
         // given
-        Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+        Member member = MemberFixture.builder().role(MemberRole.ROLE_CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
         MemberRegisterRequest memberRegisterRequest = MemberRegisterRequestFixture.builder()
                 .studentId("202400000").build().getFixture();
@@ -198,7 +198,7 @@ class MemberControllerTest {
     @DisplayName("이미 존재하는 유저 회원 가입 실패")
     void should_fail_when_existingMember() throws Exception {
         // given
-        Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+        Member member = MemberFixture.builder().role(MemberRole.ROLE_CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
         MemberRegisterRequest memberRegisterRequest = MemberRegisterRequestFixture.builder().build()
                 .getFixture();
@@ -222,7 +222,7 @@ class MemberControllerTest {
     @DisplayName("회원 탈퇴 성공")
     void should_success_when_delete_member() throws Exception {
         // given
-        Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+        Member member = MemberFixture.builder().role(MemberRole.ROLE_CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
         Member memberToWithdraw = MemberFixture.builder().build().getFixture();
         willDoNothing().given(memberService).withdraw(memberToWithdraw.getId());
@@ -261,7 +261,7 @@ class MemberControllerTest {
     @DisplayName("멤버 정보 수정 성공")
     void should_success_when_update_member() throws Exception {
         // given
-        Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+        Member member = MemberFixture.builder().role(MemberRole.ROLE_CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
         MemberUpdateRequest memberUpdateRequest = new MemberUpdateRequest(List.of(
                 MemberUpdateInfo.builder().memberId(1L).studentId("202400000").build(),
@@ -329,7 +329,7 @@ class MemberControllerTest {
     @DisplayName("특정 배치의 특정 월의 멤버 출석 정보 조회 성공")
     void should_success_when_get_attendances_by_batch() throws Exception {
         // given
-        Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+        Member member = MemberFixture.builder().role(MemberRole.ROLE_CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
         // TODO: 좀 더 상세하고 정확한 Fixture 필요 (`batch`, `eventId`, `participantId` 등)
         given(memberService.getMemberAttendanceWithBatchAndPeriod(anyString(), any()))
@@ -421,7 +421,7 @@ class MemberControllerTest {
     @DisplayName("특정 배치의 특정 월의 멤버 출석 정보 수정 성공")
     void should_success_when_update_attendances_by_batch() throws Exception {
         // given
-        Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
+        Member member = MemberFixture.builder().role(MemberRole.ROLE_CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
         List<AttendanceUpdateCommand> attendanceUpdateCommandList = List.of(
                 AttendanceUpdateCommand.builder().participantId(1L)

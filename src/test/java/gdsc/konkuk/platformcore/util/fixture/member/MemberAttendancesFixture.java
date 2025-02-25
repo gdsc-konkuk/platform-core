@@ -23,7 +23,7 @@ public class MemberAttendancesFixture {
         this.fixture = MemberAttendanceAggregate.builder()
                 .memberId(getDefault(memberId, 0L))
                 .memberName(getDefault(memberName, "name"))
-                .memberRole(getDefault(memberRole, MemberRole.MEMBER))
+                .memberRole(getDefault(memberRole, MemberRole.ROLE_MEMBER))
                 .department(getDefault(department, "department"))
                 .totalAttendances(getDefault(totalAttendances, 3L))
                 .actualAttendances(getDefault(actualAttendances, 2L))

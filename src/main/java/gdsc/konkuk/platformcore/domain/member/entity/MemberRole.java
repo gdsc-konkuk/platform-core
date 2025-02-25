@@ -1,9 +1,9 @@
 package gdsc.konkuk.platformcore.domain.member.entity;
 
 public enum MemberRole {
-    LEAD("ROLE_LEAD"),
-    CORE("ROLE_CORE"),
-    MEMBER("ROLE_MEMBER");
+    ROLE_LEAD("ROLE_LEAD"),
+    ROLE_CORE("ROLE_CORE"),
+    ROLE_MEMBER("ROLE_MEMBER");
 
     private final String authority;
 
@@ -13,9 +13,9 @@ public enum MemberRole {
 
     public static MemberRole from(String role) {
         return switch (role) {
-            case "ROLE_LEAD" -> LEAD;
-            case "ROLE_CORE" -> CORE;
-            case "ROLE_MEMBER" -> MEMBER;
+            case "ROLE_LEAD" -> ROLE_LEAD;
+            case "ROLE_CORE" -> ROLE_CORE;
+            case "ROLE_MEMBER" -> ROLE_MEMBER;
             default -> throw new IllegalArgumentException("Invalid role: " + role);
         };
     }
