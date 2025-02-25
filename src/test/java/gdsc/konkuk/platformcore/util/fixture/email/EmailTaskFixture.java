@@ -1,4 +1,4 @@
-package gdsc.konkuk.platformcore.fixture.email;
+package gdsc.konkuk.platformcore.util.fixture.email;
 
 import static gdsc.konkuk.platformcore.global.utils.GetDefault.getDefault;
 

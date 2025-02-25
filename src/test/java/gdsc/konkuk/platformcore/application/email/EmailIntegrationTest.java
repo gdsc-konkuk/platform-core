@@ -9,16 +9,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.util.AssertionErrors.assertNotNull;
-import static org.springframework.test.util.AssertionErrors.fail;
 
-import gdsc.konkuk.platformcore.application.email.exceptions.EmailAlreadyProcessedException;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
 import gdsc.konkuk.platformcore.external.discord.DiscordClient;
 import gdsc.konkuk.platformcore.external.email.EmailClient;
 import gdsc.konkuk.platformcore.external.email.exceptions.EmailSendingException;
-import gdsc.konkuk.platformcore.fixture.email.EmailSendRequestFixture;
+import gdsc.konkuk.platformcore.util.fixture.email.EmailSendRequestFixture;
 import gdsc.konkuk.platformcore.global.exceptions.GlobalErrorCode;
 import gdsc.konkuk.platformcore.global.scheduler.TaskInMemoryRepository;
 import gdsc.konkuk.platformcore.global.scheduler.TaskNotFoundException;

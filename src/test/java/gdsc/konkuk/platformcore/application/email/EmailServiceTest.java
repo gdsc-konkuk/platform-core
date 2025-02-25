@@ -14,8 +14,8 @@ import gdsc.konkuk.platformcore.application.email.exceptions.EmailNotFoundExcept
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
-import gdsc.konkuk.platformcore.fixture.email.EmailSendRequestFixture;
-import gdsc.konkuk.platformcore.fixture.email.EmailTaskFixture;
+import gdsc.konkuk.platformcore.util.fixture.email.EmailSendRequestFixture;
+import gdsc.konkuk.platformcore.util.fixture.email.EmailTaskFixture;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;

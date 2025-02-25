@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gdsc.konkuk.platformcore.annotation.RestDocsTest;
+import gdsc.konkuk.platformcore.util.annotation.RestDocsTest;
 import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
 import gdsc.konkuk.platformcore.application.attendance.dtos.AttendanceStatus;
 import gdsc.konkuk.platformcore.application.auth.JwtTokenProvider;
@@ -29,10 +29,10 @@ import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
 import gdsc.konkuk.platformcore.domain.attendance.entity.AttendanceType;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
-import gdsc.konkuk.platformcore.fixture.attendance.AttendanceFixture;
-import gdsc.konkuk.platformcore.fixture.attendance.AttendanceRegisterRequestFixture;
-import gdsc.konkuk.platformcore.fixture.attendance.ParticipantFixture;
-import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
+import gdsc.konkuk.platformcore.util.fixture.attendance.AttendanceFixture;
+import gdsc.konkuk.platformcore.util.fixture.attendance.AttendanceRegisterRequestFixture;
+import gdsc.konkuk.platformcore.util.fixture.attendance.ParticipantFixture;
+import gdsc.konkuk.platformcore.util.fixture.member.MemberFixture;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;

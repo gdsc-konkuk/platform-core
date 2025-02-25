@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gdsc.konkuk.platformcore.annotation.RestDocsTest;
+import gdsc.konkuk.platformcore.util.annotation.RestDocsTest;
 import gdsc.konkuk.platformcore.application.auth.JwtTokenProvider;
 import gdsc.konkuk.platformcore.application.member.MemberService;
 import gdsc.konkuk.platformcore.application.member.dtos.MemberCreateCommand;
@@ -34,9 +34,9 @@ import gdsc.konkuk.platformcore.controller.member.dtos.MemberUpdateRequest;
 import gdsc.konkuk.platformcore.domain.attendance.entity.AttendanceType;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
-import gdsc.konkuk.platformcore.fixture.member.MemberAttendancesFixture;
-import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
-import gdsc.konkuk.platformcore.fixture.member.MemberRegisterRequestFixture;
+import gdsc.konkuk.platformcore.util.fixture.member.MemberAttendancesFixture;
+import gdsc.konkuk.platformcore.util.fixture.member.MemberFixture;
+import gdsc.konkuk.platformcore.util.fixture.member.MemberRegisterRequestFixture;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -428,14 +428,15 @@ class MemberControllerTest {
                         .attendanceType(AttendanceType.ATTEND).build(),
                 AttendanceUpdateCommand.builder().participantId(2L)
                         .attendanceType(AttendanceType.ABSENT).build(),
-                AttendanceUpdateCommand.builder().participantId(3L).attendanceType(AttendanceType.LATE)
+                AttendanceUpdateCommand.builder().participantId(3L)
+                        .attendanceType(AttendanceType.LATE)
                         .build());
         AttendanceUpdateRequest attendanceUpdateRequest = new AttendanceUpdateRequest(
-            attendanceUpdateCommandList);
+                attendanceUpdateCommandList);
         willDoNothing().given(memberService).updateAttendances(
                 "24-25",
                 LocalDate.of(2024, 7, 1),
-            attendanceUpdateCommandList);
+                attendanceUpdateCommandList);
 
         // when
         ResultActions result =

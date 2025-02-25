@@ -1,4 +1,4 @@
-package gdsc.konkuk.platformcore.fixture.member;
+package gdsc.konkuk.platformcore.util.fixture.member;
 
 import static gdsc.konkuk.platformcore.global.utils.GetDefault.getDefault;
 
