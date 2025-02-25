@@ -93,7 +93,8 @@ public class SecurityConfig {
                         .redirectionEndpoint(redirection ->
                                 redirection.baseUri("/login/attendance/code/{registrationId}"))
                         .userInfoEndpoint(userInfo ->
-                                userInfo.oidcUserService(customOAuthUserService)));
+                                userInfo.oidcUserService(customOAuthUserService))
+                        .failureHandler(customAuthenticationFailureHandler));
         return httpSecurity.build();
     }
 }
