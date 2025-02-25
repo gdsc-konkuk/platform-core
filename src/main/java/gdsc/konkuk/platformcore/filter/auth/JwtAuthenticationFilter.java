@@ -1,4 +1,4 @@
-package gdsc.konkuk.platformcore.application.auth;
+package gdsc.konkuk.platformcore.filter.auth;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;

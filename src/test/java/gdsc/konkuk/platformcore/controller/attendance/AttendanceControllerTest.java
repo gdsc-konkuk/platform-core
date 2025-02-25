@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gdsc.konkuk.platformcore.util.annotation.RestDocsTest;
 import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
 import gdsc.konkuk.platformcore.application.attendance.dtos.AttendanceStatus;
-import gdsc.konkuk.platformcore.application.auth.JwtTokenProvider;
+import gdsc.konkuk.platformcore.filter.auth.JwtTokenProvider;
 import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceRegisterRequest;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
 import gdsc.konkuk.platformcore.domain.attendance.entity.AttendanceType;

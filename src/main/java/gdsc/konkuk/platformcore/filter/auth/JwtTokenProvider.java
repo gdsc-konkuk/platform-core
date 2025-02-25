@@ -1,4 +1,4 @@
-package gdsc.konkuk.platformcore.application.auth;
+package gdsc.konkuk.platformcore.filter.auth;
 
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import io.jsonwebtoken.Claims;

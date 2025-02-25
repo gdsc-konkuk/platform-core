@@ -1,4 +1,4 @@
-package gdsc.konkuk.platformcore.application.auth;
+package gdsc.konkuk.platformcore.filter.auth;
 
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 

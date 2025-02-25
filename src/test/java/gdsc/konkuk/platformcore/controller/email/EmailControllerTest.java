@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gdsc.konkuk.platformcore.util.annotation.RestDocsTest;
-import gdsc.konkuk.platformcore.application.auth.JwtTokenProvider;
+import gdsc.konkuk.platformcore.filter.auth.JwtTokenProvider;
 import gdsc.konkuk.platformcore.application.email.EmailService;
 import gdsc.konkuk.platformcore.application.email.EmailTaskFacade;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;

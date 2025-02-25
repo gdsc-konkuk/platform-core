@@ -2,10 +2,10 @@ package gdsc.konkuk.platformcore.global.configs;
 
 import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.apiPath;
 
-import gdsc.konkuk.platformcore.application.auth.CustomAuthenticationFailureHandler;
-import gdsc.konkuk.platformcore.application.auth.CustomAuthenticationSuccessHandler;
+import gdsc.konkuk.platformcore.filter.auth.CustomAuthenticationFailureHandler;
+import gdsc.konkuk.platformcore.filter.auth.CustomAuthenticationSuccessHandler;
 import gdsc.konkuk.platformcore.application.auth.CustomOAuthUserService;
-import gdsc.konkuk.platformcore.application.auth.JwtAuthenticationFilter;
+import gdsc.konkuk.platformcore.filter.auth.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
