@@ -28,7 +28,9 @@ public class CustomOAuthUserService extends OidcUserService {
             return processOAuth2User(oidcUser);
         } catch (Exception ex) {
             throw new OAuth2AuthenticationException(
-                    new OAuth2Error("processing_error", "Failed to process user info", null));
+                    new OAuth2Error("processing_error",
+                            "Failed to process user info - " + userRequest.getIdToken().getEmail(),
+                            null));
         }
     }
 
