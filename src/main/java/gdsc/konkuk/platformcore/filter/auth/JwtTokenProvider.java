@@ -38,7 +38,7 @@ public class JwtTokenProvider {
                 .subject(member.getId().toString())
                 .add("studentId", member.getStudentId())
                 .add("email", member.getEmail())
-                .add("roles", List.of(member.getRole()))
+                .add("roles", List.of(member.getRole().toString()))
                 .build();
 
         Date now = new Date();
@@ -56,7 +56,7 @@ public class JwtTokenProvider {
         List<? extends GrantedAuthority> authorities =
                 ((List<?>) claims.get("roles"))
                         .stream()
-                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                        .map(role -> new SimpleGrantedAuthority(role.toString()))
                         .toList();
 
         Map<String, Object> principal = new HashMap<>();

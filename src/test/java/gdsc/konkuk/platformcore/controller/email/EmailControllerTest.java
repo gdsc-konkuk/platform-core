@@ -75,7 +75,7 @@ class EmailControllerTest {
     @DisplayName("이메일 전송 작업 등록 성공")
     void should_success_when_send_email() throws Exception {
         //given
-        Member member = MemberFixture.builder().role(MemberRole.ROLE_CORE).build().getFixture();
+        Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
         EmailSendRequest request = EmailSendRequestFixture.builder().build().getFixture();
         EmailTask emailTaskToSee = EmailTaskFixture.builder().build().getFixture();
@@ -118,7 +118,7 @@ class EmailControllerTest {
     @DisplayName("이메일 등록 내용 수정")
     void should_success_when_update_emailTask() throws Exception {
         //given
-        Member member = MemberFixture.builder().role(MemberRole.ROLE_CORE).build().getFixture();
+        Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
         EmailTask emailTaskToUpdate = EmailTaskFixture.builder()
                 .id(1L).build().getFixture();
@@ -162,7 +162,7 @@ class EmailControllerTest {
     @DisplayName("이메일 전송 조회 - 모든 이메일 전송 작업 조회")
     void should_success_when_get_all_task() throws Exception {
         //given
-        Member member = MemberFixture.builder().role(MemberRole.ROLE_CORE).build().getFixture();
+        Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
         List<EmailTask> emailTasksToSee = List.of(
                 EmailTaskFixture.builder().id(1L).build().getFixture(),
@@ -218,7 +218,7 @@ class EmailControllerTest {
     @DisplayName("이메일 전송 조회 - 특정 이메일 전송 작업 세부내용 조회")
     void should_success_when_get_specific_task() throws Exception {
         //given
-        Member member = MemberFixture.builder().role(MemberRole.ROLE_CORE).build().getFixture();
+        Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
         EmailTask emailTaskToSee = EmailTaskFixture.builder()
                 .id(1L).build().getFixture();
@@ -268,7 +268,7 @@ class EmailControllerTest {
     @DisplayName("등록된 이메일 작업을 취소한다.")
     void should_success_when_cancel_registered_task() throws Exception {
         //given
-        Member member = MemberFixture.builder().role(MemberRole.ROLE_CORE).build().getFixture();
+        Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
         EmailTask emailTaskToCancel = EmailTaskFixture.builder()
                 .id(1L).build().getFixture();
@@ -302,7 +302,7 @@ class EmailControllerTest {
     @DisplayName("선택한 모든 이메일 작업을 취소한다.")
     void should_success_when_cancel_all_tasks() throws Exception {
         //given
-        Member member = MemberFixture.builder().role(MemberRole.ROLE_CORE).build().getFixture();
+        Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
         List<Long> emailIds = List.of(1L, 2L);
         willDoNothing().given(emailTaskFacade).cancelAll(emailIds);

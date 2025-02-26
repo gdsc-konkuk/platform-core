@@ -21,7 +21,7 @@ public class MemberRegisterRequestFixture {
                 .name(getDefault(name, "name"))
                 .department(getDefault(department, "department"))
                 .batch(getDefault(batch, "24-25"))
-                .role(getDefault(role, MemberRole.ROLE_MEMBER).toString())
+                .role(getDefault(role, MemberRole.MEMBER).toString())
                 .build();
     }
 }
