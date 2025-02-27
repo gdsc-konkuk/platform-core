@@ -46,7 +46,7 @@ class EmailServiceTest {
                 EmailTaskFixture.builder().id(2L).build().getFixture(),
                 EmailTaskFixture.builder().id(3L).build().getFixture()
         );
-        given(emailTaskRepository.findAll()).willReturn(emailTaskListToFind);
+        given(emailTaskRepository.findAllByOrderBySendAtDesc()).willReturn(emailTaskListToFind);
 
         // when
         List<EmailTask> actual = subject.getAllTaskAsList();

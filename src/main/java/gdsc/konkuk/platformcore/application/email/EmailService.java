@@ -24,8 +24,9 @@ public class EmailService {
     private final EmailTaskRepository emailTaskRepository;
 
     public List<EmailTask> getAllTaskAsList() {
-        return emailTaskRepository.findAll();
+        return emailTaskRepository.findAllByOrderBySendAtDesc();
     }
+
     public List<EmailTask> getTasksInIds(List<Long> emailIds) {
         return emailTaskRepository.findAllById(emailIds);
     }
