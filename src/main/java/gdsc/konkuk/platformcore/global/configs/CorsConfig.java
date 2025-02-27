@@ -3,18 +3,19 @@ package gdsc.konkuk.platformcore.global.configs;
 import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.allowedOrigins;
 
 import java.util.Arrays;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-@Component
+@Configuration
 public class CorsConfig {
 
-    public CorsConfigurationSource getConfigurationSource() {
+    @Bean
+    public UrlBasedCorsConfigurationSource getConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(allowedOrigins);
+        configuration.setAllowedOriginPatterns(allowedOrigins);
         configuration.setAllowedMethods(
                 Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowCredentials(true);

@@ -29,7 +29,6 @@ public class SecurityConfig {
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final CustomOAuthUserService customOAuthUserService;
     private final GoogleOidcConfig googleOidcConfig;
-    private final CorsConfig corsConfig;
 
     @Bean
     @Order(2)
@@ -38,8 +37,6 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .cors(cors ->
-                        cors.configurationSource(corsConfig.getConfigurationSource()))
                 .addFilterBefore(jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorize -> authorize
