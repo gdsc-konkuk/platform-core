@@ -2,9 +2,9 @@ package gdsc.konkuk.platformcore.global.configs;
 
 import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.apiPath;
 
+import gdsc.konkuk.platformcore.application.auth.CustomOAuthUserService;
 import gdsc.konkuk.platformcore.filter.auth.CustomAuthenticationFailureHandler;
 import gdsc.konkuk.platformcore.filter.auth.CustomAuthenticationSuccessHandler;
-import gdsc.konkuk.platformcore.application.auth.CustomOAuthUserService;
 import gdsc.konkuk.platformcore.filter.auth.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +15,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -33,6 +34,11 @@ public class SecurityConfig {
     @Bean
     @Order(2)
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        AuthenticationEntryPoint authenticationEntryPoint = (request, response, authException) ->
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        AccessDeniedHandler accessDeniedHandler = (request, response, accessDeniedException) ->
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
@@ -47,15 +53,11 @@ public class SecurityConfig {
                         .anyRequest()
                         .hasAnyRole("CORE", "LEAD"))
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(
-                                (request, response, authException) ->
-                                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED))
-                        .accessDeniedHandler(
-                                (request, response, accessDeniedException) ->
-                                        response.setStatus(HttpServletResponse.SC_FORBIDDEN)))
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler))
                 .oauth2Login(login -> login
-                        .clientRegistrationRepository(new InMemoryClientRegistrationRepository(
-                                googleOidcConfig.googleClientRegistration()))
+                        .clientRegistrationRepository(
+                                googleOidcConfig.googleClientRegistrationRepository())
                         .authorizationEndpoint(authorization ->
                                 authorization.baseUri("/login/oauth2/authorization"))
                         .redirectionEndpoint(redirection ->
@@ -83,8 +85,8 @@ public class SecurityConfig {
                         .anyRequest()
                         .hasAnyRole("CORE", "LEAD", "MEMBER"))
                 .oauth2Login(login -> login
-                        .clientRegistrationRepository(new InMemoryClientRegistrationRepository(
-                                googleOidcConfig.googleAttendanceClientRegistration()))
+                        .clientRegistrationRepository(
+                                googleOidcConfig.googleAttendanceClientRegistrationRepository())
                         .authorizationEndpoint(authorization ->
                                 authorization.baseUri("/login/attendance/authorization"))
                         .redirectionEndpoint(redirection ->

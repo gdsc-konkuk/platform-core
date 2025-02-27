@@ -3,6 +3,7 @@ package gdsc.konkuk.platformcore.global.configs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
@@ -14,8 +15,8 @@ public class GoogleOidcConfig {
     private final String clientId;
     private final String clientSecret;
 
-    public ClientRegistration googleClientRegistration() {
-        return ClientRegistration.withRegistrationId("google")
+    public InMemoryClientRegistrationRepository googleClientRegistrationRepository() {
+        ClientRegistration clientRegistration = ClientRegistration.withRegistrationId("google")
                 .clientId(clientId)
                 .clientSecret(clientSecret)
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
@@ -29,10 +30,12 @@ public class GoogleOidcConfig {
                 .jwkSetUri("https://www.googleapis.com/oauth2/v3/certs")
                 .clientName("Google")
                 .build();
+        return new InMemoryClientRegistrationRepository(clientRegistration);
     }
 
-    public ClientRegistration googleAttendanceClientRegistration() {
-        return ClientRegistration.withRegistrationId("google-attendance")
+    public InMemoryClientRegistrationRepository googleAttendanceClientRegistrationRepository() {
+        ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(
+                        "google-attendance")
                 .clientId(clientId)
                 .clientSecret(clientSecret)
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
@@ -46,5 +49,6 @@ public class GoogleOidcConfig {
                 .jwkSetUri("https://www.googleapis.com/oauth2/v3/certs")
                 .clientName("Google")
                 .build();
+        return new InMemoryClientRegistrationRepository(clientRegistration);
     }
 }

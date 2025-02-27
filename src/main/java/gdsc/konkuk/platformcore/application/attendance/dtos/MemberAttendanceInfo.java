@@ -20,11 +20,11 @@ public class MemberAttendanceInfo {
 
     public static MemberAttendanceInfo from(MemberAttendanceQueryDto attendanceInfo) {
         return MemberAttendanceInfo.builder()
-            .memberId(attendanceInfo.getMemberId())
-            .attendanceDate(attendanceInfo.getAttendanceDate())
-            .participantId(attendanceInfo.getParticipantId())
-            .attendanceId(attendanceInfo.getAttendanceId())
-            .attendanceType(attendanceInfo.getAttendanceType())
-            .build();
+                .memberId(attendanceInfo.getMemberId())
+                .attendanceDate(attendanceInfo.getAttendanceDate())
+                .participantId(attendanceInfo.getParticipantId())
+                .attendanceId(attendanceInfo.getAttendanceId())
+                .attendanceType(attendanceInfo.getAttendanceType())
+                .build();
     }
 }

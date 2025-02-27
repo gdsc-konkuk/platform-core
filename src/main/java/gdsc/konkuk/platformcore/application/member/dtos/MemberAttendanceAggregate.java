@@ -5,13 +5,11 @@ import gdsc.konkuk.platformcore.application.attendance.dtos.MemberAttendanceQuer
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -21,16 +19,22 @@ public class MemberAttendanceAggregate {
 
     @NotNull
     private List<MemberAttendanceInfo> attendanceInfoList;
+
     @NotNull
     private Long memberId;
+
     @NotEmpty
     private String memberName;
+
     @NotNull
     private MemberRole memberRole;
+
     @NotEmpty
     private String department;
+
     @NotEmpty
     private Long totalAttendances;
+
     @NotEmpty
     private Long actualAttendances;
 

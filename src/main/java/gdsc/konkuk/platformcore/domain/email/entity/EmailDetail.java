@@ -17,6 +17,7 @@ public class EmailDetail {
 
     @Column(name = "email_subject")
     private String subject;
+
     @Column(name = "email_content", columnDefinition = "TEXT")
     private String content;
 

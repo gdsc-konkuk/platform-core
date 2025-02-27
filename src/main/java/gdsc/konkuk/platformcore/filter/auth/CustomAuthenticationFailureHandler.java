@@ -2,7 +2,6 @@ package gdsc.konkuk.platformcore.filter.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gdsc.konkuk.platformcore.application.member.exceptions.MemberErrorCode;
-import gdsc.konkuk.platformcore.global.exceptions.CustomErrorCode;
 import gdsc.konkuk.platformcore.global.responses.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,8 +24,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
             AuthenticationException exception) throws
             IOException {
         log.info("Authentication failed: {}", exception.getMessage());
-        CustomErrorCode errorCode = MemberErrorCode.INVALID_USER_INFO;
-        ErrorResponse errorResponse = ErrorResponse.of(errorCode);
+        ErrorResponse errorResponse = ErrorResponse.of(MemberErrorCode.INVALID_USER_INFO);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

@@ -13,14 +13,14 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
 
     Optional<Participant> findByMemberIdAndAttendanceId(Long memberId, Long attendanceId);
 
-    @Query(
-            """
-                    SELECT p
-                    FROM Member m
-                    LEFT JOIN Participant p ON m.id = p.memberId
-                    LEFT JOIN Attendance a ON p.attendance.id = a.id
-                    WHERE m.batch = :batch AND a.attendanceTime BETWEEN :st AND :en
-                    """)
+    @Query("""
+            SELECT p
+            FROM Member m
+              LEFT JOIN Participant p ON m.id = p.memberId
+              LEFT JOIN Attendance a ON p.attendance.id = a.id
+            WHERE m.batch = :batch
+              AND a.attendanceTime BETWEEN :st AND :en
+            """)
     List<Participant> findAllByBatchAndStartAtBetween(
             String batch, LocalDateTime st, LocalDateTime en);
 

@@ -6,13 +6,13 @@ import static java.util.stream.Collectors.toMap;
 import gdsc.konkuk.platformcore.application.attendance.dtos.MemberAttendanceQueryDto;
 import gdsc.konkuk.platformcore.application.attendance.exceptions.AttendanceErrorCode;
 import gdsc.konkuk.platformcore.application.attendance.exceptions.ParticipantNotFoundException;
+import gdsc.konkuk.platformcore.application.member.dtos.AttendanceUpdateCommand;
 import gdsc.konkuk.platformcore.application.member.dtos.MemberAttendanceAggregate;
 import gdsc.konkuk.platformcore.application.member.dtos.MemberCreateCommand;
 import gdsc.konkuk.platformcore.application.member.dtos.MemberUpdateCommand;
 import gdsc.konkuk.platformcore.application.member.exceptions.MemberErrorCode;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyExistException;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserNotFoundException;
-import gdsc.konkuk.platformcore.application.member.dtos.AttendanceUpdateCommand;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Participant;
 import gdsc.konkuk.platformcore.domain.attendance.repository.AttendanceRepository;
 import gdsc.konkuk.platformcore.domain.attendance.repository.ParticipantRepository;
@@ -47,7 +47,7 @@ public class MemberService {
             throw UserAlreadyExistException.of(MemberErrorCode.USER_ALREADY_EXISTS);
         }
         return memberRepository.save(MemberCreateCommand
-            .toEntity(memberCreateCommand));
+                .toEntity(memberCreateCommand));
     }
 
     @Transactional
@@ -65,12 +65,13 @@ public class MemberService {
 
     /**
      * {batch} 기수에 속한 멤버들의 {month}간 출석 정보를 조회하는 메소드
-     * @param batch
-     * @param month
+     *
+     * @param batch 소속 기수
+     * @param month 출석 정보를 조회할 월
      * @return List<MemberAttendances> 멤버별 출석 정보, 통계 dto 리스트
-     * */
+     */
     public List<MemberAttendanceAggregate> getMemberAttendanceWithBatchAndPeriod(String batch,
-                                                                                 LocalDate month) {
+            LocalDate month) {
         List<MemberAttendanceQueryDto> attendanceInfoList =
                 attendanceRepository.findAllAttendanceInfoByBatchAndPeriod(
                         batch,
@@ -87,12 +88,14 @@ public class MemberService {
      */
     @Transactional
     public void updateAttendances(
-            String batch, LocalDate month, List<AttendanceUpdateCommand> attendanceUpdateCommandList) {
+            String batch, LocalDate month,
+            List<AttendanceUpdateCommand> attendanceUpdateCommandList) {
         Map<Long, Participant> participantMap = fetchParticipants(batch, month);
         updateAttendanceStatuses(participantMap, attendanceUpdateCommandList);
     }
 
-    private void updateMembers(Map<Long, Member> memberMap, List<MemberUpdateCommand> updateCommands) {
+    private void updateMembers(Map<Long, Member> memberMap,
+            List<MemberUpdateCommand> updateCommands) {
         for (MemberUpdateCommand memberUpdateCommand : updateCommands) {
             if (!memberMap.containsKey(memberUpdateCommand.getMemberId())) {
                 throw UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND);

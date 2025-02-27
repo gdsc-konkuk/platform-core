@@ -19,10 +19,13 @@ public class EmailSendRequest {
 
     @NotEmpty
     private String subject;
+
     @NotEmpty
     private String content;
+
     @NotNull
     private Set<EmailReceiverInfo> receiverInfos;
+
     @NotNull
     private LocalDateTime sendAt;
 

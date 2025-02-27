@@ -13,14 +13,19 @@ public class MemberRegisterRequest {
 
     @NotEmpty
     private String studentId;
+
     @NotEmpty
     private String name;
+
     @NotEmpty
     private String email;
+
     @NotEmpty
     private String department;
+
     @NotEmpty
     private String batch;
+
     @NotEmpty
     private String role;
 

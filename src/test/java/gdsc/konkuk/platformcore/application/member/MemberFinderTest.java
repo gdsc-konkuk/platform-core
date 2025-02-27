@@ -1,21 +1,20 @@
 package gdsc.konkuk.platformcore.application.member;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+
 import gdsc.konkuk.platformcore.application.member.exceptions.UserNotFoundException;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
 import gdsc.konkuk.platformcore.util.fixture.member.MemberFixture;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 
 
 class MemberFinderTest {

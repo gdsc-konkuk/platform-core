@@ -41,22 +41,20 @@ public class EmailTaskScheduler implements TaskScheduler {
         Long id = email.getId();
 
         Runnable sendEmailTask =
-                () -> {
-                    transactionTemplate.execute(status -> {
-                        try {
-                            EmailTask sendingTask = emailService.findById(id);
-                            emailClient.sendEmailToReceivers(sendingTask);
-                            emailService.markAsCompleted(id);
-                        } catch (Exception e) {
-                            log.error("[ERROR] : 이메일 전송과정에서 에러가 발생했습니다.", e);
-                            discordClient.sendErrorMessage(e);
-                            status.setRollbackOnly();
-                        } finally {
-                            taskInMemoryRepository.removeTask(String.valueOf(id));
-                        }
-                        return null;
-                    });
-                };
+                () -> transactionTemplate.execute(status -> {
+                    try {
+                        EmailTask sendingTask = emailService.findById(id);
+                        emailClient.sendEmailToReceivers(sendingTask);
+                        emailService.markAsCompleted(id);
+                    } catch (Exception e) {
+                        log.error("[ERROR] : 이메일 전송과정에서 에러가 발생했습니다.", e);
+                        discordClient.sendErrorMessage(e);
+                        status.setRollbackOnly();
+                    } finally {
+                        taskInMemoryRepository.removeTask(String.valueOf(id));
+                    }
+                    return null;
+                });
         ScheduledFuture<?> future = executor.schedule(sendEmailTask, delay, SECONDS);
         taskInMemoryRepository.addTask(String.valueOf(email.getId()), future);
     }

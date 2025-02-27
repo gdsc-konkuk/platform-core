@@ -14,6 +14,7 @@ public class MemberUpdateCommand {
 
     @NotNull
     private Long memberId;
+
     private String studentId;
     private String name;
     private String email;
