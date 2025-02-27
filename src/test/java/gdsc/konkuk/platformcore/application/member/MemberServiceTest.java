@@ -15,8 +15,8 @@ import gdsc.konkuk.platformcore.domain.attendance.repository.AttendanceRepositor
 import gdsc.konkuk.platformcore.domain.attendance.repository.ParticipantRepository;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
-import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
-import gdsc.konkuk.platformcore.fixture.member.MemberRegisterRequestFixture;
+import gdsc.konkuk.platformcore.util.fixture.member.MemberFixture;
+import gdsc.konkuk.platformcore.util.fixture.member.MemberRegisterRequestFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,7 +47,8 @@ class MemberServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        subject = new MemberService(memberFinder, memberRepository, attendanceRepository, participantRepository);
+        subject = new MemberService(memberFinder, memberRepository, attendanceRepository,
+                participantRepository);
     }
 
     @Test
@@ -58,7 +59,8 @@ class MemberServiceTest {
                 .getFixture()
                 .toCommand();
         Member memberToRegister = MemberFixture.builder().build().getFixture();
-        given(memberFinder.checkMemberExistWithStudentId(memberCreateCommand.getStudentId())).willReturn(
+        given(memberFinder.checkMemberExistWithStudentId(
+                memberCreateCommand.getStudentId())).willReturn(
                 false);
         given(memberRepository.save(any(Member.class))).willReturn(memberToRegister);
 
@@ -76,7 +78,8 @@ class MemberServiceTest {
         MemberCreateCommand memberCreateCommand = MemberRegisterRequestFixture.builder().build()
                 .getFixture()
                 .toCommand();
-        given(memberFinder.checkMemberExistWithStudentId(memberCreateCommand.getStudentId())).willReturn(
+        given(memberFinder.checkMemberExistWithStudentId(
+                memberCreateCommand.getStudentId())).willReturn(
                 true);
 
         // when

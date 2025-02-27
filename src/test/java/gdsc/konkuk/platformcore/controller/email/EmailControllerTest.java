@@ -18,17 +18,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gdsc.konkuk.platformcore.annotation.RestDocsTest;
-import gdsc.konkuk.platformcore.application.auth.JwtTokenProvider;
 import gdsc.konkuk.platformcore.application.email.EmailService;
 import gdsc.konkuk.platformcore.application.email.EmailTaskFacade;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
-import gdsc.konkuk.platformcore.fixture.email.EmailSendRequestFixture;
-import gdsc.konkuk.platformcore.fixture.email.EmailTaskFixture;
-import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
+import gdsc.konkuk.platformcore.filter.auth.JwtTokenProvider;
+import gdsc.konkuk.platformcore.util.annotation.RestDocsTest;
+import gdsc.konkuk.platformcore.util.fixture.email.EmailSendRequestFixture;
+import gdsc.konkuk.platformcore.util.fixture.email.EmailTaskFixture;
+import gdsc.konkuk.platformcore.util.fixture.member.MemberFixture;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -51,11 +51,15 @@ class EmailControllerTest {
 
     @MockBean
     EmailTaskFacade emailTaskFacade;
+
     private MockMvc mockMvc;
+
     @MockBean
     private EmailService emailService;
+
     @Autowired
     private ObjectMapper objectMapper;
+
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
@@ -120,8 +124,6 @@ class EmailControllerTest {
         //given
         Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
-        EmailTask emailTaskToUpdate = EmailTaskFixture.builder()
-                .id(1L).build().getFixture();
         EmailSendRequest request = EmailSendRequestFixture.builder().build().getFixture();
 
         //when

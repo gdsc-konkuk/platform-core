@@ -1,13 +1,13 @@
 -- 1. Add new required columns to attendance table
 ALTER TABLE gdsc.attendance
-    ADD COLUMN title           varchar(255) NULL,
+    ADD COLUMN title varchar(255) NULL,
     ADD COLUMN attendance_time datetime(6)  NULL;
 
 -- 2. Migrate data from event table to attendance table
 UPDATE gdsc.attendance a
-    JOIN gdsc.event e ON a.event_id = e.id
-SET a.title           = e.title,
-    a.attendance_time = e.start_at;
+    JOIN gdsc.event e
+ON a.event_id = e.id
+    SET a.title = e.title, a.attendance_time = e.start_at;
 
 -- 3. Modify member table
 -- 3.1. Rename member_id to student_id
@@ -41,15 +41,17 @@ DROP TABLE gdsc.event;
 -- 5.3 Drop unused columns
 ALTER TABLE gdsc.attendance
     DROP COLUMN event_id;
+
 ALTER TABLE gdsc.member
     DROP COLUMN password,
     MODIFY COLUMN member_role enum ('CORE', 'LEAD', 'MEMBER') NOT NULL;
+
 ALTER TABLE gdsc.participant
     DROP COLUMN attendance;
 
 -- 6. Make migrated columns non-nullable
 ALTER TABLE gdsc.attendance
-    MODIFY COLUMN title varchar(255) NOT NULL,
+    MODIFY COLUMN title varchar (255) NOT NULL,
     MODIFY COLUMN attendance_time datetime(6) NOT NULL;
 
 -- 7. Migration complete

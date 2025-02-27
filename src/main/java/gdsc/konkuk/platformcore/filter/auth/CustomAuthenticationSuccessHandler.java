@@ -1,4 +1,4 @@
-package gdsc.konkuk.platformcore.application.auth;
+package gdsc.konkuk.platformcore.filter.auth;
 
 import static gdsc.konkuk.platformcore.global.consts.SPAConstants.SPA_ADMIN_LOGIN_REDIRECT_URL;
 

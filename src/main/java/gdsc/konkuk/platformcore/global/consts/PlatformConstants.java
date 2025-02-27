@@ -1,10 +1,7 @@
 package gdsc.konkuk.platformcore.global.consts;
 
 import java.util.List;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PlatformConstants {
 
     public static final List<String> allowedOrigins = List.of(

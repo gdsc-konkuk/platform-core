@@ -13,6 +13,7 @@ public class AttendanceUpdateCommand {
 
     @NotNull
     private Long participantId;
+
     @NotNull
     private AttendanceType attendanceType;
 }

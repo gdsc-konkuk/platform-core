@@ -10,7 +10,5 @@ public interface EmailTaskRepository extends JpaRepository<EmailTask, Long> {
     @Query("SELECT e FROM EmailTask e WHERE e.isSent = false")
     List<EmailTask> findAllWhereNotSent();
 
-    @Query("SELECT e FROM EmailTask e " +
-            "order by e.sendAt desc")
-    List<EmailTask> findAll();
+    List<EmailTask> findAllByOrderBySendAtDesc();
 }

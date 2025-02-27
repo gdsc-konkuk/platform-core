@@ -20,19 +20,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gdsc.konkuk.platformcore.annotation.RestDocsTest;
 import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
 import gdsc.konkuk.platformcore.application.attendance.dtos.AttendanceStatus;
-import gdsc.konkuk.platformcore.application.auth.JwtTokenProvider;
 import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceRegisterRequest;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
 import gdsc.konkuk.platformcore.domain.attendance.entity.AttendanceType;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
-import gdsc.konkuk.platformcore.fixture.attendance.AttendanceFixture;
-import gdsc.konkuk.platformcore.fixture.attendance.AttendanceRegisterRequestFixture;
-import gdsc.konkuk.platformcore.fixture.attendance.ParticipantFixture;
-import gdsc.konkuk.platformcore.fixture.member.MemberFixture;
+import gdsc.konkuk.platformcore.filter.auth.JwtTokenProvider;
+import gdsc.konkuk.platformcore.util.annotation.RestDocsTest;
+import gdsc.konkuk.platformcore.util.fixture.attendance.AttendanceFixture;
+import gdsc.konkuk.platformcore.util.fixture.attendance.AttendanceRegisterRequestFixture;
+import gdsc.konkuk.platformcore.util.fixture.attendance.ParticipantFixture;
+import gdsc.konkuk.platformcore.util.fixture.member.MemberFixture;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,6 +44,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -57,6 +58,7 @@ class AttendanceControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
@@ -141,7 +143,7 @@ class AttendanceControllerTest {
     void should_attend_when_pass_event_id_and_member_id() throws Exception {
         // given
         Member memberToAttend = MemberFixture.builder()
-                .email("ex@gmail.com").build().getFixture();
+                .email("ex@gmail.com").role(MemberRole.MEMBER).build().getFixture();
         Attendance attendanceToAttend = AttendanceFixture.builder()
                 .id(1L).activeQrUuid("uuid").build().getFixture();
         given(attendanceService.attend(memberToAttend.getEmail(), attendanceToAttend.getId(),
@@ -159,7 +161,9 @@ class AttendanceControllerTest {
                                         "/api/v1/attendances/attend/{attendanceId}", 1L)
                                 .queryParam("qrUuid", "uuid")
                                 .with(oidcLogin()
-                                        .idToken(token -> token.claim("email", "ex@gmail.com"))));
+                                        .idToken(token -> token.claim("email", "ex@gmail.com"))
+                                        .authorities(List.of(new SimpleGrantedAuthority(
+                                                MemberRole.MEMBER.toString())))));
 
         // then
         result

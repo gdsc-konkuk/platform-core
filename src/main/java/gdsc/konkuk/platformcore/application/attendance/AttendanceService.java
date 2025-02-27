@@ -52,10 +52,10 @@ public class AttendanceService {
         Attendance newAttendance = Attendance.builder().title(title)
                 .attendanceTime(LocalDateTime.now()).build();
         newAttendance.generateQr();
-        attendanceRepository.saveAndFlush(newAttendance);
+        Attendance savedAttendance = attendanceRepository.save(newAttendance);
 
         List<Member> members = memberRepository.findAllByBatch(batch);
-        registerParticipants(newAttendance, members);
+        registerParticipants(savedAttendance, members);
         return newAttendance;
     }
 

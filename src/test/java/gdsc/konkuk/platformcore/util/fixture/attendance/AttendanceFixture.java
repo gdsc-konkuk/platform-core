@@ -1,4 +1,4 @@
-package gdsc.konkuk.platformcore.fixture.attendance;
+package gdsc.konkuk.platformcore.util.fixture.attendance;
 
 import static gdsc.konkuk.platformcore.global.utils.GetDefault.getDefault;
 

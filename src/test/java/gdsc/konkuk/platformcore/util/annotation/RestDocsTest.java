@@ -1,4 +1,4 @@
-package gdsc.konkuk.platformcore.annotation;
+package gdsc.konkuk.platformcore.util.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

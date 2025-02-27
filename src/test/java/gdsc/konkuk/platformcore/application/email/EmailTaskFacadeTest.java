@@ -8,15 +8,10 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
-import gdsc.konkuk.platformcore.domain.email.entity.EmailDetail;
-import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
-import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
-import gdsc.konkuk.platformcore.fixture.email.EmailSendRequestFixture;
-import gdsc.konkuk.platformcore.fixture.email.EmailTaskFixture;
 import gdsc.konkuk.platformcore.global.scheduler.TaskScheduler;
-import java.time.LocalDateTime;
-import java.util.Set;
+import gdsc.konkuk.platformcore.util.fixture.email.EmailSendRequestFixture;
+import gdsc.konkuk.platformcore.util.fixture.email.EmailTaskFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,21 +19,11 @@ import org.mockito.Mock;
 
 class EmailTaskFacadeTest {
 
-    private final EmailTask mock1 =
-            EmailTask.builder()
-                    .id(1L)
-                    .emailDetail(new EmailDetail("subject", "content"))
-                    .receivers(new EmailReceivers(
-                            Set.of(
-                                    EmailReceiver.builder().email("example1.com").name("guest1")
-                                            .build(),
-                                    EmailReceiver.builder().email("example2.com").name("guest2")
-                                            .build())))
-                    .sendAt(LocalDateTime.of(2021, 1, 1, 1, 1))
-                    .build();
     private EmailTaskFacade subject;
+
     @Mock
     private EmailService emailService;
+
     @Mock
     private TaskScheduler emailTaskScheduler;
 

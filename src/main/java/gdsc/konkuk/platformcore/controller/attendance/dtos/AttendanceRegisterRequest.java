@@ -12,6 +12,7 @@ public class AttendanceRegisterRequest {
 
     @NotEmpty
     private String title;
+
     @NotEmpty
     private String batch;
 }

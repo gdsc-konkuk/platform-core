@@ -9,7 +9,7 @@ import static org.mockito.MockitoAnnotations.openMocks;
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailNotFoundException;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
-import gdsc.konkuk.platformcore.fixture.email.EmailTaskFixture;
+import gdsc.konkuk.platformcore.util.fixture.email.EmailTaskFixture;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
