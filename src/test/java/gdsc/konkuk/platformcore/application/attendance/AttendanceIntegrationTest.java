@@ -46,8 +46,8 @@ public class AttendanceIntegrationTest {
     @AfterEach
     void tearDown() {
         memberRepository.deleteAll();
-        attendanceRepository.deleteAll();
         participantRepository.deleteAll();
+        attendanceRepository.deleteAll();
     }
 
     @Test
