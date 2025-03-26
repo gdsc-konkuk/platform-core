@@ -23,7 +23,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException exception) throws
             IOException {
-        log.info("Authentication failed: {}", exception.getMessage());
+        log.error("Authentication failed: ", exception);
         ErrorResponse errorResponse = ErrorResponse.of(MemberErrorCode.INVALID_USER_INFO);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
