@@ -19,6 +19,8 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/attendances")
 @RequiredArgsConstructor
@@ -55,13 +58,20 @@ public class AttendanceController {
             @PathVariable Long attendanceId, @RequestParam String qrUuid) {
         try {
             attendanceService.attend(oidcUser.getEmail(), attendanceId, qrUuid);
+
             HttpHeaders headers = new HttpHeaders();
+            headers.setCacheControl(CacheControl.noStore());
             headers.add("Location", SPA_ADMIN_ATTENDANCE_SUCCESS_REDIRECT_URL);
+
             return new ResponseEntity<>(headers,
                     valueOf(HttpServletResponse.SC_TEMPORARY_REDIRECT));
         } catch (Exception e) {
+            log.error("Failed to attend", e);
+
             HttpHeaders headers = new HttpHeaders();
+            headers.setCacheControl(CacheControl.noStore());
             headers.add("Location", SPA_ADMIN_ATTENDANCE_FAIL_REDIRECT_URL);
+            
             return new ResponseEntity<>(headers,
                     valueOf(HttpServletResponse.SC_TEMPORARY_REDIRECT));
         }

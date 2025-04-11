@@ -23,11 +23,14 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException exception) throws
             IOException {
-        log.info("Authentication failed: {}", exception.getMessage());
+        log.error("Authentication failed: ", exception);
+
         ErrorResponse errorResponse = ErrorResponse.of(MemberErrorCode.INVALID_USER_INFO);
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+
         objectMapper.writeValue(response.getWriter(), errorResponse);
     }
 }

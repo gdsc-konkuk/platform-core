@@ -6,15 +6,16 @@ import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CustomOAuthUserService extends OidcUserService {
@@ -27,10 +28,8 @@ public class CustomOAuthUserService extends OidcUserService {
             OidcUser oidcUser = super.loadUser(userRequest);
             return processOAuth2User(oidcUser);
         } catch (Exception ex) {
-            throw new OAuth2AuthenticationException(
-                    new OAuth2Error("processing_error",
-                            "Failed to process user info - " + userRequest.getIdToken().getEmail(),
-                            null));
+            log.error(ex.getMessage(), ex);
+            throw new OAuth2AuthenticationException(ex.getMessage());
         }
     }
 

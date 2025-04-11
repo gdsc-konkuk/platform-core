@@ -34,6 +34,7 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 .orElseThrow(() -> UserNotFoundException.of(MemberErrorCode.USER_NOT_FOUND));
         String token = jwtTokenProvider.createToken(member);
 
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
