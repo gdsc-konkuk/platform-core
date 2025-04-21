@@ -9,6 +9,7 @@ import static org.mockito.BDDMockito.when;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.MockitoAnnotations.openMocks;
 
+import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskUpsertCommand;
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailAlreadyProcessedException;
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailNotFoundException;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
@@ -84,12 +85,15 @@ class EmailServiceTest {
         // given
         EmailSendRequest emailRegisterRequest = EmailSendRequestFixture.builder().build()
                 .getFixture();
+        EmailTaskUpsertCommand command = EmailSendRequest.toCommand(emailRegisterRequest);
+
+
         given(emailTaskRepository.save(any(EmailTask.class)))
-                .willReturn(EmailSendRequest.toEntity(emailRegisterRequest));
+                .willReturn(EmailTaskUpsertCommand.toEntity(command));
 
         // when
-        EmailTask expected = EmailSendRequest.toEntity(emailRegisterRequest);
-        EmailTask actual = subject.registerTask(EmailSendRequest.toEntity(emailRegisterRequest));
+        EmailTask expected = EmailTaskUpsertCommand.toEntity(command);
+        EmailTask actual = subject.registerTask(EmailTaskUpsertCommand.toEntity(command));
 
         // then
         assertEquals(expected.getEmailDetail(), actual.getEmailDetail());
@@ -108,7 +112,7 @@ class EmailServiceTest {
 
         // when
         EmailTask expected = emailTaskToUpdate;
-        EmailTask actual = subject.update(emailTaskToUpdate.getId(), emailUpdateRequest);
+        EmailTask actual = subject.update(emailTaskToUpdate.getId(), EmailSendRequest.toCommand(emailUpdateRequest));
 
         // then
         assertEquals(expected.getEmailDetail(), actual.getEmailDetail());
@@ -123,7 +127,7 @@ class EmailServiceTest {
                 .sendAt(LocalDateTime.now().minusHours(1)).build().getFixture();
         emailTaskAlreadySent.markAsSent();
         EmailSendRequest emailRequest = EmailSendRequestFixture.builder().build().getFixture();
-
+        EmailTaskUpsertCommand command = EmailSendRequest.toCommand(emailRequest);
         // when
         when(emailTaskRepository.findById(emailTaskAlreadySent.getId()))
                 .thenReturn(Optional.of(emailTaskAlreadySent));
@@ -131,7 +135,7 @@ class EmailServiceTest {
         // then
         assertThrows(
                 EmailAlreadyProcessedException.class,
-                () -> subject.update(emailTaskAlreadySent.getId(), emailRequest));
+                () -> subject.update(emailTaskAlreadySent.getId(), command));
     }
 
     @Test
@@ -139,7 +143,7 @@ class EmailServiceTest {
     void should_fail_when_update_task_not_found() {
         // given
         EmailSendRequest emailRequest = EmailSendRequestFixture.builder().build().getFixture();
-
+        EmailTaskUpsertCommand command = EmailSendRequest.toCommand(emailRequest);
         // when
         when(emailTaskRepository.findById(0L))
                 .thenReturn(Optional.empty());
@@ -147,7 +151,7 @@ class EmailServiceTest {
         // then
         assertThrows(
                 EmailNotFoundException.class,
-                () -> subject.update(0L, emailRequest));
+                () -> subject.update(0L, command));
     }
 
     @Test
