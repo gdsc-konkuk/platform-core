@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 import lombok.AccessLevel;
@@ -76,5 +77,9 @@ public class EmailTask {
                 .stream()
                 .filter((e) -> !this.emailReceivers.getReceivers().contains(e))
                 .toList();
+    }
+
+    public Long getLastWaitingPeriodInSeconds() {
+        return ChronoUnit.SECONDS.between(LocalDateTime.now(), this.sendAt);
     }
 }

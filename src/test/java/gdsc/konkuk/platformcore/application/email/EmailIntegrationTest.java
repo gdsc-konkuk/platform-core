@@ -10,6 +10,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.util.AssertionErrors.assertNotNull;
 
+import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskUpsertCommand;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
@@ -74,13 +75,13 @@ class EmailIntegrationTest {
                 .getFixture();
 
         // when
-        EmailTask emailTask = emailTaskFacade.register(emailRequest);
+        Long registeredId = emailTaskFacade.register(EmailSendRequest.toCommand(emailRequest));
 
         // then
-        assertNotNull("Task should not be null", emailTask);
+        assertNotNull("should return PK id of registered task", registeredId);
         assertNotNull(
                 "Task Not Processed must remain in TaskRepository",
-                taskInMemoryRepository.getTask(String.valueOf(emailTask.getId())));
+                taskInMemoryRepository.getTask(String.valueOf(registeredId)));
     }
 
     @Test
@@ -92,7 +93,7 @@ class EmailIntegrationTest {
                 .getFixture();
 
         // when
-        emailTaskFacade.register(emailRequest);
+        emailTaskFacade.register(EmailSendRequest.toCommand(emailRequest));
         sleep(10_000);
 
         // then
@@ -110,10 +111,12 @@ class EmailIntegrationTest {
     @DisplayName("작업 수정 시 스케줄된 작업 취소 후 다시 스케줄")
     void should_cancel_and_schedule_new_when_update() {
         // given
-        EmailTask emailTaskToUpdate = emailTaskFacade.register(
+        EmailTaskUpsertCommand command = EmailSendRequest.toCommand(
                 EmailSendRequestFixture.builder()
                         .sendAt(LocalDateTime.now().plusMinutes(30)).build()
                         .getFixture());
+
+        Long registeredId = emailTaskFacade.register(command);
         assertEquals(1, executor.getQueue().size());
         assertEquals(1, taskInMemoryRepository.size());
 
@@ -122,13 +125,13 @@ class EmailIntegrationTest {
                 .getFixture();
 
         // when
-        emailTaskFacade.update(emailTaskToUpdate.getId(), updatedRequest);
+        emailTaskFacade.update(registeredId, EmailSendRequest.toCommand(updatedRequest));
 
         // then
         assertEquals(1, executor.getQueue().size());
         assertNotNull(
                 "Task Not Processed must remain in TaskRepository",
-                taskInMemoryRepository.getTask(String.valueOf(emailTaskToUpdate.getId()))
+                taskInMemoryRepository.getTask(String.valueOf(registeredId))
                         .getDelay(HOURS) > 1);
     }
 
@@ -145,18 +148,18 @@ class EmailIntegrationTest {
         EmailSendRequest emailRequest = EmailSendRequestFixture.builder()
                 .sendAt(LocalDateTime.now().plusHours(1)).build()
                 .getFixture();
-        EmailTask emailTask = emailTaskFacade.register(emailRequest);
+        Long registeredTaskId = emailTaskFacade.register(EmailSendRequest.toCommand(emailRequest));
         assertEquals(1, executor.getQueue().size());
 
         // when
-        emailTaskFacade.cancel(emailTask.getId());
+        emailTaskFacade.cancel(registeredTaskId);
 
         // then
         assertEquals(0, executor.getQueue().size());
-        assertTrue(emailTaskRepository.findById(emailTask.getId()).isEmpty());
+        assertTrue(emailTaskRepository.findById(registeredTaskId).isEmpty());
         assertThrows(
                 TaskNotFoundException.class,
-                () -> taskInMemoryRepository.getTask(emailTask.getId().toString()));
+                () -> taskInMemoryRepository.getTask(registeredTaskId.toString()));
     }
 
     @Test
@@ -170,7 +173,7 @@ class EmailIntegrationTest {
                 .when(emailClient).sendEmailToReceivers(any(EmailTask.class));
 
         //when
-        emailTaskFacade.register(emailRequest);
+        emailTaskFacade.register(EmailSendRequest.toCommand(emailRequest));
         sleep(2000);
 
         //then
@@ -188,23 +191,23 @@ class EmailIntegrationTest {
         EmailSendRequest emailRequest2 = EmailSendRequestFixture.builder()
                 .sendAt(LocalDateTime.now().plusHours(2)).build()
                 .getFixture();
-        EmailTask emailTask1 = emailTaskFacade.register(emailRequest1);
-        EmailTask emailTask2 = emailTaskFacade.register(emailRequest2);
+        Long registeredId1 = emailTaskFacade.register(EmailSendRequest.toCommand(emailRequest1));
+        Long registeredId2 = emailTaskFacade.register(EmailSendRequest.toCommand(emailRequest2));
         assertEquals(2, executor.getQueue().size());
 
         // when
-        emailTaskFacade.cancelAll(List.of(emailTask1.getId(), emailTask2.getId()));
+        emailTaskFacade.cancelAll(List.of(registeredId1, registeredId2));
 
         // then
         assertEquals(0, executor.getQueue().size());
-        assertTrue(emailTaskRepository.findById(emailTask1.getId()).isEmpty());
-        assertTrue(emailTaskRepository.findById(emailTask2.getId()).isEmpty());
+        assertTrue(emailTaskRepository.findById(registeredId1).isEmpty());
+        assertTrue(emailTaskRepository.findById(registeredId2).isEmpty());
         assertThrows(
                 TaskNotFoundException.class,
-                () -> taskInMemoryRepository.getTask(emailTask1.getId().toString()));
+                () -> taskInMemoryRepository.getTask(registeredId1.toString()));
         assertThrows(
                 TaskNotFoundException.class,
-                () -> taskInMemoryRepository.getTask(emailTask2.getId().toString()));
+                () -> taskInMemoryRepository.getTask(registeredId2.toString()));
     }
 
 }

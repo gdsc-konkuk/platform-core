@@ -1,30 +1,20 @@
-package gdsc.konkuk.platformcore.controller.email.dtos;
+package gdsc.konkuk.platformcore.application.email.dtos;
 
 import gdsc.konkuk.platformcore.domain.email.entity.EmailDetail;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import java.time.LocalDateTime;
 import java.util.Set;
+import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.Getter;
 
-@Getter
-public class SimpleEmailTaskResponse {
-
-    private final Long id;
-    private final String subject;
-    private final Set<EmailReceiverInfo> receiverInfos;
-    private final LocalDateTime sendAt;
-    private final Boolean isSent;
-
-    @Builder
-    public SimpleEmailTaskResponse(Long id, String subject, Set<EmailReceiverInfo> receiverInfos,
-            LocalDateTime sendAt, boolean isSent) {
-        this.id = id;
-        this.subject = subject;
-        this.receiverInfos = receiverInfos;
-        this.sendAt = sendAt;
-        this.isSent = isSent;
-    }
+@Builder(access = AccessLevel.PRIVATE)
+public record SimpleEmailTaskResponse (
+        Long id,
+        String subject,
+        Set<EmailReceiverInfo> receiverInfos,
+        LocalDateTime sendAt,
+        Boolean isSent
+){
 
     public static SimpleEmailTaskResponse from(EmailTask emailTask) {
         EmailDetail emailDetail = emailTask.getEmailDetail();

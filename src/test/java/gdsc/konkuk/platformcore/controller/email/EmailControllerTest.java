@@ -18,8 +18,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gdsc.konkuk.platformcore.application.email.EmailService;
 import gdsc.konkuk.platformcore.application.email.EmailTaskFacade;
+import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskListResponse;
+import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskUpsertCommand;
+import gdsc.konkuk.platformcore.application.email.mapper.EmailTaskMapper;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
@@ -54,9 +56,6 @@ class EmailControllerTest {
 
     private MockMvc mockMvc;
 
-    @MockBean
-    private EmailService emailService;
-
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -83,7 +82,7 @@ class EmailControllerTest {
         String jwt = jwtTokenProvider.createToken(member);
         EmailSendRequest request = EmailSendRequestFixture.builder().build().getFixture();
         EmailTask emailTaskToSee = EmailTaskFixture.builder().build().getFixture();
-        given(emailTaskFacade.register(any(EmailSendRequest.class))).willReturn(emailTaskToSee);
+        given(emailTaskFacade.register(any(EmailTaskUpsertCommand.class))).willReturn(emailTaskToSee.getId());
 
         //when
         ResultActions result = mockMvc.perform(
@@ -166,11 +165,11 @@ class EmailControllerTest {
         //given
         Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
-        List<EmailTask> emailTasksToSee = List.of(
+        EmailTaskListResponse response = EmailTaskMapper.mapToEmailTaskListResponse(List.of(
                 EmailTaskFixture.builder().id(1L).build().getFixture(),
                 EmailTaskFixture.builder().id(2L).build().getFixture()
-        );
-        given(emailService.getAllTaskAsList()).willReturn(emailTasksToSee);
+        ));
+        given(emailTaskFacade.getAllEmailTasks()).willReturn(response);
 
         //when
         ResultActions result = mockMvc.perform(
@@ -224,8 +223,8 @@ class EmailControllerTest {
         String jwt = jwtTokenProvider.createToken(member);
         EmailTask emailTaskToSee = EmailTaskFixture.builder()
                 .id(1L).build().getFixture();
-        given(emailService.findById(emailTaskToSee.getId()))
-                .willReturn(emailTaskToSee);
+        given(emailTaskFacade.getEmailTaskDetails(any(Long.class)))
+            .willReturn(EmailTaskMapper.mapToEmailTaskDetailsResponse(emailTaskToSee));
 
         //when
         ResultActions result = mockMvc.perform(

@@ -2,7 +2,7 @@ package gdsc.konkuk.platformcore.util.fixture.email;
 
 import static gdsc.konkuk.platformcore.global.utils.GetDefault.getDefault;
 
-import gdsc.konkuk.platformcore.controller.email.dtos.EmailReceiverInfo;
+import gdsc.konkuk.platformcore.application.email.dtos.EmailReceiverInfo;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
 import java.time.LocalDateTime;
 import java.util.Set;

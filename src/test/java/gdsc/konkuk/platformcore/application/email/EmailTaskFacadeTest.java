@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
+import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskUpsertCommand;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.global.scheduler.TaskScheduler;
@@ -39,12 +40,13 @@ class EmailTaskFacadeTest {
         //given
         EmailSendRequest emailUpdateRequest = EmailSendRequestFixture.builder().build()
                 .getFixture();
+        EmailTaskUpsertCommand command = EmailSendRequest.toCommand(emailUpdateRequest);
         EmailTask emailTaskToUpdate = EmailTaskFixture.builder().id(1L).build().getFixture();
-        given(emailService.update(emailTaskToUpdate.getId(), emailUpdateRequest))
+        given(emailService.update(emailTaskToUpdate.getId(), command))
                 .willReturn(EmailTaskFixture.builder().id(1L).build().getFixture());
 
         //when
-        subject.update(emailTaskToUpdate.getId(), emailUpdateRequest);
+        subject.update(emailTaskToUpdate.getId(), command);
 
         //then
         verify(emailTaskScheduler).cancelTask(emailTaskToUpdate.getId().toString());
