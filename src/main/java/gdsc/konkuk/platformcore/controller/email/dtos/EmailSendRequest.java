@@ -1,9 +1,10 @@
 package gdsc.konkuk.platformcore.controller.email.dtos;
 
+import gdsc.konkuk.platformcore.application.email.dtos.EmailReceiverInfo;
+import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskUpsertCommand;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailDetail;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
-import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -38,21 +39,15 @@ public class EmailSendRequest {
         this.sendAt = sendAt;
     }
 
-    public static EmailTask toEntity(EmailSendRequest request) {
-        EmailDetail details = new EmailDetail(request.getSubject(), request.getContent());
-        EmailReceivers receivers = new EmailReceivers(request.toEmailReceivers());
-        return EmailTask.builder()
-                .emailDetail(details)
-                .receivers(receivers)
-                .sendAt(request.getSendAt())
-                .build();
+    public static EmailTaskUpsertCommand toCommand(EmailSendRequest request) {
+        return new EmailTaskUpsertCommand(
+                new EmailDetail(request.getSubject(), request.getContent()),
+                new EmailReceivers(request.toEmailReceivers()),
+                request.getSendAt()
+        );
     }
 
-    public EmailDetail toEmailDetails() {
-        return new EmailDetail(subject, content);
-    }
-
-    public Set<EmailReceiver> toEmailReceivers() {
+    private Set<EmailReceiver> toEmailReceivers() {
         return receiverInfos
                 .stream()
                 .map(EmailReceiverInfo::toValueObject)

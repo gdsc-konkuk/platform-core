@@ -1,10 +1,9 @@
 package gdsc.konkuk.platformcore.application.email;
 
-import static gdsc.konkuk.platformcore.application.email.EmailServiceHelper.findEmailTaskById;
-
+import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskUpsertCommand;
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailAlreadyProcessedException;
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailErrorCode;
-import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
+import gdsc.konkuk.platformcore.application.email.exceptions.EmailNotFoundException;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
@@ -32,7 +31,8 @@ public class EmailService {
     }
 
     public EmailTask findById(Long taskId) {
-        return findEmailTaskById(emailTaskRepository, taskId);
+        return emailTaskRepository.findById(taskId)
+            .orElseThrow(() ->EmailNotFoundException.of(EmailErrorCode.EMAIL_NOT_FOUND));
     }
 
     public List<EmailTask> getAllTaskWhereNotSent() {
@@ -45,15 +45,15 @@ public class EmailService {
     }
 
     @Transactional
-    public EmailTask update(Long emailId, EmailSendRequest request) {
-        EmailTask task = findEmailTaskById(emailTaskRepository, emailId);
+    public EmailTask update(Long emailId, EmailTaskUpsertCommand command) {
+        EmailTask task = findById(emailId);
 
         validateEmailTaskAlreadySent(task);
 
-        task.changeEmailDetails(request.toEmailDetails());
-        task.changeSendAt(request.getSendAt());
+        task.changeEmailDetails(command.emailTaskDetail());
+        task.changeSendAt(command.sendAt());
 
-        Set<EmailReceiver> newReceivers = request.toEmailReceivers();
+        Set<EmailReceiver> newReceivers = command.emailReceivers().getReceivers();
         Set<EmailReceiver> updatedReceivers = mergeReceivers(task, newReceivers);
         task.changeEmailReceivers(updatedReceivers);
         return task;
@@ -61,13 +61,13 @@ public class EmailService {
 
     @Transactional
     public void markAsCompleted(Long emailTaskId) {
-        EmailTask emailTask = findEmailTaskById(emailTaskRepository, emailTaskId);
+        EmailTask emailTask = findById(emailTaskId);
         emailTask.markAsSent();
     }
 
     @Transactional
     public void delete(Long emailId) {
-        EmailTask task = findEmailTaskById(emailTaskRepository, emailId);
+        EmailTask task = findById(emailId);
         emailTaskRepository.delete(task);
     }
 
