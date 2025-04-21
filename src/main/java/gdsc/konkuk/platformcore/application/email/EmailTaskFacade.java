@@ -1,15 +1,18 @@
 package gdsc.konkuk.platformcore.application.email;
 
-import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
+import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskDetailResponse;
+import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskListResponse;
+import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskUpsertCommand;
+import gdsc.konkuk.platformcore.application.email.mapper.EmailTaskMapper;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.global.scheduler.TaskScheduler;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -18,45 +21,51 @@ public class EmailTaskFacade {
     private final EmailService emailService;
     private final TaskScheduler emailTaskScheduler;
 
-    public EmailTask register(EmailSendRequest request) {
-        EmailTask emailTask = EmailSendRequest.toEntity(request);
+    public EmailTaskListResponse getAllEmailTasks() {
+        List<EmailTask> emailTasks = emailService.getAllTaskAsList();
+        return EmailTaskMapper.mapToEmailTaskListResponse(emailTasks);
+    }
+
+    public EmailTaskDetailResponse getEmailTaskDetails(final Long taskId) {
+        return EmailTaskMapper.mapToEmailTaskDetailsResponse(emailService.findById(taskId));
+    }
+
+    public Long register(final EmailTaskUpsertCommand command) {
+        EmailTask emailTask = EmailTaskUpsertCommand.toEntity(command);
         emailService.registerTask(emailTask);
-        emailTaskScheduler.scheduleSyncTask(emailTask, getWaitingPeriod(emailTask));
-        return emailTask;
+        emailTaskScheduler.scheduleSyncTask(emailTask, emailTask.getLastWaitingPeriodInSeconds());
+        return emailTask.getId();
     }
 
-    public void update(Long emailId, EmailSendRequest request) {
+    public void update(final Long emailId, final EmailTaskUpsertCommand command) {
         emailTaskScheduler.cancelTask(String.valueOf(emailId));
-        EmailTask updatedTask = emailService.update(emailId, request);
-        emailTaskScheduler.scheduleSyncTask(updatedTask, getWaitingPeriod(updatedTask));
+        EmailTask updatedTask = emailService.update(emailId, command);
+        emailTaskScheduler.scheduleSyncTask(updatedTask,
+            updatedTask.getLastWaitingPeriodInSeconds());
     }
 
-    public void cancel(Long emailId) {
+    public void cancel(final Long emailId) {
         EmailTask savedTask = emailService.findById(emailId);
         cancelIfTaskNotProcessed(savedTask);
         emailService.delete(emailId);
     }
 
-    public void cancelAll(List<Long> emailIds) {
+    public void cancelAll(final List<Long> emailIds) {
         List<EmailTask> taskList = emailService.getTasksInIds(emailIds);
         cancelUnProcessedTasks(taskList);
         emailService.deleteAll(taskList);
     }
 
-    private void cancelIfTaskNotProcessed(EmailTask emailTask) {
+    private void cancelIfTaskNotProcessed(final EmailTask emailTask) {
         if (emailTask.isSent()) {
             return;
         }
         emailTaskScheduler.cancelTask(String.valueOf(emailTask.getId()));
     }
 
-    private void cancelUnProcessedTasks(List<EmailTask> taskList) {
+    private void cancelUnProcessedTasks(final List<EmailTask> taskList) {
         for (EmailTask task : taskList) {
             cancelIfTaskNotProcessed(task);
         }
-    }
-
-    private long getWaitingPeriod(EmailTask emailTask) {
-        return ChronoUnit.SECONDS.between(LocalDateTime.now(), emailTask.getSendAt());
     }
 }
