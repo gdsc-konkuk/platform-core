@@ -75,8 +75,8 @@ class EmailServiceTest {
         assertEquals(emailTaskToFind.getEmailDetail().getSubject(),
                 actual.getEmailDetail().getSubject());
         assertEquals(
-                emailTaskToFind.getEmailReceivers().getReceivers(),
-                actual.getEmailReceivers().getReceivers());
+                emailTaskToFind.getReceivers(),
+                actual.getReceivers());
     }
 
     @Test
@@ -97,7 +97,7 @@ class EmailServiceTest {
 
         // then
         assertEquals(expected.getEmailDetail(), actual.getEmailDetail());
-        assertEquals(expected.getEmailReceivers(), actual.getEmailReceivers());
+        assertEquals(expected.getReceivers(), actual.getReceivers());
     }
 
     @Test
@@ -116,7 +116,7 @@ class EmailServiceTest {
 
         // then
         assertEquals(expected.getEmailDetail(), actual.getEmailDetail());
-        assertEquals(expected.getEmailReceivers(), actual.getEmailReceivers());
+        assertEquals(expected.getReceivers(), actual.getReceivers());
     }
 
     @Test

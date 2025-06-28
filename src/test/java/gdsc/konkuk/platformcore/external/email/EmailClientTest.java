@@ -13,12 +13,11 @@ import static org.mockito.MockitoAnnotations.openMocks;
 
 import gdsc.konkuk.platformcore.domain.email.entity.EmailDetail;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
-import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.external.email.exceptions.EmailSendingException;
 import jakarta.mail.internet.MimeMessage;
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,9 +47,9 @@ class EmailClientTest {
                 EmailTask.builder()
                         .emailDetail(EmailDetail.builder().subject("예시 이메일 제목").content("Html 문자열")
                                 .build())
-                        .receivers(new EmailReceivers(
-                                Set.of(EmailReceiver.builder().email("aaa@gmail.com").name("guest1")
-                                        .build())))
+                        .emailReceivers(
+                                List.of(EmailReceiver.builder().email("aaa@gmail.com").name("guest1")
+                                        .build()))
                         .sendAt(LocalDateTime.of(2021, 10, 10, 10, 10))
                         .build();
 
@@ -72,9 +71,9 @@ class EmailClientTest {
                                 .subject("예시 이메일 제목")
                                 .content("안녕하세요, {이름}님 합격을 축하드립니다!. {이름}님과 함께할 수 있어 기쁩니다.")
                                 .build())
-                        .receivers(new EmailReceivers(
-                                Set.of(EmailReceiver.builder().email("ex@ex.com").name("guest1")
-                                        .build())))
+                        .emailReceivers(
+                                List.of(EmailReceiver.builder().email("ex@ex.com").name("guest1")
+                                        .build()))
                         .sendAt(LocalDateTime.of(2024, 10, 10, 10, 10))
                         .build();
         MimeMessage mockMimeMessage = mock(MimeMessage.class);
