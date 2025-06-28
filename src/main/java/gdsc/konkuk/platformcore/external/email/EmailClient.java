@@ -9,7 +9,7 @@ import gdsc.konkuk.platformcore.external.email.exceptions.EmailClientErrorCode;
 import gdsc.konkuk.platformcore.external.email.exceptions.EmailSendingException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import java.util.Set;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
@@ -27,7 +27,7 @@ public class EmailClient {
 
     public void sendEmailToReceivers(EmailTask email) {
         EmailDetail emailDetail = email.getEmailDetail();
-        Set<EmailReceiver> receivers = email.getEmailReceivers().getReceivers();
+        List<EmailReceiver> receivers = email.getReceivers();
         receivers.forEach(receiver -> sendEmail(receiver, emailDetail));
     }
 

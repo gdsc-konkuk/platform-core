@@ -30,7 +30,7 @@ public class EmailTaskMapper {
         return new EmailTaskDetailResponse(
             emailTask.getEmailDetail().getSubject(),
             emailTask.getEmailDetail().getContent(),
-            EmailReceiverInfo.fromValueObjectList(emailTask.getEmailReceivers()),
+            EmailReceiverInfo.fromValueObjectList(emailTask.getReceivers()),
             emailTask.getSendAt());
     }
 }

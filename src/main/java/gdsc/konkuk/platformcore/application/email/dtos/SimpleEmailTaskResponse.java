@@ -19,7 +19,7 @@ public record SimpleEmailTaskResponse (
     public static SimpleEmailTaskResponse from(EmailTask emailTask) {
         EmailDetail emailDetail = emailTask.getEmailDetail();
         Set<EmailReceiverInfo> receiverInfos =
-                EmailReceiverInfo.fromValueObject(emailTask.getEmailReceivers());
+                EmailReceiverInfo.fromValueObject(emailTask.getReceivers());
         return SimpleEmailTaskResponse.builder()
                 .id(emailTask.getId())
                 .subject(emailDetail.getSubject())
