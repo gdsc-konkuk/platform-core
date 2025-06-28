@@ -55,7 +55,7 @@ class EmailIntegrationTest {
 
     @AfterEach
     void tearDown() {
-        emailTaskRepository.deleteAllInBatch();
+        emailTaskRepository.deleteAll();
         taskInMemoryRepository.removeAll();
         executor.purge();
     }
