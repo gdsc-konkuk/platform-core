@@ -9,10 +9,8 @@ import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -39,7 +37,7 @@ public class EmailService {
         return emailTaskRepository.findAllWhereNotSent();
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public EmailTask registerTask(EmailTask emailTask) {
         return emailTaskRepository.save(emailTask);
     }
@@ -72,7 +70,7 @@ public class EmailService {
 
     @Transactional
     public void deleteAll(List<EmailTask> emailTasks) {
-        emailTaskRepository.deleteAllInBatch(emailTasks);
+        emailTaskRepository.deleteAll(emailTasks);
     }
 
     private void validateEmailTaskAlreadySent(EmailTask emailTask) {
