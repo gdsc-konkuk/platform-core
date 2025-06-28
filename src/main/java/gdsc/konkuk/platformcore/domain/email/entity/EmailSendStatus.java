@@ -1,10 +1,13 @@
 package gdsc.konkuk.platformcore.domain.email.entity;
 
+import lombok.Getter;
+
 /**
  * 이메일 전송 상태를 나타내는 Enum
  * State Transition: WAITING -> PENDING -> COMPLETED
  *                            -> FAILED (timeout or error)
  */
+@Getter
 public enum EmailSendStatus {
 
     WAITING("대기중"),
@@ -17,25 +20,15 @@ public enum EmailSendStatus {
     EmailSendStatus(String description) {
         this.description = description;
     }
-    
-    public String getDescription() {
-        return description;
-    }
 
     public boolean canTransitionTo(EmailSendStatus newStatus) {
-        switch (this) {
-            case WAITING:
-                return newStatus == PENDING;
-            case PENDING:
-                return newStatus == COMPLETED || newStatus == FAILED;
-            case COMPLETED:
-            case FAILED:
-                return false;
-            default:
-                return false;
-        }
+        return switch (this) {
+            case WAITING -> newStatus == PENDING;
+            case PENDING -> newStatus == COMPLETED || newStatus == FAILED;
+            case COMPLETED, FAILED -> false;
+            default -> false;
+        };
     }
-
 
     public boolean isRetryable() {
         return this == WAITING || this == FAILED;
