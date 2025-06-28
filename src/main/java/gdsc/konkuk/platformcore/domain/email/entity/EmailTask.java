@@ -2,14 +2,17 @@ package gdsc.konkuk.platformcore.domain.email.entity;
 
 import static gdsc.konkuk.platformcore.global.utils.FieldValidator.validateNotNull;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import lombok.AccessLevel;
@@ -30,8 +33,8 @@ public class EmailTask {
     @Embedded
     private EmailDetail emailDetail;
 
-    @Embedded
-    private EmailReceivers emailReceivers;
+    @OneToMany(mappedBy = "emailTask", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EmailReceiver> receivers = new ArrayList<>();
 
     @Column(name = "send_at")
     private LocalDateTime sendAt;
@@ -41,10 +44,10 @@ public class EmailTask {
 
     @Builder
     public EmailTask(
-            Long id, EmailDetail emailDetail, EmailReceivers receivers, LocalDateTime sendAt) {
+            Long id, EmailDetail emailDetail, List<EmailReceiver> emailReceivers, LocalDateTime sendAt) {
         this.id = id;
         this.emailDetail = validateNotNull(emailDetail, "emailDetails");
-        this.emailReceivers = validateNotNull(receivers, "emailReceivers");
+        this.receivers.addAll(validateNotNull(emailReceivers, "emailReceivers"));
         this.sendAt = validateNotNull(sendAt, "sendAt");
     }
 
@@ -52,9 +55,12 @@ public class EmailTask {
         emailDetail = newEmailDetail;
     }
 
-    public void changeEmailReceivers(final Set<EmailReceiver> set) {
-        emailReceivers.removeAll();
-        emailReceivers.insertAll(set);
+    public void changeEmailReceivers(Set<EmailReceiver> newReceivers) {
+        this.receivers.clear();
+        newReceivers.forEach(receiver -> {
+            receiver.setEmailTask(this);
+            this.receivers.add(receiver);
+        });
     }
 
     public void changeSendAt(final LocalDateTime newSendAt) {
@@ -65,18 +71,21 @@ public class EmailTask {
         isSent = true;
     }
 
-    public List<EmailReceiver> filterReceiversInPrevSet(Set<EmailReceiver> set) {
-        return this.getEmailReceivers().getReceivers()
-                .stream()
-                .filter(set::contains)
-                .toList();
+    public List<EmailReceiver> getWaitingReceivers() {
+        return receivers.stream()
+            .filter(r -> r.getSendStatus() == EmailSendStatus.WAITING)
+            .toList();
     }
 
-    public List<EmailReceiver> filterReceiversNotInPrevSet(Set<EmailReceiver> set) {
-        return set
-                .stream()
-                .filter((e) -> !this.emailReceivers.getReceivers().contains(e))
-                .toList();
+    public boolean isAllCompleted() {
+        return receivers.stream()
+            .allMatch(r -> r.getSendStatus() == EmailSendStatus.COMPLETED);
+    }
+
+    public long getCompletedCount() {
+        return receivers.stream()
+            .filter(r -> r.getSendStatus() == EmailSendStatus.COMPLETED)
+            .count();
     }
 
     public Long getLastWaitingPeriodInSeconds() {
