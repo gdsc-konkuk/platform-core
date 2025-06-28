@@ -3,7 +3,6 @@ package gdsc.konkuk.platformcore.domain.email.entity;
 import static gdsc.konkuk.platformcore.global.utils.FieldValidator.validateNotNull;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -58,7 +57,7 @@ public class EmailReceiver {
         this.statusUpdatedAt = LocalDateTime.now();
     }
 
-    public void setEmailTask(EmailTask emailTask) {
+    void setEmailTask(EmailTask emailTask) {
         this.emailTask = emailTask;
     }
 
