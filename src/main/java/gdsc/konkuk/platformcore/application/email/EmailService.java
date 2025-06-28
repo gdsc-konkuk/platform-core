@@ -53,9 +53,8 @@ public class EmailService {
         task.changeEmailDetails(command.emailTaskDetail());
         task.changeSendAt(command.sendAt());
 
-        Set<EmailReceiver> newReceivers = command.emailReceivers().getReceivers();
-        Set<EmailReceiver> updatedReceivers = mergeReceivers(task, newReceivers);
-        task.changeEmailReceivers(updatedReceivers);
+        List<EmailReceiver> newReceivers = command.emailReceivers();
+        task.changeEmailReceivers(new HashSet<>(newReceivers));
         return task;
     }
 
@@ -80,16 +79,5 @@ public class EmailService {
         if (emailTask.isSent()) {
             throw EmailAlreadyProcessedException.of(EmailErrorCode.EMAIL_ALREADY_PROCESSED);
         }
-    }
-
-    private Set<EmailReceiver> mergeReceivers(EmailTask emailTask,
-            Set<EmailReceiver> updatedReceivers) {
-        List<EmailReceiver> receiversInPrevSet = emailTask.filterReceiversInPrevSet(
-                updatedReceivers);
-        List<EmailReceiver> receiversInNewSet = emailTask.filterReceiversNotInPrevSet(
-                updatedReceivers);
-        Set<EmailReceiver> mergedReceiver = new HashSet<>(receiversInPrevSet);
-        mergedReceiver.addAll(receiversInNewSet);
-        return mergedReceiver;
     }
 }
