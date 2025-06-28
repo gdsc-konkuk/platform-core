@@ -111,12 +111,11 @@ class EmailServiceTest {
                 .willReturn(Optional.of(emailTaskToUpdate));
 
         // when
-        EmailTask expected = emailTaskToUpdate;
         EmailTask actual = subject.update(emailTaskToUpdate.getId(), EmailSendRequest.toCommand(emailUpdateRequest));
 
         // then
-        assertEquals(expected.getEmailDetail(), actual.getEmailDetail());
-        assertEquals(expected.getReceivers(), actual.getReceivers());
+        assertEquals(emailTaskToUpdate.getEmailDetail(), actual.getEmailDetail());
+        assertEquals(emailTaskToUpdate.getReceivers(), actual.getReceivers());
     }
 
     @Test
