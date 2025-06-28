@@ -15,17 +15,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class EmailTaskFacade {
 
     private final EmailService emailService;
     private final TaskScheduler emailTaskScheduler;
 
+    @Transactional(readOnly = true)
     public EmailTaskListResponse getAllEmailTasks() {
         List<EmailTask> emailTasks = emailService.getAllTaskAsList();
         return EmailTaskMapper.mapToEmailTaskListResponse(emailTasks);
     }
 
+    @Transactional(readOnly = true)
     public EmailTaskDetailResponse getEmailTaskDetails(final Long taskId) {
         return EmailTaskMapper.mapToEmailTaskDetailsResponse(emailService.findById(taskId));
     }
@@ -37,6 +38,7 @@ public class EmailTaskFacade {
         return emailTask.getId();
     }
 
+    @Transactional
     public void update(final Long emailId, final EmailTaskUpsertCommand command) {
         emailTaskScheduler.cancelTask(String.valueOf(emailId));
         EmailTask updatedTask = emailService.update(emailId, command);
@@ -44,12 +46,14 @@ public class EmailTaskFacade {
             updatedTask.getLastWaitingPeriodInSeconds());
     }
 
+    @Transactional
     public void cancel(final Long emailId) {
         EmailTask savedTask = emailService.findById(emailId);
         cancelIfTaskNotProcessed(savedTask);
         emailService.delete(emailId);
     }
 
+    @Transactional
     public void cancelAll(final List<Long> emailIds) {
         List<EmailTask> taskList = emailService.getTasksInIds(emailIds);
         cancelUnProcessedTasks(taskList);
