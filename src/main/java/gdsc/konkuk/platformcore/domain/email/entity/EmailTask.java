@@ -47,7 +47,10 @@ public class EmailTask {
             Long id, EmailDetail emailDetail, List<EmailReceiver> emailReceivers, LocalDateTime sendAt) {
         this.id = id;
         this.emailDetail = validateNotNull(emailDetail, "emailDetails");
-        this.receivers.addAll(validateNotNull(emailReceivers, "emailReceivers"));
+        this.receivers = new ArrayList<>();
+        if (emailReceivers != null) {
+            emailReceivers.forEach(this::addReceiver);
+        }
         this.sendAt = validateNotNull(sendAt, "sendAt");
     }
 
@@ -57,10 +60,7 @@ public class EmailTask {
 
     public void changeEmailReceivers(Set<EmailReceiver> newReceivers) {
         this.receivers.clear();
-        newReceivers.forEach(receiver -> {
-            receiver.setEmailTask(this);
-            this.receivers.add(receiver);
-        });
+        newReceivers.forEach(this::addReceiver);
     }
 
     public void changeSendAt(final LocalDateTime newSendAt) {
@@ -91,4 +91,10 @@ public class EmailTask {
     public Long getLastWaitingPeriodInSeconds() {
         return ChronoUnit.SECONDS.between(LocalDateTime.now(), this.sendAt);
     }
+
+    private void addReceiver(EmailReceiver receiver) {
+        receivers.add(receiver);
+        receiver.setEmailTask(this); // 양방향 연관관계 설정
+    }
+
 }
