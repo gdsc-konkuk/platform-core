@@ -39,9 +39,15 @@ public class EmailService {
         return emailTaskRepository.findAllWhereNotSent();
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    //////////// --- Command Methods ---
+    @Transactional
     public EmailTask registerTask(EmailTask emailTask) {
         return emailTaskRepository.save(emailTask);
+    }
+
+    @Transactional
+    public List<EmailReceiver> registerReceivers(EmailTask task, Set<EmailReceiverInfo> receivers) {
+        return emailReceiverRepository.saveAll(mapToEmailReceiverList(task, receivers));
     }
 
     @Transactional
