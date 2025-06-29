@@ -1,7 +1,6 @@
 package gdsc.konkuk.platformcore.application.email.dtos;
 
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
-import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
@@ -28,13 +27,6 @@ public class EmailReceiverInfo {
         this.name = name;
     }
 
-    public static EmailReceiver toValueObject(EmailReceiverInfo info) {
-        return EmailReceiver.builder()
-                .email(info.getEmail())
-                .name(info.getName())
-                .build();
-    }
-
     public static EmailReceiverInfo fromValueObject(EmailReceiver emailReceiver) {
         return EmailReceiverInfo.builder()
                 .email(emailReceiver.getEmail())
@@ -42,15 +34,15 @@ public class EmailReceiverInfo {
                 .build();
     }
 
-    public static Set<EmailReceiverInfo> fromValueObject(EmailReceivers emailReceivers) {
-        return emailReceivers.getReceivers()
+    public static Set<EmailReceiverInfo> fromValueObject(List<EmailReceiver> emailReceivers) {
+        return emailReceivers
                 .stream()
                 .map(EmailReceiverInfo::fromValueObject)
                 .collect(Collectors.toSet());
     }
 
-    public static List<EmailReceiverInfo> fromValueObjectList(EmailReceivers emailReceivers) {
-        return emailReceivers.getReceivers()
+    public static List<EmailReceiverInfo> fromValueObjectList(List<EmailReceiver> emailReceivers) {
+        return emailReceivers
                 .stream()
                 .map(EmailReceiverInfo::fromValueObject)
                 .toList();

@@ -2,35 +2,48 @@ package gdsc.konkuk.platformcore.application.email.mapper;
 
 import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskDetailResponse;
 import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskListResponse;
+import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskInfo;
 import gdsc.konkuk.platformcore.application.email.dtos.SimpleEmailTaskResponse;
 import gdsc.konkuk.platformcore.application.email.dtos.EmailReceiverInfo;
+import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import java.util.List;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Page;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EmailTaskMapper {
 
-    public static EmailTaskListResponse mapToEmailTaskPageResponse(Page<EmailTask> emailTasks) {
-        return mapToEmailTaskListResponse(emailTasks.getContent());
+    public static EmailTaskListResponse mapToEmailTaskListResponse(List<EmailTaskInfo> emailTaskDtoList) {
+        return new EmailTaskListResponse(
+            mapToSimpleEmailTaskResponseList(emailTaskDtoList)
+        );
     }
 
-    public static EmailTaskListResponse mapToEmailTaskListResponse(List<EmailTask> emailTasks) {
-        List<SimpleEmailTaskResponse> simpleEmailTaskResponses =
-            emailTasks.stream()
-                .map(SimpleEmailTaskResponse::from)
-                .toList();
-        return new EmailTaskListResponse(simpleEmailTaskResponses);
+    private static List<SimpleEmailTaskResponse> mapToSimpleEmailTaskResponseList(List<EmailTaskInfo> emailTaskDtoList) {
+        return emailTaskDtoList.stream()
+            .map(SimpleEmailTaskResponse::from)
+            .toList();
     }
 
-    public static EmailTaskDetailResponse mapToEmailTaskDetailsResponse(EmailTask emailTask) {
-
+    public static EmailTaskDetailResponse mapToEmailTaskDetailResponse(
+        EmailTaskInfo emailTaskInfo) {
         return new EmailTaskDetailResponse(
-            emailTask.getEmailDetail().getSubject(),
-            emailTask.getEmailDetail().getContent(),
-            EmailReceiverInfo.fromValueObjectList(emailTask.getEmailReceivers()),
-            emailTask.getSendAt());
+            emailTaskInfo.emailTask().getEmailDetail().getSubject(),
+            emailTaskInfo.emailTask().getEmailDetail().getContent(),
+            EmailReceiverInfo.fromValueObjectList(emailTaskInfo.emailReceivers()),
+            emailTaskInfo.emailTask().getSendAt()
+        );
+    }
+
+    public static List<EmailReceiver> mapToEmailReceiverList(EmailTask task, Set<EmailReceiverInfo> emailReceiverInfo) {
+        return emailReceiverInfo.stream()
+            .map(receiver -> EmailReceiver.builder()
+                .emailTaskId(task.getId())
+                .email(receiver.getEmail())
+                .name(receiver.getName())
+                .build())
+            .toList();
     }
 }
