@@ -1,18 +1,24 @@
 package gdsc.konkuk.platformcore.application.email;
 
+import static gdsc.konkuk.platformcore.application.email.mapper.EmailTaskMapper.mapToEmailReceiverList;
+
+import gdsc.konkuk.platformcore.application.email.dtos.EmailReceiverInfo;
 import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskUpsertCommand;
+import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskInfo;
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailAlreadyProcessedException;
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailErrorCode;
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailNotFoundException;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
+import gdsc.konkuk.platformcore.domain.email.repository.EmailReceiverRepository;
 import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -21,9 +27,26 @@ import org.springframework.transaction.annotation.Transactional;
 public class EmailService {
 
     private final EmailTaskRepository emailTaskRepository;
+    private final EmailReceiverRepository emailReceiverRepository;
 
-    public List<EmailTask> getAllTaskAsList() {
-        return emailTaskRepository.findAllByOrderBySendAtDesc();
+
+    //////////// --- Query Methods ---
+    public List<EmailTaskInfo> getAllTaskInfoAsList() {
+        List<EmailTask> tasks = emailTaskRepository.findAllByOrderBySendAtDesc();
+        List<Long> taskIds = tasks.stream().map(EmailTask::getId).toList();
+
+        List<EmailReceiver> receivers = emailReceiverRepository.findByEmailTaskIdIn(taskIds);
+        Map<Long, List<EmailReceiver>> receiversByTaskId = receivers.stream()
+            .collect(Collectors.groupingBy(EmailReceiver::getEmailTaskId));
+
+        return tasks.stream().map(task -> new EmailTaskInfo(task,
+            receiversByTaskId.getOrDefault(task.getId(), List.of()))).toList();
+    }
+
+    public EmailTaskInfo findByIdWithReceivers(Long taskId) {
+        EmailTask emailTask = findById(taskId);
+        List<EmailReceiver> receivers = emailReceiverRepository.findEmailReceiversByEmailTaskId(taskId);
+        return new EmailTaskInfo(emailTask, receivers);
     }
 
     public List<EmailTask> getTasksInIds(List<Long> emailIds) {
@@ -32,7 +55,7 @@ public class EmailService {
 
     public EmailTask findById(Long taskId) {
         return emailTaskRepository.findById(taskId)
-            .orElseThrow(() ->EmailNotFoundException.of(EmailErrorCode.EMAIL_NOT_FOUND));
+            .orElseThrow(() -> EmailNotFoundException.of(EmailErrorCode.EMAIL_NOT_FOUND));
     }
 
     public List<EmailTask> getAllTaskWhereNotSent() {
