@@ -2,6 +2,7 @@ package gdsc.konkuk.platformcore.application.email;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskInfo;
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailAlreadyProcessedException;
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailErrorCode;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
@@ -43,7 +44,7 @@ public class EmailTaskScheduler implements TaskScheduler {
         Runnable sendEmailTask =
                 () -> transactionTemplate.execute(status -> {
                     try {
-                        EmailTask sendingTask = emailService.findById(id);
+                        EmailTaskInfo sendingTask = emailService.findByIdWithReceivers(id);
                         emailClient.sendEmailToReceivers(sendingTask);
                         emailService.markAsCompleted(id);
                     } catch (Exception e) {
