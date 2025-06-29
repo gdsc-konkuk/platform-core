@@ -52,10 +52,8 @@ public class EmailService {
 
         task.changeEmailDetails(command.emailTaskDetail());
         task.changeSendAt(command.sendAt());
-
-        Set<EmailReceiver> newReceivers = command.emailReceivers().getReceivers();
-        Set<EmailReceiver> updatedReceivers = mergeReceivers(task, newReceivers);
-        task.changeEmailReceivers(updatedReceivers);
+        var newReceivers = new HashSet<>(mapToEmailReceiverList(task, command.emailReceiverInfos()));
+        mergeEmailReceivers(task, newReceivers);
         return task;
     }
 
@@ -76,20 +74,18 @@ public class EmailService {
         emailTaskRepository.deleteAllInBatch(emailTasks);
     }
 
+    private void mergeEmailReceivers(EmailTask task, Set<EmailReceiver> newReceivers) {
+        var oldReceivers = emailReceiverRepository.findEmailReceiversByEmailTaskId(task.getId());
+        // 지울 애들만 필터링
+        var receiversToDelete = oldReceivers.stream()
+            .filter(receiver -> !newReceivers.contains(receiver)).toList();
+        emailReceiverRepository.deleteAllInBatch(receiversToDelete);
+        emailReceiverRepository.saveAll(newReceivers);
+    }
+
     private void validateEmailTaskAlreadySent(EmailTask emailTask) {
         if (emailTask.isSent()) {
             throw EmailAlreadyProcessedException.of(EmailErrorCode.EMAIL_ALREADY_PROCESSED);
         }
-    }
-
-    private Set<EmailReceiver> mergeReceivers(EmailTask emailTask,
-            Set<EmailReceiver> updatedReceivers) {
-        List<EmailReceiver> receiversInPrevSet = emailTask.filterReceiversInPrevSet(
-                updatedReceivers);
-        List<EmailReceiver> receiversInNewSet = emailTask.filterReceiversNotInPrevSet(
-                updatedReceivers);
-        Set<EmailReceiver> mergedReceiver = new HashSet<>(receiversInPrevSet);
-        mergedReceiver.addAll(receiversInNewSet);
-        return mergedReceiver;
     }
 }
