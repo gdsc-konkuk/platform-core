@@ -21,13 +21,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gdsc.konkuk.platformcore.application.email.EmailTaskFacade;
 import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskListResponse;
 import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskUpsertCommand;
+import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskInfo;
 import gdsc.konkuk.platformcore.application.email.mapper.EmailTaskMapper;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
+import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.entity.MemberRole;
 import gdsc.konkuk.platformcore.filter.auth.JwtTokenProvider;
 import gdsc.konkuk.platformcore.util.annotation.RestDocsTest;
+import gdsc.konkuk.platformcore.util.fixture.email.EmailReceiverFixture;
 import gdsc.konkuk.platformcore.util.fixture.email.EmailSendRequestFixture;
 import gdsc.konkuk.platformcore.util.fixture.email.EmailTaskFixture;
 import gdsc.konkuk.platformcore.util.fixture.member.MemberFixture;
@@ -165,10 +168,15 @@ class EmailControllerTest {
         //given
         Member member = MemberFixture.builder().role(MemberRole.CORE).build().getFixture();
         String jwt = jwtTokenProvider.createToken(member);
-        EmailTaskListResponse response = EmailTaskMapper.mapToEmailTaskListResponse(List.of(
-                EmailTaskFixture.builder().id(1L).build().getFixture(),
-                EmailTaskFixture.builder().id(2L).build().getFixture()
-        ));
+        EmailTaskListResponse response = EmailTaskMapper.mapToEmailTaskListResponse(
+            List.of(
+                    new EmailTaskInfo(
+                        EmailTaskFixture.builder().id(1L).build().getFixture(),
+                        List.of(
+                            EmailReceiverFixture.builder().build().getFixture()
+                        )
+                    )
+            ));
         given(emailTaskFacade.getAllEmailTasks()).willReturn(response);
 
         //when
@@ -223,8 +231,15 @@ class EmailControllerTest {
         String jwt = jwtTokenProvider.createToken(member);
         EmailTask emailTaskToSee = EmailTaskFixture.builder()
                 .id(1L).build().getFixture();
+        List<EmailReceiver> emailReceiverList =
+            List.of(EmailReceiverFixture.builder().build().getFixture());
         given(emailTaskFacade.getEmailTaskDetails(any(Long.class)))
-            .willReturn(EmailTaskMapper.mapToEmailTaskDetailsResponse(emailTaskToSee));
+            .willReturn(EmailTaskMapper.mapToEmailTaskDetailResponse(
+                new EmailTaskInfo(
+                    emailTaskToSee,
+                    emailReceiverList
+                )
+            ));
 
         //when
         ResultActions result = mockMvc.perform(
