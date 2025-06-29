@@ -2,14 +2,13 @@ package gdsc.konkuk.platformcore.external.email;
 
 import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.EMAIL_RECEIVER_NAME_REGEXP;
 
+import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskInfo;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailDetail;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
-import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.external.email.exceptions.EmailClientErrorCode;
 import gdsc.konkuk.platformcore.external.email.exceptions.EmailSendingException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
@@ -25,9 +24,9 @@ public class EmailClient {
 
     private final JavaMailSender javaMailSender;
 
-    public void sendEmailToReceivers(EmailTask email) {
-        EmailDetail emailDetail = email.getEmailDetail();
-        Set<EmailReceiver> receivers = email.getEmailReceivers().getReceivers();
+    public void sendEmailToReceivers(EmailTaskInfo emailTaskInfo) {
+        var emailDetail = emailTaskInfo.emailTask().getEmailDetail();
+        var receivers = emailTaskInfo.emailReceivers();
         receivers.forEach(receiver -> sendEmail(receiver, emailDetail));
     }
 
