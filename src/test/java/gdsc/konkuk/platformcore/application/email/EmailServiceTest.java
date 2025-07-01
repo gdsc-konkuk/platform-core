@@ -24,7 +24,6 @@ import gdsc.konkuk.platformcore.util.fixture.email.EmailTaskFixture;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -114,13 +113,13 @@ class EmailServiceTest {
 
 
         given(emailTaskRepository.save(any(EmailTask.class)))
-                .willReturn(EmailTaskUpsertCommand.toEntity(command));
+                .willReturn(EmailTaskUpsertCommand.toTaskEntity(command));
         given(emailReceiverRepository.saveAll(any()))
                 .willReturn(List.of(EmailReceiverFixture.builder().build().getFixture()));
 
         // when
-        EmailTask expected = EmailTaskUpsertCommand.toEntity(command);
-        EmailTask actual = subject.registerTask(EmailTaskUpsertCommand.toEntity(command));
+        EmailTask expected = EmailTaskUpsertCommand.toTaskEntity(command);
+        EmailTask actual = subject.registerTask(EmailTaskUpsertCommand.toTaskEntity(command));
 
         // then
         assertEquals(expected.getEmailDetail(), actual.getEmailDetail());

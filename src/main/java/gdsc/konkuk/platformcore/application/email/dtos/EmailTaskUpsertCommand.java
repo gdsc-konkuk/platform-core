@@ -11,7 +11,7 @@ public record EmailTaskUpsertCommand(
     LocalDateTime sendAt
 ) {
 
-    public static EmailTask toEntity(EmailTaskUpsertCommand command) {
+    public static EmailTask toTaskEntity(EmailTaskUpsertCommand command) {
         return EmailTask.builder()
             .emailDetail(command.emailTaskDetail())
             .sendAt(command.sendAt())

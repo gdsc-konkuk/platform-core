@@ -34,7 +34,7 @@ public class EmailTaskFacade {
     }
 
     public Long register(final EmailTaskUpsertCommand command) {
-        EmailTask emailTask = EmailTaskUpsertCommand.toEntity(command);
+        EmailTask emailTask = EmailTaskUpsertCommand.toTaskEntity(command);
         emailService.registerTask(emailTask);
         emailService.registerReceivers(emailTask, command.emailReceiverInfos());
         emailTaskScheduler.scheduleSyncTask(emailTask, emailTask.getLastWaitingPeriodInSeconds());
