@@ -1,7 +1,5 @@
 package gdsc.konkuk.platformcore.application.email.dtos;
 
-import gdsc.konkuk.platformcore.domain.email.entity.EmailDetail;
-import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import java.time.LocalDateTime;
 import java.util.Set;
 import lombok.AccessLevel;
@@ -16,10 +14,11 @@ public record SimpleEmailTaskResponse (
         Boolean isSent
 ){
 
-    public static SimpleEmailTaskResponse from(EmailTask emailTask) {
-        EmailDetail emailDetail = emailTask.getEmailDetail();
+    public static SimpleEmailTaskResponse from(EmailTaskInfo emailTaskInfo) {
+        var emailTask = emailTaskInfo.emailTask();
+        var emailDetail = emailTaskInfo.emailTask().getEmailDetail();
         Set<EmailReceiverInfo> receiverInfos =
-                EmailReceiverInfo.fromValueObject(emailTask.getEmailReceivers());
+                EmailReceiverInfo.fromValueObject(emailTaskInfo.emailReceivers());
         return SimpleEmailTaskResponse.builder()
                 .id(emailTask.getId())
                 .subject(emailDetail.getSubject())

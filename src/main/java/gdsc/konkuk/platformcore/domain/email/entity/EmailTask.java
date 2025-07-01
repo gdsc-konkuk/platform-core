@@ -10,8 +10,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,9 +28,6 @@ public class EmailTask {
     @Embedded
     private EmailDetail emailDetail;
 
-    @Embedded
-    private EmailReceivers emailReceivers;
-
     @Column(name = "send_at")
     private LocalDateTime sendAt;
 
@@ -41,20 +36,14 @@ public class EmailTask {
 
     @Builder
     public EmailTask(
-            Long id, EmailDetail emailDetail, EmailReceivers receivers, LocalDateTime sendAt) {
+            Long id, EmailDetail emailDetail, LocalDateTime sendAt) {
         this.id = id;
         this.emailDetail = validateNotNull(emailDetail, "emailDetails");
-        this.emailReceivers = validateNotNull(receivers, "emailReceivers");
         this.sendAt = validateNotNull(sendAt, "sendAt");
     }
 
     public void changeEmailDetails(final EmailDetail newEmailDetail) {
         emailDetail = newEmailDetail;
-    }
-
-    public void changeEmailReceivers(final Set<EmailReceiver> set) {
-        emailReceivers.removeAll();
-        emailReceivers.insertAll(set);
     }
 
     public void changeSendAt(final LocalDateTime newSendAt) {
@@ -63,20 +52,6 @@ public class EmailTask {
 
     public void markAsSent() {
         isSent = true;
-    }
-
-    public List<EmailReceiver> filterReceiversInPrevSet(Set<EmailReceiver> set) {
-        return this.getEmailReceivers().getReceivers()
-                .stream()
-                .filter(set::contains)
-                .toList();
-    }
-
-    public List<EmailReceiver> filterReceiversNotInPrevSet(Set<EmailReceiver> set) {
-        return set
-                .stream()
-                .filter((e) -> !this.emailReceivers.getReceivers().contains(e))
-                .toList();
     }
 
     public Long getLastWaitingPeriodInSeconds() {

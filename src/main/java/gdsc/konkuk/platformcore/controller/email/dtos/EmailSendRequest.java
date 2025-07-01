@@ -3,13 +3,10 @@ package gdsc.konkuk.platformcore.controller.email.dtos;
 import gdsc.konkuk.platformcore.application.email.dtos.EmailReceiverInfo;
 import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskUpsertCommand;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailDetail;
-import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
-import gdsc.konkuk.platformcore.domain.email.entity.EmailReceivers;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,15 +39,9 @@ public class EmailSendRequest {
     public static EmailTaskUpsertCommand toCommand(EmailSendRequest request) {
         return new EmailTaskUpsertCommand(
                 new EmailDetail(request.getSubject(), request.getContent()),
-                new EmailReceivers(request.toEmailReceivers()),
+                request.getReceiverInfos(),
                 request.getSendAt()
         );
     }
 
-    private Set<EmailReceiver> toEmailReceivers() {
-        return receiverInfos
-                .stream()
-                .map(EmailReceiverInfo::toValueObject)
-                .collect(Collectors.toSet());
-    }
 }

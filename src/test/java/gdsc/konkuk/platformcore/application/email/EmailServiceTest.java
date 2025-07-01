@@ -9,12 +9,16 @@ import static org.mockito.BDDMockito.when;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.MockitoAnnotations.openMocks;
 
+import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskInfo;
 import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskUpsertCommand;
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailAlreadyProcessedException;
 import gdsc.konkuk.platformcore.application.email.exceptions.EmailNotFoundException;
 import gdsc.konkuk.platformcore.controller.email.dtos.EmailSendRequest;
+import gdsc.konkuk.platformcore.domain.email.entity.EmailReceiver;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
+import gdsc.konkuk.platformcore.domain.email.repository.EmailReceiverRepository;
 import gdsc.konkuk.platformcore.domain.email.repository.EmailTaskRepository;
+import gdsc.konkuk.platformcore.util.fixture.email.EmailReceiverFixture;
 import gdsc.konkuk.platformcore.util.fixture.email.EmailSendRequestFixture;
 import gdsc.konkuk.platformcore.util.fixture.email.EmailTaskFixture;
 import java.time.LocalDateTime;
@@ -30,34 +34,57 @@ class EmailServiceTest {
     @Mock
     private EmailTaskRepository emailTaskRepository;
 
+    @Mock
+    private EmailReceiverRepository emailReceiverRepository;
+
     private EmailService subject;
 
     @BeforeEach
     void setUp() {
         openMocks(this);
-        subject = new EmailService(emailTaskRepository);
+        subject = new EmailService(emailTaskRepository, emailReceiverRepository);
     }
 
     @Test
-    @DisplayName("getAllTaskAsList : 모든 이메일 전송 작업 목록 조회 성공")
-    void should_success_when_getAllTaskAsList() {
+    @DisplayName("getAllTaskInfoAsList : 모든 이메일 전송 작업 목록 조회 성공")
+    void should_success_when_getAllTaskInfoAsList() {
         // given
-        List<EmailTask> emailTaskListToFind = List.of(
-                EmailTaskFixture.builder().id(1L).build().getFixture(),
-                EmailTaskFixture.builder().id(2L).build().getFixture(),
-                EmailTaskFixture.builder().id(3L).build().getFixture()
+        EmailTask emailTask1 = EmailTaskFixture.builder()
+            .id(1L)
+            .build().getFixture();
+        EmailTask emailTask2 = EmailTaskFixture.builder()
+            .id(2L)
+            .build().getFixture();
+
+        List<EmailReceiver> emailReceiverList = List.of(
+            EmailReceiverFixture.builder()
+                .taskId(1L)
+                .email("ex1")
+                .build().getFixture(),
+            EmailReceiverFixture.builder()
+                .taskId(1L)
+                .email("ex2")
+                .build().getFixture(),
+            EmailReceiverFixture.builder()
+                .taskId(2L)
+                .email("ex3")
+                .build().getFixture()
         );
-        given(emailTaskRepository.findAllByOrderBySendAtDesc()).willReturn(emailTaskListToFind);
+
+        given(emailTaskRepository.findAllByOrderBySendAtDesc())
+            .willReturn(List.of(emailTask1, emailTask2));
+        given(emailReceiverRepository.findEmailReceiversByEmailTaskId(any()))
+            .willReturn(emailReceiverList);
 
         // when
-        List<EmailTask> actual = subject.getAllTaskAsList();
+        List<EmailTaskInfo> actual = subject.getAllTaskInfoAsList();
 
-        // then
-        assertEquals(emailTaskListToFind.size(), actual.size());
-        for (int i = 0; i < actual.size(); i++) {
-            assertEquals(emailTaskListToFind.get(i).getId(), actual.get(i).getId());
-        }
+        //then
+        assertEquals(2, actual.size());
+        assertEquals(emailTask1.getId(), actual.get(0).emailTask().getId());
+        assertEquals(emailTask2.getId(), actual.get(1).emailTask().getId());
     }
+
 
     @Test
     @DisplayName("getTaskDetails : 특정 이메일 전송 작업 조회 성공")
@@ -74,9 +101,6 @@ class EmailServiceTest {
         assertEquals(emailTaskToFind.getId(), actual.getId());
         assertEquals(emailTaskToFind.getEmailDetail().getSubject(),
                 actual.getEmailDetail().getSubject());
-        assertEquals(
-                emailTaskToFind.getEmailReceivers().getReceivers(),
-                actual.getEmailReceivers().getReceivers());
     }
 
     @Test
@@ -89,15 +113,16 @@ class EmailServiceTest {
 
 
         given(emailTaskRepository.save(any(EmailTask.class)))
-                .willReturn(EmailTaskUpsertCommand.toEntity(command));
+                .willReturn(EmailTaskUpsertCommand.toTaskEntity(command));
+        given(emailReceiverRepository.saveAll(any()))
+                .willReturn(List.of(EmailReceiverFixture.builder().build().getFixture()));
 
         // when
-        EmailTask expected = EmailTaskUpsertCommand.toEntity(command);
-        EmailTask actual = subject.registerTask(EmailTaskUpsertCommand.toEntity(command));
+        EmailTask expected = EmailTaskUpsertCommand.toTaskEntity(command);
+        EmailTask actual = subject.registerTask(EmailTaskUpsertCommand.toTaskEntity(command));
 
         // then
         assertEquals(expected.getEmailDetail(), actual.getEmailDetail());
-        assertEquals(expected.getEmailReceivers(), actual.getEmailReceivers());
     }
 
     @Test
@@ -111,12 +136,10 @@ class EmailServiceTest {
                 .willReturn(Optional.of(emailTaskToUpdate));
 
         // when
-        EmailTask expected = emailTaskToUpdate;
         EmailTask actual = subject.update(emailTaskToUpdate.getId(), EmailSendRequest.toCommand(emailUpdateRequest));
 
         // then
-        assertEquals(expected.getEmailDetail(), actual.getEmailDetail());
-        assertEquals(expected.getEmailReceivers(), actual.getEmailReceivers());
+        assertEquals(emailTaskToUpdate.getEmailDetail(), actual.getEmailDetail());
     }
 
     @Test

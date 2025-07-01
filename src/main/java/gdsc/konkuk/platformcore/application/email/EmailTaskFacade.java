@@ -3,6 +3,7 @@ package gdsc.konkuk.platformcore.application.email;
 import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskDetailResponse;
 import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskListResponse;
 import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskUpsertCommand;
+import gdsc.konkuk.platformcore.application.email.dtos.EmailTaskInfo;
 import gdsc.konkuk.platformcore.application.email.mapper.EmailTaskMapper;
 import gdsc.konkuk.platformcore.domain.email.entity.EmailTask;
 import gdsc.konkuk.platformcore.global.scheduler.TaskScheduler;
@@ -15,28 +16,33 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class EmailTaskFacade {
 
     private final EmailService emailService;
     private final TaskScheduler emailTaskScheduler;
 
+    @Transactional(readOnly = true)
     public EmailTaskListResponse getAllEmailTasks() {
-        List<EmailTask> emailTasks = emailService.getAllTaskAsList();
-        return EmailTaskMapper.mapToEmailTaskListResponse(emailTasks);
+        List<EmailTaskInfo> emailTaskWithReceivers = emailService.getAllTaskInfoAsList();
+        return EmailTaskMapper.mapToEmailTaskListResponse(emailTaskWithReceivers);
     }
 
+    @Transactional(readOnly = true)
     public EmailTaskDetailResponse getEmailTaskDetails(final Long taskId) {
-        return EmailTaskMapper.mapToEmailTaskDetailsResponse(emailService.findById(taskId));
+        EmailTaskInfo emailTaskInfo = emailService.findByIdWithReceivers(taskId);
+        return EmailTaskMapper.mapToEmailTaskDetailResponse(emailTaskInfo);
     }
 
+    @Transactional
     public Long register(final EmailTaskUpsertCommand command) {
-        EmailTask emailTask = EmailTaskUpsertCommand.toEntity(command);
+        EmailTask emailTask = EmailTaskUpsertCommand.toTaskEntity(command);
         emailService.registerTask(emailTask);
+        emailService.registerReceivers(emailTask, command.emailReceiverInfos());
         emailTaskScheduler.scheduleSyncTask(emailTask, emailTask.getLastWaitingPeriodInSeconds());
         return emailTask.getId();
     }
 
+    @Transactional
     public void update(final Long emailId, final EmailTaskUpsertCommand command) {
         emailTaskScheduler.cancelTask(String.valueOf(emailId));
         EmailTask updatedTask = emailService.update(emailId, command);
@@ -44,12 +50,14 @@ public class EmailTaskFacade {
             updatedTask.getLastWaitingPeriodInSeconds());
     }
 
+    @Transactional
     public void cancel(final Long emailId) {
         EmailTask savedTask = emailService.findById(emailId);
         cancelIfTaskNotProcessed(savedTask);
         emailService.delete(emailId);
     }
 
+    @Transactional
     public void cancelAll(final List<Long> emailIds) {
         List<EmailTask> taskList = emailService.getTasksInIds(emailIds);
         cancelUnProcessedTasks(taskList);
@@ -68,4 +76,6 @@ public class EmailTaskFacade {
             cancelIfTaskNotProcessed(task);
         }
     }
+
+
 }
