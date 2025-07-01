@@ -66,18 +66,6 @@ public class EmailReceiver {
         }
     }
 
-    public void markAsPending() {
-        changeStatus(EmailSendStatus.PENDING);
-    }
-
-    public void markAsCompleted() {
-        changeStatus(EmailSendStatus.COMPLETED);
-    }
-
-    public void markAsFailed(String reason) {
-        changeStatus(EmailSendStatus.FAILED);
-    }
-
     public boolean isPendingTimeout(int timeoutMinutes) {
         return this.sendStatus == EmailSendStatus.PENDING &&
             this.statusUpdatedAt != null &&
