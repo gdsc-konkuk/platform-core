@@ -33,6 +33,7 @@ public class EmailTaskFacade {
         return EmailTaskMapper.mapToEmailTaskDetailResponse(emailTaskInfo);
     }
 
+    @Transactional
     public Long register(final EmailTaskUpsertCommand command) {
         EmailTask emailTask = EmailTaskUpsertCommand.toTaskEntity(command);
         emailService.registerTask(emailTask);
