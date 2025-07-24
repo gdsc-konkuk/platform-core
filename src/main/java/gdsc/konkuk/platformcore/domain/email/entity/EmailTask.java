@@ -2,7 +2,9 @@ package gdsc.konkuk.platformcore.domain.email.entity;
 
 import static gdsc.konkuk.platformcore.global.utils.FieldValidator.validateNotNull;
 
+import gdsc.konkuk.platformcore.global.utils.BooleanToIntegerConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -32,7 +34,8 @@ public class EmailTask {
     private LocalDateTime sendAt;
 
     @Column(name = "is_sent")
-    private boolean isSent = false;
+    @Convert(converter = BooleanToIntegerConverter.class)
+    private Boolean isSent = false;
 
     @Builder
     public EmailTask(
@@ -56,5 +59,9 @@ public class EmailTask {
 
     public Long getLastWaitingPeriodInSeconds() {
         return ChronoUnit.SECONDS.between(LocalDateTime.now(), this.sendAt);
+    }
+
+    public Boolean isSent() {
+        return isSent;
     }
 }
