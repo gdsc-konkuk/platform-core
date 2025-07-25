@@ -46,9 +46,9 @@ dependencies {
 
     // Database
     runtimeOnly 'com.h2database:h2:2.2.224'
-	implementation 'com.oracle.database.security:oraclepki:21.1.0.0'
-	implementation 'com.oracle.database.security:osdt_core:21.1.0.0'
-	implementation 'com.oracle.database.security:osdt_cert:21.1.0.0'
+    implementation 'com.oracle.database.security:oraclepki:21.1.0.0'
+    implementation 'com.oracle.database.security:osdt_core:21.1.0.0'
+    implementation 'com.oracle.database.security:osdt_cert:21.1.0.0'
     implementation 'com.oracle.database.jdbc:ojdbc11:21.9.0.0'
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.1'
 
