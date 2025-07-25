@@ -23,7 +23,7 @@ import org.hibernate.annotations.SQLRestriction;
 import gdsc.konkuk.platformcore.global.utils.BooleanToIntegerConverter;
 
 @Entity
-@SQLRestriction("is_deleted = false")
+@SQLRestriction("is_deleted = 0")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member {
