@@ -12,9 +12,6 @@ services:
     networks:
       - frontend
       - backend
-    depends_on:
-      mysql:
-        condition: service_healthy
     environment:
       ORACLE_URL: ${ORACLE_URL}
       ORACLE_USERNAME: ${ORACLE_USERNAME}
