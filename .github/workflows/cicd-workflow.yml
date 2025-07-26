@@ -1,0 +1,68 @@
+name: CI-CD to GHCR
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Build with Gradle (skip tests)
+      run: ./gradlew build -x test
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      with:
+        install: true
+        driver: docker-container
+
+    - name: Build and Push Docker Image to GHCR
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ghcr.io/chabinhwang/platform-core:latest
+
+    - name: Build and Push Images using docker-compose
+      run: |
+        docker compose build
+        docker compose push
+
+
+    # SSH로 접속해서 docker compose 실행
+    - name: Deploy via SSH to remote server
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.REMOTE_HOST }}
+        username: ${{ secrets.REMOTE_USER }}
+        key: ${{ secrets.REMOTE_KEY }}
+        script: |
+          cd /home/ubuntu/platform
+
+          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u chabinhwang --password-stdin
+
+          docker compose pull
+
+          ORACLE_URL=${{ secrets.ORACLE_URL }} \
+          ORACLE_USERNAME=${{ secrets.ORACLE_USERNAME }} \
+          ORACLE_PASSWORD=${{ secrets.ORACLE_PASSWORD }} \
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
+          JWT_SECRET=${{ secrets.JWT_SECRET }} \
+          JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }} \
+          TZ=Asia/Seoul \
+          docker compose up -d
