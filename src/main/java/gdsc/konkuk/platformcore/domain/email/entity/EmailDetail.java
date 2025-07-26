@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import jakarta.persistence.Lob;
 
 @Embeddable
 @Getter
@@ -18,7 +19,8 @@ public class EmailDetail {
     @Column(name = "email_subject")
     private String subject;
 
-    @Column(name = "email_content", columnDefinition = "TEXT")
+    @Lob
+    @Column(name = "email_content", columnDefinition = "CLOB")
     private String content;
 
     @Builder

@@ -7,6 +7,7 @@ import gdsc.konkuk.platformcore.application.member.dtos.MemberUpdateCommand;
 import gdsc.konkuk.platformcore.application.member.exceptions.MemberErrorCode;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyDeletedException;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -19,9 +20,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
+import gdsc.konkuk.platformcore.global.utils.BooleanToIntegerConverter;
 
 @Entity
-@SQLRestriction("is_deleted = false")
+@SQLRestriction("is_deleted = 0")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member {
@@ -43,7 +45,12 @@ public class Member {
     private String department;
 
     @Column(name = "is_deleted")
-    private boolean isDeleted = false;
+    @Convert(converter = BooleanToIntegerConverter.class)
+    private Boolean isDeleted = false;
+
+    @Column(name = "is_activated")
+    @Convert(converter = BooleanToIntegerConverter.class)
+    private Boolean isActivated = true;
 
     @Column(name = "soft_deleted_at")
     private LocalDateTime softDeletedAt;
