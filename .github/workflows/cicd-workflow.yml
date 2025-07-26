@@ -68,9 +68,16 @@ jobs:
           export ORACLE_PASSWORD=${{ secrets.ORACLE_PASSWORD }}
           export GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
           export GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+          export GMAIL_USERNAME=${{ secrets.GMAIL_USERNAME }}
+          export GMAIL_APP_PASSWORD=${{ secrets.GMAIL_APP_PASSWORD }}
+          export DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}
           export JWT_SECRET=${{ secrets.JWT_SECRET }}
           export JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }}
+          export GMAIL_USERNAME=${{ secrets.GMAIL_USERNAME }}
+          export GMAIL_APP_PASSWORD=${{ secrets.GMAIL_APP_PASSWORD }}
+          export DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}
           export TZ=Asia/Seoul
           
           docker compose pull
           docker compose up -d
+
