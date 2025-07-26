@@ -59,17 +59,18 @@ jobs:
         key: ${{ secrets.REMOTE_KEY }}
         script: |
           cd /home/ubuntu/platform
-
+          
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u chabinhwang --password-stdin
-
+          
+          # 한 번에 환경 변수 등록
+          export ORACLE_URL=${{ secrets.ORACLE_URL }}
+          export ORACLE_USERNAME=${{ secrets.ORACLE_USERNAME }}
+          export ORACLE_PASSWORD=${{ secrets.ORACLE_PASSWORD }}
+          export GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          export GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+          export JWT_SECRET=${{ secrets.JWT_SECRET }}
+          export JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }}
+          export TZ=Asia/Seoul
+          
           docker compose pull
-
-          ORACLE_URL=${{ secrets.ORACLE_URL }} \
-          ORACLE_USERNAME=${{ secrets.ORACLE_USERNAME }} \
-          ORACLE_PASSWORD=${{ secrets.ORACLE_PASSWORD }} \
-          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
-          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-          JWT_SECRET=${{ secrets.JWT_SECRET }} \
-          JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }} \
-          TZ=Asia/Seoul \
           docker compose up -d
