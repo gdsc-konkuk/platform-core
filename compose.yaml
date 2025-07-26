@@ -1,48 +1,14 @@
 services:
-  mysql:
-    image: mysql:8.0
-    restart: always
-    container_name: mysql
-    logging:
-      driver: awslogs
-      options:
-        awslogs-region: ${AWS_REGION}
-        awslogs-group: ${AWS_LOG_GROUP}
-        awslogs-stream: mysql
-    networks:
-      - backend
-    volumes:
-      - mysql-data:/var/lib/mysql:rw
-      - ./sql/:/docker-entrypoint-initdb.d/:ro
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      TZ: Asia/Seoul
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-      - --skip-character-set-client-handshake
-    healthcheck:
-      test: mysqladmin ping --host=mysql --user=${MYSQL_USER} --password=${MYSQL_PASSWORD} || exit 1
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 3m
-      start_interval: 5s
-
   spring:
-    image: goldentrash/gdsc-internal:latest
+    image: ghcr.io/chabinhwang/platform-core:latest
     container_name: spring-app
     restart: always
     logging:
-      driver: awslogs
+      driver: json-file
       options:
-        awslogs-region: ${AWS_REGION}
-        awslogs-group: ${AWS_LOG_GROUP}
-        awslogs-stream: spring
-        awslogs-datetime-format: "^%Y-%m-%dT%H:%M:%S"
+        max-size: "10m"
+        max-file: "5"
+        tag: "{{.Name}}"
     networks:
       - frontend
       - backend
@@ -50,9 +16,9 @@ services:
       mysql:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      ORACLE_URL: ${ORACLE_URL}
+      ORACLE_USERNAME: ${ORACLE_USERNAME}
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       GMAIL_USERNAME: ${GMAIL_USERNAME}
@@ -74,11 +40,11 @@ services:
     container_name: nginx
     restart: always
     logging:
-      driver: awslogs
+      driver: json-file
       options:
-        awslogs-region: ${AWS_REGION}
-        awslogs-group: ${AWS_LOG_GROUP}
-        awslogs-stream: nginx
+        max-size: "10m"
+        max-file: "5"
+        tag: "{{.Name}}"
     ports:
       - "0.0.0.0:80:80/tcp"
       - "0.0.0.0:443:443/tcp"
@@ -106,12 +72,11 @@ services:
     container_name: certbot
     restart: always
     logging:
-      driver: awslogs
+      driver: json-file
       options:
-        awslogs-region: ${AWS_REGION}
-        awslogs-group: ${AWS_LOG_GROUP}
-        awslogs-stream: certbot
-        awslogs-multiline-pattern: "^Saving debug log to"
+        max-size: "10m"
+        max-file: "5"
+        tag: "{{.Name}}"
     depends_on:
       nginx:
         condition: service_healthy
@@ -127,12 +92,11 @@ services:
     container_name: autoheal
     restart: always
     logging:
-      driver: awslogs
+      driver: json-file
       options:
-        awslogs-region: ${AWS_REGION}
-        awslogs-group: ${AWS_LOG_GROUP}
-        awslogs-stream: autoheal
-        awslogs-multiline-pattern: "^AUTOHEAL_CONTAINER_LABEL"
+        max-size: "10m"
+        max-file: "5"
+        tag: "{{.Name}}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
