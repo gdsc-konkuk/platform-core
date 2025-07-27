@@ -53,8 +53,8 @@ services:
       spring:
         condition: service_healthy
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./certbot/data/:/var/www/certbot/:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot/data/:/var/www/certbot:ro
       - ./certbot/conf/:/etc/letsencrypt/:ro
     environment:
       TZ: Asia/Seoul
@@ -80,7 +80,7 @@ services:
       nginx:
         condition: service_healthy
     volumes:
-      - ./certbot/data:/var/www/certbot/:rw
+      - ./certbot/data:/var/www/certbot:rw
       - ./certbot/conf:/etc/letsencrypt/:rw
     # If your nginx server has not yet been issued an SSL certificate,
     # First, make test file in ./certbot/data/.well-known/acme-challenge/
