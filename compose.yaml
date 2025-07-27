@@ -2,7 +2,7 @@ services:
   spring:
     image: ghcr.io/chabinhwang/platform-core:latest
     volumes:
-      - ${ORACLE_WALLET_PATH}:/app/wallet
+      - ${ORACLE_WALLET_PATH:-/tmp/wallet}:/app/wallet
     container_name: spring
     restart: always
     logging:
