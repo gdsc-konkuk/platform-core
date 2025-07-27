@@ -1,7 +1,9 @@
 services:
   spring:
     image: ghcr.io/chabinhwang/platform-core:latest
-    container_name: spring-app
+    volumes:
+      - ${ORACLE_WALLET_PATH}:/app/wallet
+    container_name: spring
     restart: always
     logging:
       driver: json-file
