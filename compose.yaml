@@ -1,7 +1,9 @@
 services:
   spring:
     image: ghcr.io/chabinhwang/platform-core:latest
-    container_name: spring-app
+    volumes:
+      - ${ORACLE_WALLET_PATH}:/app/wallet
+    container_name: spring
     restart: always
     logging:
       driver: json-file
@@ -51,8 +53,8 @@ services:
       spring:
         condition: service_healthy
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./certbot/data/:/var/www/certbot/:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot/data/:/var/www/certbot:ro
       - ./certbot/conf/:/etc/letsencrypt/:ro
     environment:
       TZ: Asia/Seoul
@@ -78,10 +80,13 @@ services:
       nginx:
         condition: service_healthy
     volumes:
-      - ./certbot/data:/var/www/certbot/:rw
+      - ./certbot/data:/var/www/certbot:rw
       - ./certbot/conf:/etc/letsencrypt/:rw
-    # If your nginx server has not yet been issued an SSL certificate, run the command below
-    # docker compose run --rm certbot certonly --webroot --webroot-path /var/www/certbot/ -d api.gdsc-konkuk.dev
+    # If your nginx server has not yet been issued an SSL certificate,
+    # First, make test file in ./certbot/data/.well-known/acme-challenge/
+    # example: echo "test" > ./certbot/data/.well-known/acme-challenge/test
+    # Second, run the command below
+    # docker compose run --rm --entrypoint "" certbot certbot certonly --webroot --webroot-path /var/www/certbot -d {your_domain} --email {your_email} --agree-tos --non-interactive
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12d & wait $${!}; done;'"
 
   autoheal:
