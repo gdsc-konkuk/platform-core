@@ -80,8 +80,11 @@ services:
     volumes:
       - ./certbot/data:/var/www/certbot/:rw
       - ./certbot/conf:/etc/letsencrypt/:rw
-    # If your nginx server has not yet been issued an SSL certificate, run the command below
-    # docker compose run --rm certbot certonly --webroot --webroot-path /var/www/certbot/ -d api.gdsc-konkuk.dev
+    # If your nginx server has not yet been issued an SSL certificate,
+    # First, make test file in ./certbot/data/.well-known/acme-challenge/
+    # example: echo "test" > ./certbot/data/.well-known/acme-challenge/test
+    # Second, run the command below
+    # docker compose run --rm --entrypoint "" certbot certbot certonly --webroot --webroot-path /var/www/certbot -d {your_domain} --email {your_email} --agree-tos --non-interactive
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12d & wait $${!}; done;'"
 
   autoheal:
