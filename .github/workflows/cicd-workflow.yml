@@ -57,6 +57,7 @@ jobs:
         key: ${{ secrets.REMOTE_KEY }}
         source: "./nginx.conf"
         target: "/home/ubuntu/platform/nginx/"
+        overwrite: true
 
     - name: Copy compose.yaml to remote platform directory
       uses: appleboy/scp-action@v0.1.7
@@ -66,6 +67,7 @@ jobs:
         key: ${{ secrets.REMOTE_KEY }}
         source: "./compose.yaml"
         target: "/home/ubuntu/platform/"
+        overwrite: true
 
     # SSH로 접속해서 docker compose 실행
     - name: Deploy via SSH to remote server
