@@ -32,7 +32,7 @@ jobs:
       uses: docker/login-action@v3
       with:
         registry: ghcr.io
-        username: chabinhwang
+        username: ${{ github.repository_owner }}
         password: ${{ secrets.GHCR_TOKEN }}
 
     - name: Build and Push Docker Image to GHCR
@@ -42,12 +42,7 @@ jobs:
         file: ./Dockerfile
         platforms: linux/amd64,linux/arm64
         push: true
-        tags: ghcr.io/chabinhwang/platform-core:latest
-
-    - name: Build and Push Images using docker-compose
-      run: |
-        docker compose build
-        docker compose push
+        tags: ghcr.io/${{ github.repository_owner }}/platform-core:latest
 
     - name: Copy nginx.conf to remote nginx directory
       uses: appleboy/scp-action@v0.1.7
@@ -79,7 +74,7 @@ jobs:
         script: |
           cd /home/ubuntu/platform
           
-          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u chabinhwang --password-stdin
+          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
           
           export ORACLE_WALLET_PATH=${{ secrets.ORACLE_WALLET_PATH }}
           export ORACLE_URL=${{ secrets.ORACLE_URL }}
@@ -92,8 +87,6 @@ jobs:
           export DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}
           export JWT_SECRET=${{ secrets.JWT_SECRET }}
           export JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }}
-          export GMAIL_USERNAME=${{ secrets.GMAIL_USERNAME }}
-          export GMAIL_APP_PASSWORD=${{ secrets.GMAIL_APP_PASSWORD }}
           export DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}
           export TZ=Asia/Seoul
           
