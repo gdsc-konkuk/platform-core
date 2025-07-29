@@ -44,11 +44,6 @@ jobs:
         push: true
         tags: ghcr.io/${{ github.repository_owner }}/platform-core:latest
 
-    - name: Build and Push Images using docker-compose
-      run: |
-        docker compose build
-        docker compose push
-
     - name: Copy nginx.conf to remote nginx directory
       uses: appleboy/scp-action@v0.1.7
       with:
@@ -92,8 +87,6 @@ jobs:
           export DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}
           export JWT_SECRET=${{ secrets.JWT_SECRET }}
           export JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }}
-          export GMAIL_USERNAME=${{ secrets.GMAIL_USERNAME }}
-          export GMAIL_APP_PASSWORD=${{ secrets.GMAIL_APP_PASSWORD }}
           export DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}
           export TZ=Asia/Seoul
           
