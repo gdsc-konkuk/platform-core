@@ -42,7 +42,7 @@ jobs:
         file: ./Dockerfile
         platforms: linux/amd64,linux/arm64
         push: true
-        tags: ghcr.io/chabinhwang/platform-core:latest
+        tags: ghcr.io/${{ github.repository_owner }}/platform-core:latest
 
     - name: Build and Push Images using docker-compose
       run: |
