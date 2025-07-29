@@ -1,6 +1,7 @@
 services:
   spring:
-    image: ghcr.io/chabinhwang/platform-core:latest
+  # If the organization name is changed, update the following to ghcr.io/{new_organization_name}/platform-core.
+    image: ghcr.io/gdsc-konkuk/platform-core:latest
     volumes:
       - ${ORACLE_WALLET_PATH:-/tmp/wallet}:/app/wallet
     container_name: spring
