@@ -7,7 +7,9 @@ public class PlatformConstants {
     public static final List<String> allowedOrigins = List.of(
             "http://localhost:5173", "https://stage.gdsc-konkuk.dev",
             "https://gdsc-konkuk.dev", "https://admin.gdsc-konkuk.dev",
-            "https://member.gdsc-konkuk.dev", "https://landing.gdsc-konkuk.dev");
+            "https://member.gdsc-konkuk.dev", "https://landing.gdsc-konkuk.dev",
+            "https://gdgoc-konkuk.com", "https://admin.gdgoc-konkuk.com",
+            "https://stage.gdgoc-konkuk.com");
 
     public static final Integer SOFT_DELETE_RETENTION_MONTHS = 3;
     public static final String EMAIL_RECEIVER_NAME_REGEXP = "\\{이름}";

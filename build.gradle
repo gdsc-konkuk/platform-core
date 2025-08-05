@@ -121,6 +121,8 @@ openapi3 {
     servers = [
             { url = 'https://api.gdsc-konkuk.dev' },
             { url = 'https://stage.gdsc-konkuk.dev' },
+            { url = 'https://api.gdgoc-konkuk.com' },
+            { url = 'https://stage.gdgoc-konkuk.com' },
             { url = 'http://localhost:8080' },
     ]
     title = 'Post Service API'
