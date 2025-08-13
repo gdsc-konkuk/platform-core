@@ -1,11 +1,10 @@
 package gdsc.konkuk.platformcore.filter.auth;
 
-import static gdsc.konkuk.platformcore.global.consts.SPAConstants.SPA_ADMIN_LOGIN_REDIRECT_URL;
-
 import gdsc.konkuk.platformcore.application.member.exceptions.MemberErrorCode;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserNotFoundException;
 import gdsc.konkuk.platformcore.domain.member.entity.Member;
 import gdsc.konkuk.platformcore.domain.member.repository.MemberRepository;
+import gdsc.konkuk.platformcore.global.consts.SPAConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -23,6 +22,7 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberRepository memberRepository;
+    private final SPAConstants spaConstants;
 
     @Override
     public void onAuthenticationSuccess(
@@ -39,6 +39,6 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
         // TODO: Admin이 아닌 여러 클라이언트를 사용하게 될 경우, authorization code를 통한 POST 로그인으로 변경 필요
-        response.sendRedirect(SPA_ADMIN_LOGIN_REDIRECT_URL + "#" + token);
+        response.sendRedirect( spaConstants.getSpaAttendanceSuccessRedirectUrl()+ "#" + token);
     }
 }

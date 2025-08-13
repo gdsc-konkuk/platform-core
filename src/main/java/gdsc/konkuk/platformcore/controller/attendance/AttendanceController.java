@@ -1,8 +1,6 @@
 package gdsc.konkuk.platformcore.controller.attendance;
 
 import static gdsc.konkuk.platformcore.global.consts.PlatformConstants.apiPath;
-import static gdsc.konkuk.platformcore.global.consts.SPAConstants.SPA_ADMIN_ATTENDANCE_FAIL_REDIRECT_URL;
-import static gdsc.konkuk.platformcore.global.consts.SPAConstants.SPA_ADMIN_ATTENDANCE_SUCCESS_REDIRECT_URL;
 import static org.springframework.http.HttpStatusCode.valueOf;
 
 import gdsc.konkuk.platformcore.application.attendance.AttendanceService;
@@ -13,6 +11,7 @@ import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceInfo;
 import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceRegisterRequest;
 import gdsc.konkuk.platformcore.controller.attendance.dtos.AttendanceResponse;
 import gdsc.konkuk.platformcore.domain.attendance.entity.Attendance;
+import gdsc.konkuk.platformcore.global.consts.SPAConstants;
 import gdsc.konkuk.platformcore.global.responses.SuccessResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import java.net.URI;
@@ -42,6 +41,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class AttendanceController {
 
     private final AttendanceService attendanceService;
+    private final SPAConstants spaConstants;
 
     @GetMapping
     public ResponseEntity<SuccessResponse> getEventsOfTheMonthWithAttendance(
@@ -61,7 +61,7 @@ public class AttendanceController {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setCacheControl(CacheControl.noStore());
-            headers.add("Location", SPA_ADMIN_ATTENDANCE_SUCCESS_REDIRECT_URL);
+            headers.add("Location", spaConstants.getSpaAttendanceSuccessRedirectUrl());
 
             return new ResponseEntity<>(headers,
                     valueOf(HttpServletResponse.SC_TEMPORARY_REDIRECT));
@@ -70,7 +70,7 @@ public class AttendanceController {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setCacheControl(CacheControl.noStore());
-            headers.add("Location", SPA_ADMIN_ATTENDANCE_FAIL_REDIRECT_URL);
+            headers.add("Location", spaConstants.getSpaAttendanceFailRedirectUrl());
             
             return new ResponseEntity<>(headers,
                     valueOf(HttpServletResponse.SC_TEMPORARY_REDIRECT));

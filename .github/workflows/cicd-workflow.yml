@@ -88,8 +88,9 @@ jobs:
           export JWT_SECRET=${{ secrets.JWT_SECRET }}
           export JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }}
           export DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}
+          export ADMIN_DOMAIN=${{ secrets.ADMIN_DOMAIN }}
           export TZ=Asia/Seoul
           
           docker compose pull
           docker compose up -d
-
+          

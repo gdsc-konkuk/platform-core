@@ -48,3 +48,6 @@ jwt:
 discord:
   webhook:
     url: ${DISCORD_WEBHOOK_URL}
+
+domain:
+  admin: ${ADMIN_DOMAIN}
