@@ -1,15 +1,22 @@
 package gdsc.konkuk.platformcore.global.consts;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.Arrays;
 import java.util.List;
 
+@Configuration
+@ConfigurationProperties(prefix = "cors")
 public class PlatformConstants {
 
-    public static final List<String> allowedOrigins = List.of(
-            "http://localhost:5173", "https://stage.gdsc-konkuk.dev",
-            "https://gdsc-konkuk.dev", "https://admin.gdsc-konkuk.dev",
-            "https://member.gdsc-konkuk.dev", "https://landing.gdsc-konkuk.dev",
-            "https://gdgoc-konkuk.com", "https://admin.gdgoc-konkuk.com",
-            "https://stage.gdgoc-konkuk.com");
+    private String allowedOrigins;
+
+    public List<String> getAllowedOriginsList() {
+        return Arrays.stream(allowedOrigins.split(","))
+                     .map(String::trim)
+                     .toList();
+    }
 
     public static final Integer SOFT_DELETE_RETENTION_MONTHS = 3;
     public static final String EMAIL_RECEIVER_NAME_REGEXP = "\\{이름}";
