@@ -48,3 +48,9 @@ jwt:
 discord:
   webhook:
     url: ${DISCORD_WEBHOOK_URL}
+
+domain:
+  admin: ${ADMIN_DOMAIN}
+
+cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
