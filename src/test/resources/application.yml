@@ -15,6 +15,10 @@ spring:
           google:
             client-id: test
             client-secret: test
+    database:
+      encryption:
+        key: jSDVycehaeUpcDW/gCgfqJbYAdQhMPT9OyaHZClrsHIMampWe4qtEkFquKC9jCM6jKq+72UYg41lr0Ucl99KUg==
+        # 테스트용 키
   mail:
     host: localhost
     port: 1025

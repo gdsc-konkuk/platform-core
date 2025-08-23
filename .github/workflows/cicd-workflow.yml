@@ -90,6 +90,7 @@ jobs:
           export DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}
           export ADMIN_DOMAIN=${{ secrets.ADMIN_DOMAIN }}
           export CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
+          export ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}
           export TZ=Asia/Seoul
           
           docker compose pull

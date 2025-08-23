@@ -6,6 +6,7 @@ import static gdsc.konkuk.platformcore.global.utils.FieldValidator.validateNotNu
 import gdsc.konkuk.platformcore.application.member.dtos.MemberUpdateCommand;
 import gdsc.konkuk.platformcore.application.member.exceptions.MemberErrorCode;
 import gdsc.konkuk.platformcore.application.member.exceptions.UserAlreadyDeletedException;
+import gdsc.konkuk.platformcore.global.utils.AesSivConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -33,15 +34,19 @@ public class Member {
     private Long id;
 
     @Column(name = "student_id", unique = true)
+    @Convert(converter = AesSivConverter.class)
     private String studentId;
 
     @Column(name = "member_name")
+    @Convert(converter = AesSivConverter.class)
     private String name;
 
     @Column(name = "member_email")
+    @Convert(converter = AesSivConverter.class)
     private String email;
 
     @Column(name = "department")
+    @Convert(converter = AesSivConverter.class)
     private String department;
 
     @Column(name = "is_deleted")

@@ -28,6 +28,7 @@ services:
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       ADMIN_DOMAIN: ${ADMIN_DOMAIN}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
       TZ: Asia/Seoul
     healthcheck:
       test: curl --fail --silent --show-error http://spring:8080/actuator/health || exit 1
