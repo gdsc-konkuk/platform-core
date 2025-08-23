@@ -2,13 +2,9 @@ package gdsc.konkuk.platformcore.domain.email.entity;
 
 import static gdsc.konkuk.platformcore.global.utils.FieldValidator.validateNotNull;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import gdsc.konkuk.platformcore.global.utils.AesSivConverter;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -29,9 +25,11 @@ public class EmailReceiver {
     private Long emailTaskId;
 
     @Column(name = "receiver_email")
+    @Convert(converter = AesSivConverter.class)
     private String email;
 
     @Column(name = "receiver_name")
+    @Convert(converter = AesSivConverter.class)
     private String name;
 
     @Enumerated(EnumType.STRING)
